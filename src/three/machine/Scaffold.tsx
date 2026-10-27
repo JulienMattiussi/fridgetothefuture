@@ -47,12 +47,7 @@ const posts: [Vec3, Vec3][] = [
 const RUNG_YS = Array.from({ length: 7 }, (_, i) => 0.35 + i * 0.27)
 
 const rails: [Vec3, Vec3][] = [
-  // Skids on the floor, under the whole machine.
-  [
-    // The front one starts right of the wheels.
-    [-0.3, 0.07, FRONT + 0.1],
-    [3.4, 0.07, FRONT + 0.1],
-  ],
+  // A skid on the floor, along the back.
   [
     [-2.2, 0.07, BACK],
     [3.4, 0.07, BACK],

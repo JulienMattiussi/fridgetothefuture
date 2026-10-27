@@ -2,7 +2,6 @@ import { Path, Shape } from 'three'
 import { palette } from '@/three/palette'
 import { Beam } from '@/three/parts/Beam'
 import { CopperCoil } from '@/three/parts/CopperCoil'
-import { RivetedFoot } from '@/three/parts/RivetedFoot'
 import { Rod } from '@/three/parts/Rod'
 import { ToonMesh } from '@/three/parts/ToonMesh'
 import { CoilStand } from '@/three/machine/CoilStand'
@@ -26,12 +25,12 @@ const RIGHT = { ...coilUnit.greyBlock, height: sleeveTop - top }
  * the sleeve's top plate, inside it, clear of the coil.
  */
 const RODS = { y: sleeveTop - 0.04, spread: 0.1, radius: 0.014 }
-/** The crank on the left block's front, Marty's handle. */
 /**
- * The crank, low near the black block's left edge: far enough from the thin
- * pipe for its arm to turn a full circle clear of it. It rests pointing down.
+ * The crank, Marty's handle, low on the black block's front: `out` in front of
+ * it, so its arm turns in a plane ahead of the iron foot, the thin pipe and
+ * its gauge. It rests pointing down.
  */
-const CRANK = { x: -2.0, y: top + 0.04, arm: 0.11, handle: 0.12 }
+const CRANK = { x: -1.9, y: top + 0.14, arm: 0.11, handle: 0.12, out: 0.11 }
 
 const leftFront = Z + LEFT.depth / 2
 const coilLength = RIGHT.left - LEFT.right
@@ -70,19 +69,14 @@ const sleeveShape = (() => {
 export function CrankCoil() {
   return (
     <group>
-      <CoilStand />
-      {/* Each block stands on an iron foot riveted over the stand's front edge. */}
-      {[LEFT, RIGHT].map((block) => (
-        <RivetedFoot
-          key={block.left}
-          left={block.left - 0.05}
-          right={block.right + 0.05}
-          top={top}
-          front={table.front}
-          reach={table.front - (Z - block.depth / 2)}
-          drop={0.14}
-        />
-      ))}
+      {/* Each block stands on an iron foot riveted over the stand's front. */}
+      <CoilStand
+        feet={[LEFT, RIGHT].map((block) => ({
+          left: block.left - 0.05,
+          right: block.right + 0.05,
+          back: Z - block.depth / 2,
+        }))}
+      />
       <ToonMesh
         position={[(LEFT.left + LEFT.right) / 2, top + LEFT.height / 2, Z]}
         color={palette.blackIron}
@@ -141,14 +135,14 @@ export function CrankCoil() {
       />
       {/* The crank: arm and wooden handle, in front of the left block. */}
       <Beam
-        from={[CRANK.x, CRANK.y, leftFront + 0.05]}
-        to={[CRANK.x, CRANK.y - CRANK.arm, leftFront + 0.05]}
+        from={[CRANK.x, CRANK.y, leftFront + CRANK.out]}
+        to={[CRANK.x, CRANK.y - CRANK.arm, leftFront + CRANK.out]}
         size={0.035}
         color={palette.iron}
       />
       <Rod
-        from={[CRANK.x, CRANK.y - CRANK.arm, leftFront + 0.05]}
-        to={[CRANK.x, CRANK.y - CRANK.arm, leftFront + 0.05 + CRANK.handle]}
+        from={[CRANK.x, CRANK.y - CRANK.arm, leftFront + CRANK.out]}
+        to={[CRANK.x, CRANK.y - CRANK.arm, leftFront + CRANK.out + CRANK.handle]}
         radius={0.018}
         color={palette.woodDark}
       />

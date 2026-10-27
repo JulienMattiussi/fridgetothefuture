@@ -19,8 +19,9 @@ Application **100% front-end**, sans backend. Interface en français.
 
 Ce qu'on y voit : un échafaudage en bois brut sur deux niveaux contre le mur ;
 une grosse chaudière cylindrique rouillée au centre, **posée sur l'établi**, la
-même table que la bassine, sur deux paires de pieds en retrait des bouts, un bandeau devant et, sous la
-chaudière, deux jambes de force en biais ; les tuyaux suivent trois séries tracées sur le plan
+même table que la bassine, sur deux paires de pieds en planches, légèrement en A, clouées sur deux
+traverses carrées sous le plateau (les pieds de gauche juste à droite de la
+chaudière) ; les tuyaux suivent trois séries tracées sur le plan
 large (voir `machine/Pipework.tsx`) : **rouge** (le tuyau de la cuve grise descend en diagonale jusqu'au-dessus de la
 chaudière, où un coude le fait plonger dans le dôme ; la grande diagonale du
 bloc noir passe devant ce coude, arrive un peu plus bas que la jonction et
@@ -35,9 +36,7 @@ son devant, l'autre de son dessus) et fusionnent juste avant un manomètre coll�
 arrivent juste au-dessus de son unique anneau, un fil fin ; une dizaine de manomètres à
 cerclage gris cuivré, jamais deux de la même taille ni avec le même cadran ; à
 gauche, sur un bâti en bois **un cran en avant** du reste, pas plus profond que les
-blocs (les pieds en fer des deux blocs rivetés par-dessus son bord avant ; à
-chaque bout, deux jambes écartées devant et derrière autour d'un gros poteau
-central ; une grosse traverse basse : `docs/references/video-support-bobine.jpg`), l'**unité de la bobine**
+blocs (les pieds en fer des deux blocs rivetés par-dessus son bord avant ; à chaque bout, un gros poteau central et une jambe écartée vers l'avant ; une grosse traverse basse : `docs/references/video-support-bobine.jpg`), l'**unité de la bobine**
 en trois volumes (`docs/references/video-bobine.jpg`) : un gros bloc noir à
 gauche (un manomètre et la **manivelle** devant, le tuyau rouge au-dessus), un
 bloc gris plus petit à droite (le tuyau bleu devant), et entre les deux une
