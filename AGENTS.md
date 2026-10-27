@@ -13,25 +13,44 @@ Application **100% front-end**, sans backend. Interface en français.
 
 - `docs/references/machine-face.webp` : la machine de face (Marty à gauche,
   Doc à droite). Source de vérité pour la disposition.
-- `docs/references/iced-tea.webp` : Doc lève son bécher de thé glacé.
+- `docs/references/iced-tea.webp` : Doc lève son verre de thé glacé.
+- `docs/references/video-*.jpg` : images clés de l'extrait vidéo de la scène
+  (plan large, conduit froid, roue de vanne de droite, verre de thé).
 
 Ce qu'on y voit : un échafaudage en bois brut sur deux niveaux contre le mur ;
-une grosse chaudière cylindrique rouillée au centre ; de longs tuyaux gris en
-diagonale (du haut à droite vers la gauche) ; une dizaine de manomètres ; deux
-roues de charrette à rayons en guise de volants en bas ; un volant à courroie
-et des engrenages en haut à gauche ; une cuve en verre et un réservoir en haut
-à droite ; un établi à droite avec une bassine émaillée blanche et de la
-verrerie de chimie. Les côtés, l'arrière et le haut ne sont pas visibles :
-on les complète de façon plausible.
+une grosse chaudière cylindrique rouillée au centre, **posée sur l'établi**, la
+même table que la bassine ; les tuyaux suivent trois séries tracées sur le plan
+large (voir `machine/Pipework.tsx`) : **rouge** (la grande diagonale du haut à
+droite vers la gauche, un piquage dans le dôme, la conduite horizontale vers la
+droite), **orange** (une descente du haut à droite, derrière la conduite rouge,
+qui se divise vers le dôme et vers la bassine : le conduit froid), **bleue**
+(du flanc gauche de la chaudière à la bobine, et un court piquage à droite) ; une dizaine de manomètres ; à
+gauche, sur une table **un cran en avant** du reste, l'**unité de la bobine**
+en trois volumes (`docs/references/video-bobine.jpg`) : un gros bloc noir à
+gauche (une poulie et la **manivelle** devant, le tuyau rouge au-dessus), un
+bloc gris plus petit à droite (le tuyau bleu devant), et entre les deux une
+**bobine de tube de cuivre**, deux tiges horizontales au-dessus et un
+**manchon** qui coulisse de gauche à droite le long des tiges, la bobine
+passant dedans ; c'est la manivelle qui le fait coulisser ; deux manomètres
+au-dessus (un gros à cadran sombre, un petit blanc) ; trois roues de charrette à rayons, posées dans la
+profondeur de la machine (axe gauche-droite) et **immobiles** ; en haut à gauche, un volant relié par courroie à l'arbre de transmission
+sous le toit ; une cuve en verre et un tonneau en haut à droite ; une grosse
+roue de vanne en fonte à droite ; un établi avec une bassine émaillée, une
+pince, deux ballons sur un support en laiton et le grand verre à pied du thé.
+Le glaçon sort d'un **gros conduit incliné à collerette côtelée**, d'où jaillit
+la vapeur froide. Les côtés, l'arrière et le haut ne sont pas visibles : on les
+complète de façon plausible. On ignore les personnages et le cheval.
 
 ### La séquence du film
 
-1. Doc lance le moteur à vapeur : roues, engrenages et un long tapis roulant
-   se mettent en marche par à-coups, de la fumée sort par le haut.
-2. La machine cogne et vibre violemment ; le sifflet à vapeur retentit.
-3. Doc : « Tourne cette vanne à fond vers la gauche ! » (en bas à gauche).
-4. La machine tousse et un seul glaçon brunâtre tombe d'un bec sur la table.
-   Doc le met dans son bécher de thé : « Iced tea? »
+1. Doc lance le moteur à vapeur : volant, engrenages et courroies se mettent en
+   marche par à-coups (les roues de charrette, elles, ne tournent pas), un panache de vapeur blanche jaillit au sommet.
+2. La machine cogne et vibre violemment ; Doc tire la corde du sifflet.
+3. Doc : « Tourne à fond vers la gauche ! » : Marty actionne la manivelle du
+   bloc noir, et le manchon coulisse le long des tiges, sur la bobine.
+4. Un jet de vapeur froide sort du conduit côtelé ; Doc présente la bassine
+   dessous, un seul glaçon y tombe. Il le prend à la pince et le met dans son
+   verre de thé : « Iced tea? »
 
 ---
 
@@ -67,7 +86,7 @@ src/
   index.css             Tailwind + base plein écran
   lib/                  Logique pure (aucun import React ni three.js)
     toonSteps.ts        Les paliers de lumière du cell shading
-    geometry.ts         Segments, angles réguliers, points sur un cercle
+    geometry.ts         Segments, angles, cercles, courroies, hélice
     framing.ts          Recul de caméra pour cadrer la scène
   three/                Rendu 3D (composants R3F, hooks three.js)
     Scene.tsx           Canvas et lumières
@@ -80,10 +99,15 @@ src/
       Wheel.tsx         Roue à rayons (roue de charrette, volant de vanne)
       Gear.tsx, Gauge.tsx Engrenage, manomètre
       Table.tsx         Table sur quatre pieds
+      Belt.tsx          Courroie plate entre deux poulies
+      RibbedSleeve.tsx  Manchon côtelé (bouche du conduit froid)
+      Flask.tsx         Ballon de chimie, vide ou rempli
+      CopperCoil.tsx    Tube de cuivre enroulé en hélice
     machine/            La machine de Doc, une pièce par fichier
       layout.ts         Les points d'ancrage partagés (en mètres)
       Machine.tsx       Assemble les pièces + les manomètres épars
-      Scaffold, Boiler, Pipework, Drive, ControlBox, Tanks, Workbench
+      Scaffold, Boiler, Pipework, Drive (pièces mobiles), WagonWheels (fixes),
+      CrankCoil (unité de la bobine : blocs, bobine, manchon, manivelle), Tanks, Workbench
     stable/Stable.tsx   L'écurie : sol, mur de planches, poutres
 tests/
   unit/                 Tests Vitest de src/lib
@@ -106,6 +130,10 @@ rotation). Le mobile n'est pas la cible : on ne le teste pas.
 Mètres, Y vers le haut, Z vers le spectateur, X vers la droite comme sur la
 référence de face. Marty (environ 1,75 m) donne l'échelle. Les pièces se
 raccordent par les ancres de `machine/layout.ts`.
+
+**Profondeur** : comme dans le film, la chaudière, la plupart des tuyaux et la
+roue de charrette centrale passent **devant** l'échafaudage. Les tuyaux courent
+dans le plan `layout.pipesZ`, devant `layout.frameFront` (la face des poteaux).
 
 ### Cell shading
 

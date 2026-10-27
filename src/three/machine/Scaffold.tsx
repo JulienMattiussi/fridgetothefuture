@@ -4,10 +4,10 @@ import { Beam } from '@/three/parts/Beam'
 import { ToonMesh } from '@/three/parts/ToonMesh'
 import { layout } from '@/three/machine/layout'
 
-const FRONT = 0.25
+const FRONT = layout.frameFront
 const BACK = -1.1
 const TOP = 3.6
-const { deckY, shelfY } = layout
+const { deckY, deckLeft, deckRight, shelfY } = layout
 
 /** A post from the floor (or a given height) up, at the front and the back. */
 function postPair(x: number, top: number, bottom = 0): [Vec3, Vec3][] {
@@ -24,9 +24,10 @@ function postPair(x: number, top: number, bottom = 0): [Vec3, Vec3][] {
 }
 
 const posts = [
-  ...postPair(-1.4, deckY),
-  ...postPair(-0.55, deckY),
-  ...postPair(0.65, deckY),
+  ...postPair(-1.35, deckY),
+  ...postPair(-0.65, deckY),
+  // The deck's right corner post stands behind the boiler, at the back only.
+  postPair(-0.2, deckY)[1]!,
   ...postPair(1.55, TOP),
   ...postPair(3.2, TOP),
 ]
@@ -41,14 +42,14 @@ const rails: [Vec3, Vec3][] = [
     [-2.2, 0.07, BACK],
     [3.4, 0.07, BACK],
   ],
-  // Mid-height rails and the deck's front edge.
+  // Mid-height rail and the deck's front edge.
   [
-    [-1.4, 1.2, FRONT],
-    [0.65, 1.2, FRONT],
+    [-1.35, 1.2, FRONT],
+    [-0.65, 1.2, FRONT],
   ],
   [
-    [-1.5, deckY - 0.1, FRONT],
-    [0.75, deckY - 0.1, FRONT],
+    [deckLeft, deckY - 0.1, FRONT],
+    [-0.65, deckY - 0.1, FRONT],
   ],
   [
     [1.55, shelfY - 0.1, FRONT],
@@ -64,12 +65,8 @@ const rails: [Vec3, Vec3][] = [
   ],
   // Diagonal braces.
   [
-    [-1.4, 0.15, FRONT],
-    [-0.55, 1.15, FRONT],
-  ],
-  [
-    [0.65, deckY - 0.1, FRONT],
-    [1.55, shelfY + 0.9, FRONT],
+    [-1.35, 0.15, FRONT],
+    [-0.65, 1.15, FRONT],
   ],
   [
     [1.55, shelfY, BACK],
@@ -84,8 +81,11 @@ export function Scaffold() {
       {[...posts, ...rails].map(([from, to], i) => (
         <Beam key={i} from={from} to={to} size={0.11} />
       ))}
-      <ToonMesh position={[-0.4, deckY, (FRONT + BACK) / 2]} color={palette.woodDark}>
-        <boxGeometry args={[2.3, 0.07, FRONT - BACK + 0.2]} />
+      <ToonMesh
+        position={[(deckLeft + deckRight) / 2, deckY, (FRONT + BACK) / 2]}
+        color={palette.woodDark}
+      >
+        <boxGeometry args={[deckRight - deckLeft, 0.07, FRONT - BACK + 0.2]} />
       </ToonMesh>
       <ToonMesh position={[2.4, shelfY, (FRONT + BACK) / 2]} color={palette.woodDark}>
         <boxGeometry args={[1.9, 0.07, FRONT - BACK + 0.2]} />

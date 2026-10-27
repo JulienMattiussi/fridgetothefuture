@@ -9,15 +9,33 @@ import type { Vec3 } from '@/lib/geometry'
 export const layout = {
   /** The stable's back wall the machine leans against. */
   wallZ: -1.3,
-  /** The upper wooden deck, over the boiler and the control box. */
-  deckY: 2.3,
+  /** The front face of the wooden frame's posts. */
+  frameFront: 0.25,
+  /**
+   * The plane where most pipes run: in front of the frame, as in the film
+   * (docs/references/video-plan-large.jpg), not tucked behind it.
+   */
+  pipesZ: 0.45,
+  /** The upper wooden deck, left of the boiler, over the crank coil. */
+  deckY: 2.55,
+  deckLeft: -1.45,
+  deckRight: -0.1,
   /** The right-hand shelf carrying the tanks. */
   shelfY: 2.2,
-  boiler: { x: 0.1, z: -0.2, radius: 0.36, bottom: 0.45, height: 1.35 },
-  /** The left table with the control box, where Marty stands. */
-  table: { left: -2.1, right: -0.95, back: -0.35, front: 0.45, top: 0.75 },
-  /** The right workbench with the basin and the glassware. */
-  bench: { left: 0.3, right: 1.95, back: 0.3, front: 1.0, top: 0.8 },
-  /** Where the ice cube drops from, right above the basin. */
-  spout: [0.75, 1.05, 0.6] as Vec3,
+  /** The boiler stands on the workbench, the same table as the basin. */
+  boiler: { x: 0.1, z: 0.3, radius: 0.36, bottom: 0.8, height: 0.8 },
+  /** The left table with the coil unit, where Marty stands: a step ahead of the rest. */
+  table: { left: -2.15, right: -0.8, back: 0.32, front: 1.2, top: 0.95 },
+  /**
+   * The coil unit on that table: its depth, and how far the sliding sleeve
+   * sits from the middle of the coil (left negative).
+   */
+  coilUnit: { z: 0.75, slide: 0 },
+  /** The workbench under the boiler, the basin and the glassware. */
+  bench: { left: -0.32, right: 1.95, back: -0.12, front: 1.05, top: 0.8 },
+  /**
+   * The mouth of the cold-air duct, over the basin: the cold vapor gushes out
+   * here and the ice cube drops from it (docs/references/video-conduit-froid.jpg).
+   */
+  ductMouth: [0.63, 1.22, 0.7] as Vec3,
 }
