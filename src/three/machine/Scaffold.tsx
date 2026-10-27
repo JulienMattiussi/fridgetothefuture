@@ -11,6 +11,11 @@ const { deckY, deckLeft, deckRight, deckPosts, deckCorner, shelfY, wheelAxle } =
 const [postL, postR] = deckPosts
 /** The frame's right end, where rungs run all up between its two posts. */
 const RIGHT_END = 3.2
+/**
+ * The lower plank across the right frame, thinner, just under the workbench's
+ * bearers and clear of its splayed back legs.
+ */
+const LOW_PLANK = { y: 0.61, height: 0.1 }
 /** The right shelf's left edge, and the big timber under it. */
 const SHELF_LEFT = 1.45
 const { shelfTimber: SHELF_TIMBER } = layout
@@ -90,6 +95,30 @@ export function Scaffold() {
       {[...posts, ...rails].map(([from, to], i) => (
         <Beam key={i} from={from} to={to} size={0.11} />
       ))}
+      {/* The big plank nailed across the right frame's front posts. */}
+      <ToonMesh
+        position={[
+          (1.55 + RIGHT_END) / 2,
+          layout.valvePlank.y,
+          FRONT + 0.055 + layout.valvePlank.depth / 2,
+        ]}
+        color={palette.wood}
+      >
+        <boxGeometry
+          args={[RIGHT_END - 1.55 + 0.15, layout.valvePlank.height, layout.valvePlank.depth]}
+        />
+      </ToonMesh>
+      {/* Another one lower down, under the workbench's top. */}
+      <ToonMesh
+        position={[
+          (1.55 + RIGHT_END) / 2,
+          LOW_PLANK.y,
+          FRONT + 0.055 + layout.valvePlank.depth / 2,
+        ]}
+        color={palette.wood}
+      >
+        <boxGeometry args={[RIGHT_END - 1.55 + 0.15, LOW_PLANK.height, layout.valvePlank.depth]} />
+      </ToonMesh>
       {RUNG_YS.map((y) => (
         <Rod
           key={y}

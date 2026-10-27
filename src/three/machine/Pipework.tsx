@@ -165,7 +165,7 @@ const RIGHT_SMALL = {
  * The big porthole gauge hangs on a stem under the red line's run back to the
  * vat; the small one stands out in front of the right small pipe.
  */
-const PORTHOLE = { radius: 0.168, on: [RED_DOWN_X, UNDER_SHELF_Y, 0.2] as Vec3, stem: 0.05 }
+const PORTHOLE = { radius: 0.168, on: [RED_DOWN_X, UNDER_SHELF_Y, 0.45] as Vec3, stem: 0.05 }
 const PORTHOLE_AT: Vec3 = [
   PORTHOLE.on[0],
   PORTHOLE.on[1] - RED_LINE_RADIUS - PORTHOLE.stem - PORTHOLE.radius,

@@ -15,8 +15,10 @@ const AXLE_BACK = -1.05
 const SHAFT = { y: 3.75, z: deckFlywheel.center[2], left: -2.0, right: 1.3 }
 const shaftPulley = { center: [deckFlywheel.center[0], SHAFT.y, SHAFT.z] as Vec3, radius: 0.14 }
 
-/** The big valve handwheel on the right of the frame, by the workbench. */
-const HANDWHEEL: Vec3 = [1.8, 1.38, 0.33]
+/** The big valve handwheel on the right of the frame, on its big plank. */
+const { valvePlank } = layout
+const PLANK_FRONT = layout.frameFront + 0.055 + valvePlank.depth
+const HANDWHEEL: Vec3 = [1.68, valvePlank.y, PLANK_FRONT + 0.08]
 
 /**
  * The moving parts that the engine drives: the deck flywheel, its gears, the
@@ -58,12 +60,12 @@ export function Drive() {
       <Belt from={deckFlywheel} to={shaftPulley} />
       <Rod
         from={HANDWHEEL}
-        to={[HANDWHEEL[0], HANDWHEEL[1], HANDWHEEL[2] - 0.15]}
+        to={[HANDWHEEL[0], HANDWHEEL[1], PLANK_FRONT]}
         radius={0.025}
         color={palette.steel}
       />
       <Wheel position={HANDWHEEL} radius={0.24} spokes={6} tire={false} color={palette.iron} />
-      <Gear position={[2.12, 1.2, 0.3]} radius={0.09} teeth={12} />
+      <Gear position={[2.12, 1.12, PLANK_FRONT + 0.04]} radius={0.09} teeth={12} />
     </group>
   )
 }

@@ -35,6 +35,8 @@ export const layout = {
    * x, its section, and its front end, jutting out over the red line.
    */
   shelfTimber: { x: 1.52, width: 0.14, height: 0.12, front: 0.7 },
+  /** A big plank nailed across the right frame's front posts, the valve wheel on it. */
+  valvePlank: { y: 1.38, height: 0.18, depth: 0.04 },
   /**
    * The huge grey vat on the right shelf, topped by a red tank (`cap`) where
    * the rising pipes end (docs/references/video-cuve.jpg). It stands at `y`,
