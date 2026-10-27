@@ -13,12 +13,7 @@ import { Workbench } from '@/three/machine/Workbench'
  * The gauges scattered over the frame, beyond those on the pipes. Each has its
  * own size, so its own dial (see Gauge).
  */
-const gauges: { position: Vec3; radius: number; reading: number }[] = [
-  { position: [2.2, 2.85, 0.42], radius: 0.104, reading: -0.5 },
-  // The big gauge, like a porthole, on the right.
-  { position: [2.36, 1.98, 0.33], radius: 0.168, reading: -0.2 },
-  { position: [2.62, 1.75, 0.33], radius: 0.077, reading: 1.0 },
-]
+const gauges: { position: Vec3; radius: number; reading: number }[] = []
 
 /** Doc's steam-powered refrigerator, as it stands in the livery stable. */
 export function Machine() {

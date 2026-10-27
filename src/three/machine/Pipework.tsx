@@ -133,6 +133,51 @@ const onRedLine = (x: number): Vec3 => [
   RED_LINE_Z,
 ]
 const BLUE_TEE = onRedLine(1.17)
+/**
+ * Small pipes round the vat, along its flanks and the frame: a point on a
+ * round flank about the vat's axis, `angle` round from the left toward the
+ * front (past pi, round the back), at `r` from the axis.
+ */
+const aroundVat = (angle: number, y: number, r: number): Vec3 => [
+  vat.x - r * Math.cos(angle),
+  y,
+  vat.z + r * Math.sin(angle),
+]
+const CAP_FOOT = vat.y + vat.height
+/** Clear of the vat's rolled lip, for pipes running down its flank. */
+const VAT_CLEAR = vat.radius + 0.08
+const SMALL = 0.025
+/** The vat's gauge, on the small pipe running down its front. */
+const VAT_GAUGE = { x: 2.08, y: 2.85, radius: 0.104, pipeZ: 0.48 }
+const vatFrontAngle = Math.acos((vat.x - VAT_GAUGE.x) / vat.cap.radius)
+const vatLowAngle = Math.acos((vat.x - VAT_GAUGE.x) / vat.radius)
+/**
+ * The right small pipe leaves the cap's right flank at depth `z`, clear in
+ * front of the ladder, and comes down at `x`, past the shelf's right end.
+ */
+const RIGHT_SMALL_Z = -0.1
+const RIGHT_SMALL = {
+  z: RIGHT_SMALL_Z,
+  x: 3.45,
+  angle: Math.PI - Math.asin((RIGHT_SMALL_Z - vat.z) / vat.cap.radius),
+}
+/**
+ * The big porthole gauge hangs on a stem under the red line's run back to the
+ * vat; the small one stands out in front of the right small pipe.
+ */
+const PORTHOLE = { radius: 0.168, on: [RED_DOWN_X, UNDER_SHELF_Y, 0.2] as Vec3, stem: 0.05 }
+const PORTHOLE_AT: Vec3 = [
+  PORTHOLE.on[0],
+  PORTHOLE.on[1] - RED_LINE_RADIUS - PORTHOLE.stem - PORTHOLE.radius,
+  PORTHOLE.on[2],
+]
+const RUNG_GAUGE = { radius: 0.077, x: 2.62, stem: 0.05 }
+const RUNG_GAUGE_AT: Vec3 = [
+  RUNG_GAUGE.x,
+  UNDER_SHELF_Y,
+  RIGHT_SMALL_Z + SMALL + RUNG_GAUGE.stem + RUNG_GAUGE.radius * 0.2,
+]
+const VAT_GAUGE_AT: Vec3 = [VAT_GAUGE.x, VAT_GAUGE.y, VAT_GAUGE.pipeZ + SMALL + 0.06]
 /** Where a string ties the red line up to the shelf's big timber. */
 const TIMBER_TIE = onRedLine(layout.shelfTimber.x)
 const TIMBER_BOTTOM = layout.shelfY - 0.035 - layout.shelfTimber.height
@@ -252,6 +297,46 @@ const STRINGS = [onRedLine(DUCT_TIE[0]), onRedLine(1.3)].map((tie) => ({
 const DUCT_UNDER_LINE: Vec3 = [0.94, 2.0, 0.35]
 
 const pipes: ComponentProps<typeof Pipe>[] = [
+  // Small: from the red cap's front left, down the vat's left flank, out in
+  // front of the shelf and into the red line from above.
+  {
+    points: [
+      aroundVat(1.0, CAP_FOOT + 0.25, vat.cap.radius),
+      aroundVat(1.0, CAP_FOOT + 0.25, VAT_CLEAR),
+      aroundVat(1.0, layout.shelfY + 0.18, VAT_CLEAR),
+      [1.9, layout.shelfY + 0.18, RED_LINE_Z],
+      onRedLine(1.9),
+    ],
+    radius: SMALL,
+    flangeStart: inward(1.0),
+  },
+  // Small: from the red cap's front, down the grey vat's front past its gauge,
+  // and back into the vat low down.
+  {
+    points: [
+      aroundVat(vatFrontAngle, CAP_FOOT + 0.2, vat.cap.radius),
+      [VAT_GAUGE.x, CAP_FOOT + 0.2, VAT_GAUGE.pipeZ],
+      [VAT_GAUGE.x, vat.y + 0.3, VAT_GAUGE.pipeZ],
+      aroundVat(vatLowAngle, vat.y + 0.3, vat.radius),
+    ],
+    radius: SMALL,
+    flangeStart: inward(vatFrontAngle),
+    flangeEnd: inward(vatLowAngle),
+  },
+  // Small: from the red cap's right flank, down past the shelf's right end,
+  // and left through the frame's rungs into the red line's run to the vat.
+  {
+    points: [
+      aroundVat(RIGHT_SMALL.angle, CAP_FOOT + 0.2, vat.cap.radius),
+      // Out past the shelf's right end, between it and the ladder, and down.
+      [RIGHT_SMALL.x, CAP_FOOT + 0.2, RIGHT_SMALL.z],
+      [RIGHT_SMALL.x, UNDER_SHELF_Y, RIGHT_SMALL.z],
+      // Then left between two of the frame's rungs, into the red line's side.
+      [RED_DOWN_X, UNDER_SHELF_Y, RIGHT_SMALL.z],
+    ],
+    radius: SMALL,
+    flangeStart: inward(RIGHT_SMALL.angle),
+  },
   // Red: the pipe from the vat's red cap, down its diagonal and into the dome.
   {
     points: [onCapTop(-0.42, 0.35), overCapTop(-0.42, 0.35, 0.3), RED_TOP, RED_ELBOW, RED_DROP_END],
@@ -504,6 +589,27 @@ export function Pipework() {
         color={palette.copperGrey}
       />
       <Gauge position={DIAGONAL_GAUGE_AT} radius={DIAGONAL_GAUGE.radius} reading={0.6} />
+      <Rod
+        from={[VAT_GAUGE.x, VAT_GAUGE.y, VAT_GAUGE.pipeZ]}
+        to={VAT_GAUGE_AT}
+        radius={0.012}
+        color={palette.copperGrey}
+      />
+      <Gauge position={VAT_GAUGE_AT} radius={VAT_GAUGE.radius} reading={-0.5} />
+      <Rod
+        from={PORTHOLE.on}
+        to={[PORTHOLE_AT[0], PORTHOLE_AT[1] + PORTHOLE.radius, PORTHOLE_AT[2]]}
+        radius={0.018}
+        color={palette.copperGrey}
+      />
+      <Gauge position={PORTHOLE_AT} radius={PORTHOLE.radius} reading={-0.2} />
+      <Rod
+        from={[RUNG_GAUGE.x, UNDER_SHELF_Y, RIGHT_SMALL_Z]}
+        to={RUNG_GAUGE_AT}
+        radius={0.01}
+        color={palette.copperGrey}
+      />
+      <Gauge position={RUNG_GAUGE_AT} radius={RUNG_GAUGE.radius} reading={1.0} />
       {/* A gauge hanging under the red line on a short stem. */}
       <Rod
         from={LINE_GAUGE.on}
