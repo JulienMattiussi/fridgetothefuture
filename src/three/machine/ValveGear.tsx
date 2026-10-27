@@ -20,14 +20,19 @@ const BIG_WHEEL = { at: [1.68, 1.25, Z] as Vec3, radius: 0.24 }
 const COLUMN = { x: 1.99, bottom: 0.9, top: 1.4, radius: 0.022 }
 /** The big bevel gear, its axle left-right, driving the column's lower bevel gear. */
 /**
- * The bevel pair meshes at right angles: each one's toothed face sits as far
- * from the axes' crossing as the other gear's radius.
+ * The bevel pair meshes at right angles. Both cones slope at 45 degrees (see
+ * BevelGear: height 0.45 r, inner radius 0.55 r), so the big one's tip sits
+ * over the small one's inner top edge and their slants lie face to face.
  */
 const MESH_Y = 1.13
 const SMALL_BEVEL = { radius: 0.065 }
 const BIG_BEVEL = { radius: 0.1 }
-const BIG_BEVEL_AT: Vec3 = [COLUMN.x + SMALL_BEVEL.radius + 0.045, MESH_Y, Z]
-const SMALL_BEVEL_Y = MESH_Y - BIG_BEVEL.radius - 0.03
+const BIG_BEVEL_AT: Vec3 = [
+  COLUMN.x + 0.55 * SMALL_BEVEL.radius + 0.45 * BIG_BEVEL.radius,
+  MESH_Y,
+  Z,
+]
+const SMALL_BEVEL_Y = MESH_Y - 0.55 * BIG_BEVEL.radius - 0.45 * SMALL_BEVEL.radius
 /** The upright plank nailed across the two frame planks, the column bracketed to it. */
 const UPRIGHT = { width: 0.16, depth: 0.04 }
 const UPRIGHT_FRONT = PLANK_FRONT + UPRIGHT.depth

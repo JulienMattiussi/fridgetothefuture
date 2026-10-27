@@ -45,8 +45,10 @@ bloc gris plus petit à droite (le tuyau bleu devant), et entre les deux une
 passant dedans ; c'est la manivelle qui le fait coulisser ; deux manomètres
 au-dessus (un gros à cadran sombre, un petit blanc) ; trois roues de charrette à rayons, posées dans la
 profondeur de la machine (axe gauche-droite) et **immobiles**, les deux de
-gauche sur **un même essieu** qui porte les poteaux avant de la structure ; en haut à gauche, un volant relié par courroie à l'arbre de transmission
-sous le toit ; en haut à droite, une **énorme cuve grise** surmontée
+gauche sur **un même essieu** qui porte les poteaux avant de la structure ; en haut à gauche, sur le plancher, un
+grand volant relié par courroie à l'arbre de transmission sous le toit, et un
+palier en bois portant un disque, un petit volant et deux engrenages, relié par
+une bielle à un petit disque sur son support (`machine/Drive.tsx`) ; en haut à droite, une **énorme cuve grise** surmontée
 d'une **partie rouge** à roue de vanne, où arrivent les tuyaux qui montent,
 avec des **barreaux** tout le long du bout droit de la structure, et une **échelle** appuyée contre le flanc droit de la cuve,
 parallèle aux barreaux (`docs/references/video-cuve.jpg`) ; à droite, sur une planche de la structure, la **grosse roue de vanne**
