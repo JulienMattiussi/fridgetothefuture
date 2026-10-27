@@ -12,7 +12,7 @@ const top = table.top
 const Z = coilUnit.z
 
 /** The big black block on the left, with the crank in front. */
-const LEFT = { ...coilUnit.blackBlock, depth: 0.44 }
+const LEFT = coilUnit.blackBlock
 /** The copper coil between the blocks. */
 const COIL = { y: top + 0.25, radius: 0.15, tube: 0.016, turns: 9 }
 /** The sleeve sliding along the rods, the coil running through it. */

@@ -14,8 +14,6 @@ import { Workbench } from '@/three/machine/Workbench'
  * own size, so its own dial (see Gauge).
  */
 const gauges: { position: Vec3; radius: number; reading: number }[] = [
-  { position: [-0.94, 2.24, 0.33], radius: 0.072, reading: -0.3 },
-  { position: [-0.35, 2.8, 0.0], radius: 0.094, reading: 0.6 },
   { position: [2.2, 2.85, 0.42], radius: 0.104, reading: -0.5 },
   // The big gauge, like a porthole, on the right.
   { position: [2.36, 1.98, 0.33], radius: 0.168, reading: -0.2 },

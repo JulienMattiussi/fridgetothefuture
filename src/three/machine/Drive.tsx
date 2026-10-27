@@ -8,7 +8,7 @@ import { Wheel } from '@/three/parts/Wheel'
 import { layout } from '@/three/machine/layout'
 
 /** The small iron flywheel up on the deck, facing front, its axle to the back. */
-const deckFlywheel = { center: [-0.85, layout.deckY + 0.45, -0.3] as Vec3, radius: 0.3 }
+const deckFlywheel = { center: [-1.35, layout.deckY + 0.45, -0.3] as Vec3, radius: 0.3 }
 const AXLE_BACK = -1.05
 
 /** The deck flywheel is belted up to a pulley on the line shaft under the roof. */
@@ -32,9 +32,9 @@ export function Drive() {
         radius={0.03}
         color={palette.steel}
       />
-      <Gear position={[-0.42, layout.deckY + 0.28, -0.25]} radius={0.16} teeth={18} />
+      <Gear position={[-0.92, layout.deckY + 0.28, -0.25]} radius={0.16} teeth={18} />
       <Gear
-        position={[-0.17, layout.deckY + 0.2, -0.25]}
+        position={[-0.67, layout.deckY + 0.2, -0.25]}
         radius={0.09}
         teeth={10}
         rotation={[0, 0, 0.15]}

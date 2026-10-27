@@ -9,7 +9,7 @@ import { layout } from '@/three/machine/layout'
 const { wheelAxle } = layout
 const [axleLeft, axleRight] = wheelAxle.wheels as [number, number]
 /** The frame's front posts that stand on the axle, through bearing blocks. */
-const BEARINGS = [-1.35, -0.65]
+const BEARINGS = layout.deckPosts
 
 /** The lone wagon wheel at the back right, on a stub axle held by a post. */
 const BACK_WHEEL = { center: [1.3, 0.75, -0.65] as Vec3, radius: 0.5, axleHalf: 0.3 }

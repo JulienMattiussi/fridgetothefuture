@@ -7,9 +7,15 @@ import { layout } from '@/three/machine/layout'
 
 const FRONT = layout.frameFront
 const BACK = -1.1
-const { deckY, deckLeft, deckRight, shelfY, wheelAxle } = layout
+const { deckY, deckLeft, deckRight, deckPosts, deckCorner, shelfY, wheelAxle } = layout
+const [postL, postR] = deckPosts
 /** The frame's right end, where rungs run all up between its two posts. */
 const RIGHT_END = 3.2
+/** The right shelf's left edge, and the big timber under it. */
+const SHELF_LEFT = 1.45
+const { shelfTimber: SHELF_TIMBER } = layout
+const TIMBER_FRONT = SHELF_TIMBER.front
+const TIMBER_Y = layout.shelfY - 0.035 - SHELF_TIMBER.height / 2
 /** Where the front posts over the wheel axle stand, on its bearing blocks. */
 const ON_AXLE = wheelAxle.y + 0.08
 
@@ -29,17 +35,18 @@ function postPair(x: number, top: number): [Vec3, Vec3][] {
 
 const posts: [Vec3, Vec3][] = [
   // Over the wheel axle, the front posts stand on it, the back ones on the floor.
-  ...[-1.35, -0.65].flatMap((x): [Vec3, Vec3][] => [
+  ...deckPosts.flatMap((x): [Vec3, Vec3][] => [
     [
       [x, ON_AXLE, FRONT],
       [x, deckY, FRONT],
     ],
     postPair(x, deckY)[1]!,
   ]),
-  // The deck's right corner post stands behind the boiler, at the back only.
-  postPair(-0.2, deckY)[1]!,
+  // The deck's right corner post, at the back only.
+  postPair(deckCorner, deckY)[1]!,
   // The right frame stops at the shelf: the vat stands on it.
-  ...postPair(1.55, shelfY),
+  // The left ones stop under the big timber that carries the shelf's edge.
+  ...postPair(1.55, TIMBER_Y - SHELF_TIMBER.height / 2),
   ...postPair(RIGHT_END, shelfY),
 ]
 
@@ -54,12 +61,12 @@ const rails: [Vec3, Vec3][] = [
   ],
   // Mid-height rail and the deck's front edge.
   [
-    [-1.35, 1.2, FRONT],
-    [-0.65, 1.2, FRONT],
+    [postL, 1.2, FRONT],
+    [postR, 1.2, FRONT],
   ],
   [
     [deckLeft, deckY - 0.1, FRONT],
-    [-0.65, deckY - 0.1, FRONT],
+    [postR, deckY - 0.1, FRONT],
   ],
   [
     [1.55, shelfY - 0.1, FRONT],
@@ -67,8 +74,8 @@ const rails: [Vec3, Vec3][] = [
   ],
   // Diagonal braces.
   [
-    [-1.35, ON_AXLE + 0.1, FRONT],
-    [-0.65, 1.15, FRONT],
+    [postL, ON_AXLE + 0.1, FRONT],
+    [postR, 1.15, FRONT],
   ],
   [
     [1.55, 0.15, BACK],
@@ -98,8 +105,16 @@ export function Scaffold() {
       >
         <boxGeometry args={[deckRight - deckLeft, 0.07, FRONT - BACK + 0.2]} />
       </ToonMesh>
-      <ToonMesh position={[2.4, shelfY, (FRONT + BACK) / 2]} color={palette.woodDark}>
+      <ToonMesh position={[SHELF_LEFT + 0.95, shelfY, (FRONT + BACK) / 2]} color={palette.woodDark}>
         <boxGeometry args={[1.9, 0.07, FRONT - BACK + 0.2]} />
+      </ToonMesh>
+      {/* A big timber under the shelf's left edge, back to front, over the red
+          line: the left posts carry it, and it carries the shelf. */}
+      <ToonMesh
+        position={[SHELF_TIMBER.x, TIMBER_Y, (BACK + TIMBER_FRONT) / 2]}
+        color={palette.woodLight}
+      >
+        <boxGeometry args={[SHELF_TIMBER.width, SHELF_TIMBER.height, TIMBER_FRONT - BACK]} />
       </ToonMesh>
     </group>
   )

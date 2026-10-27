@@ -29,8 +29,10 @@ const overCapTop = (dx: number, dz: number, rise: number): Vec3 => [
 ]
 /** The middle of the grey vat's bottom, where the red line comes up into it through the shelf. */
 const VAT_BOTTOM: Vec3 = [vat.x, vat.y, vat.z]
-/** Under the shelf, clear of its front rail. */
-const UNDER_SHELF_Y = 1.95
+/** The red line's straight run slopes down to here, under the shelf. */
+const UNDER_SHELF_Y = 1.86
+/** Its right end, clear left of the big gauge there. */
+const RED_DOWN_X = 2.1
 const front = layout.pipesZ
 /** A point on the boiler's flank, `angle` around it seen from above (0: left). */
 const onBoiler = (angle: number, y: number): Vec3 => [
@@ -46,6 +48,34 @@ const DOWN: Vec3 = [0, -1, 0]
 const BEHIND_BOILER_Z = bz - br - 0.15
 /** Just clear of the boiler's left side. */
 const BOILER_LEFT_HUG_X = bx - br - 0.075
+/**
+ * From the duct line, a pipe runs straight left, high behind the boiler and on
+ * inside the deck's frame behind its front posts, then drops and comes forward
+ * into the black block's back. A branch tees off it behind the boiler and
+ * comes down to the grey block.
+ */
+const HIGH_RUN_FROM: Vec3 = [0.715, 2.375, 0.1]
+const HIGH_RUN_TO: Vec3 = [-1.7, 2.25, 0.0]
+const HIGH_RUN_RADIUS = 0.06
+/** The point on the high run's axis at `x`. */
+const onHighRun = (x: number): Vec3 =>
+  HIGH_RUN_FROM.map(
+    (v, k) =>
+      v + ((HIGH_RUN_TO[k]! - v) * (x - HIGH_RUN_FROM[0])) / (HIGH_RUN_TO[0] - HIGH_RUN_FROM[0]),
+  ) as Vec3
+/** The black block's back, at the height the high run comes in. */
+const BLACK_BACK_Y = 1.35
+/** Where the branch to the grey block tees off, and its run down behind the boiler. */
+const GREY_BRANCH_TEE = onHighRun(0.35)
+const BEHIND_BOILER_TO: Vec3 = [BOILER_LEFT_HUG_X, 1.54, BEHIND_BOILER_Z]
+/** A gauge stands out in front of the high run, on a short stem. */
+const BRANCH_GAUGE = { x: -1.44, radius: 0.072, stem: 0.06 }
+const BRANCH_GAUGE_ON = onHighRun(BRANCH_GAUGE.x)
+const BRANCH_GAUGE_AT: Vec3 = [
+  BRANCH_GAUGE.x,
+  BRANCH_GAUGE_ON[1],
+  BRANCH_GAUGE_ON[2] + HIGH_RUN_RADIUS + BRANCH_GAUGE.stem + BRANCH_GAUGE.radius * 0.2,
+]
 /** Inward, into the boiler's flank at `angle` (as `onBoiler` measures it). */
 const inward = (angle: number): Vec3 => [Math.cos(angle), 0, -Math.sin(angle)]
 const mouth = layout.ductMouth
@@ -92,7 +122,7 @@ const RED_TURN: Vec3 = [
 const RED_LINE_Z = front + 0.06
 /** The horizontal line's main straight run, the blue pipe teeing in below it. */
 const RED_LINE_FROM: Vec3 = [bx + 0.12, 2.2, RED_LINE_Z]
-const RED_LINE_TO: Vec3 = [1.54, 2.05, RED_LINE_Z]
+const RED_LINE_TO: Vec3 = [RED_DOWN_X, UNDER_SHELF_Y, RED_LINE_Z]
 const RED_LINE_RADIUS = 0.06
 /** The point on that run's axis at `x`. */
 const onRedLine = (x: number): Vec3 => [
@@ -103,6 +133,9 @@ const onRedLine = (x: number): Vec3 => [
   RED_LINE_Z,
 ]
 const BLUE_TEE = onRedLine(1.17)
+/** Where a string ties the red line up to the shelf's big timber. */
+const TIMBER_TIE = onRedLine(layout.shelfTimber.x)
+const TIMBER_BOTTOM = layout.shelfY - 0.035 - layout.shelfTimber.height
 /** Where the big blue pipe bolts onto the grey block's front, and the depth it comes in at. */
 const GREY_FLANGE: Vec3 = [
   (greyBlock.left + greyBlock.right) / 2,
@@ -119,7 +152,19 @@ const LINE_GAUGE = {
 }
 /** The blue pipe from the boiler's right flank runs back here, behind the duct. */
 const BLUE_BEHIND_DUCT_Z = 0.35
+/** It leaves the boiler's flank toward the back right. */
+const BLUE_RIGHT_ANGLE = Math.PI + 0.6
 const RED_LONG_RADIUS = 0.075
+/** A gauge stands on top of the long red diagonal, on a short stem. */
+const DIAGONAL_GAUGE = { x: -0.85, radius: 0.094, stem: 0.06 }
+const DIAGONAL_GAUGE_ON = RED_LOW.map(
+  (v, k) => v + ((RED_TURN[k]! - v) * (DIAGONAL_GAUGE.x - RED_LOW[0])) / (RED_TURN[0] - RED_LOW[0]),
+) as Vec3
+const DIAGONAL_GAUGE_AT: Vec3 = [
+  DIAGONAL_GAUGE_ON[0],
+  DIAGONAL_GAUGE_ON[1] + RED_LONG_RADIUS + DIAGONAL_GAUGE.stem + DIAGONAL_GAUGE.radius,
+  DIAGONAL_GAUGE_ON[2],
+]
 /** The first thin pipe's start, on the black block's front. */
 const THIN1_START: Vec3 = [-1.85, 1.08, coilUnit.z + 0.22]
 /** A gauge stands on it just out of the block (the white disc of the film). */
@@ -232,9 +277,8 @@ const pipes: ComponentProps<typeof Pipe>[] = [
       RED_BRANCH,
       RED_LINE_FROM,
       RED_LINE_TO,
-      // Under the shelf, back to under the vat's middle, and up into its bottom.
-      [1.9, UNDER_SHELF_Y, RED_LINE_Z],
-      [1.9, UNDER_SHELF_Y, VAT_BOTTOM[2]],
+      // Then back under the shelf, over to under the vat's middle, and up.
+      [RED_DOWN_X, UNDER_SHELF_Y, VAT_BOTTOM[2]],
       [VAT_BOTTOM[0], UNDER_SHELF_Y, VAT_BOTTOM[2]],
       VAT_BOTTOM,
     ],
@@ -293,17 +337,25 @@ const pipes: ComponentProps<typeof Pipe>[] = [
     radius: THIN2_RADIUS,
     flangeStart: DOWN,
   },
-  // Orange, then blue: the branch teeing off the duct line passes behind the
-  // boiler without touching it, comes out on its left and runs on to the
-  // coil unit's grey block, U-turning into its front.
+  // Orange: from the duct line, straight left high behind the boiler and
+  // through the deck's frame, then down and into the black block from behind.
   {
     points: [
       ORANGE_TEE,
-      [0.715, 2.375, 0.1],
-      [0.63, 2.24, 0.15],
-      [0.55, 2.0, BEHIND_BOILER_Z],
-      // Out from behind, it runs forward hugging the boiler's left side.
-      [BOILER_LEFT_HUG_X, 1.54, BEHIND_BOILER_Z],
+      HIGH_RUN_FROM,
+      HIGH_RUN_TO,
+      [HIGH_RUN_TO[0], BLACK_BACK_Y, HIGH_RUN_TO[2]],
+      [HIGH_RUN_TO[0], BLACK_BACK_Y, coilUnit.z - blackBlock.depth / 2],
+    ],
+    radius: HIGH_RUN_RADIUS,
+    flangeEnd: [0, 0, 1],
+  },
+  // Blue: the branch teeing off it behind the boiler, down past the boiler's
+  // left side and on to the coil unit's grey block, into its front.
+  {
+    points: [
+      GREY_BRANCH_TEE,
+      BEHIND_BOILER_TO,
       [BOILER_LEFT_HUG_X, 1.5, front],
       // Then left and forward, high; straight down beside the grey block; and
       // left, level, into its front.
@@ -319,7 +371,7 @@ const pipes: ComponentProps<typeof Pipe>[] = [
   // into the red horizontal line from below.
   {
     points: [
-      [bx + br, 1.6, bz],
+      onBoiler(BLUE_RIGHT_ANGLE, 1.6),
       [0.6, 1.63, BLUE_BEHIND_DUCT_Z],
       [BLUE_TEE[0], 1.66, BLUE_BEHIND_DUCT_Z],
       [BLUE_TEE[0], 1.9, BLUE_BEHIND_DUCT_Z],
@@ -327,7 +379,7 @@ const pipes: ComponentProps<typeof Pipe>[] = [
       BLUE_TEE,
     ],
     radius: 0.055,
-    flangeStart: [-1, 0, 0],
+    flangeStart: inward(BLUE_RIGHT_ANGLE),
   },
 ]
 
@@ -422,6 +474,36 @@ export function Pipework() {
       >
         <boxGeometry args={[0.05, SMALL_GAUGE.fitting + 0.02, 0.06]} />
       </ToonMesh>
+      {/* The red line tied up to the shelf's big timber by a string. */}
+      <Lashing at={TIMBER_TIE} along={RED_LINE_ALONG} radius={RED_LINE_RADIUS} />
+      <Rod
+        from={[TIMBER_TIE[0], TIMBER_TIE[1] + RED_LINE_RADIUS, TIMBER_TIE[2]]}
+        to={[TIMBER_TIE[0], TIMBER_BOTTOM, TIMBER_TIE[2]]}
+        radius={0.008}
+        color={palette.hay}
+      />
+      <ToonMesh
+        position={[TIMBER_TIE[0], TIMBER_BOTTOM + layout.shelfTimber.height / 2, TIMBER_TIE[2]]}
+        color={palette.hay}
+        outline={0}
+      >
+        <boxGeometry
+          args={[layout.shelfTimber.width + 0.012, layout.shelfTimber.height + 0.012, 0.02]}
+        />
+      </ToonMesh>
+      <Rod from={BRANCH_GAUGE_ON} to={BRANCH_GAUGE_AT} radius={0.012} color={palette.copperGrey} />
+      <Gauge position={BRANCH_GAUGE_AT} radius={BRANCH_GAUGE.radius} reading={-0.3} />
+      <Rod
+        from={DIAGONAL_GAUGE_ON}
+        to={[
+          DIAGONAL_GAUGE_AT[0],
+          DIAGONAL_GAUGE_AT[1] - DIAGONAL_GAUGE.radius,
+          DIAGONAL_GAUGE_AT[2],
+        ]}
+        radius={0.014}
+        color={palette.copperGrey}
+      />
+      <Gauge position={DIAGONAL_GAUGE_AT} radius={DIAGONAL_GAUGE.radius} reading={0.6} />
       {/* A gauge hanging under the red line on a short stem. */}
       <Rod
         from={LINE_GAUGE.on}

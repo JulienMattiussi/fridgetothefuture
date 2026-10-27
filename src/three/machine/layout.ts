@@ -20,13 +20,21 @@ export const layout = {
    * The two left wagon wheels share one axle, left-right, and the frame's two
    * front posts there stand on it: the wheels carry that part of the frame.
    */
-  wheelAxle: { y: 0.45, z: 0.25, wheels: [-1.55, -0.45], radius: 0.45 },
-  /** The upper wooden deck, left of the boiler, over the crank coil. */
+  wheelAxle: { y: 0.45, z: 0.25, wheels: [-2.05, -0.95], radius: 0.45 },
+  /** The upper wooden deck, behind the coil unit. */
   deckY: 2.55,
-  deckLeft: -1.45,
-  deckRight: -0.1,
+  deckLeft: -1.95,
+  deckRight: -0.6,
+  /** The deck's posts: two pairs on the wheel axle, and one at the back right. */
+  deckPosts: [-1.85, -1.15] as [number, number],
+  deckCorner: -0.7,
   /** The right-hand shelf carrying the tanks. */
   shelfY: 2.2,
+  /**
+   * The big timber under the shelf's left edge, back to front: its middle in
+   * x, its section, and its front end, jutting out over the red line.
+   */
+  shelfTimber: { x: 1.52, width: 0.14, height: 0.12, front: 0.7 },
   /**
    * The huge grey vat on the right shelf, topped by a red tank (`cap`) where
    * the rising pipes end (docs/references/video-cuve.jpg). It stands at `y`,
@@ -55,7 +63,7 @@ export const layout = {
    */
   coilUnit: {
     z: 1.35,
-    blackBlock: { left: -2.05, right: -1.6, height: 0.55 },
+    blackBlock: { left: -2.05, right: -1.6, height: 0.55, depth: 0.44 },
     greyBlock: { left: -1.2, right: -0.9, depth: 0.36 },
     slide: 0,
   },
