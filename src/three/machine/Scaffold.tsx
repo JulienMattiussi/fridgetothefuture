@@ -6,36 +6,45 @@ import { layout } from '@/three/machine/layout'
 
 const FRONT = layout.frameFront
 const BACK = -1.1
-const TOP = 3.6
-const { deckY, deckLeft, deckRight, shelfY } = layout
+const { deckY, deckLeft, deckRight, shelfY, wheelAxle } = layout
+/** Where the front posts over the wheel axle stand, on its bearing blocks. */
+const ON_AXLE = wheelAxle.y + 0.08
 
-/** A post from the floor (or a given height) up, at the front and the back. */
-function postPair(x: number, top: number, bottom = 0): [Vec3, Vec3][] {
+/** A post from the floor up, at the front and the back. */
+function postPair(x: number, top: number): [Vec3, Vec3][] {
   return [
     [
-      [x, bottom, FRONT],
+      [x, 0, FRONT],
       [x, top, FRONT],
     ],
     [
-      [x, bottom, BACK],
+      [x, 0, BACK],
       [x, top, BACK],
     ],
   ]
 }
 
 const posts = [
-  ...postPair(-1.35, deckY),
-  ...postPair(-0.65, deckY),
+  // Over the wheel axle, the front posts stand on it, the back ones on the floor.
+  ...[-1.35, -0.65].flatMap((x): [Vec3, Vec3][] => [
+    [
+      [x, ON_AXLE, FRONT],
+      [x, deckY, FRONT],
+    ],
+    postPair(x, deckY)[1]!,
+  ]),
   // The deck's right corner post stands behind the boiler, at the back only.
   postPair(-0.2, deckY)[1]!,
-  ...postPair(1.55, TOP),
-  ...postPair(3.2, TOP),
+  // The right frame stops at the shelf: the vat stands on it.
+  ...postPair(1.55, shelfY),
+  ...postPair(3.2, shelfY),
 ]
 
 const rails: [Vec3, Vec3][] = [
   // Skids on the floor, under the whole machine.
   [
-    [-2.2, 0.07, FRONT + 0.1],
+    // The front one starts right of the wheels.
+    [-0.3, 0.07, FRONT + 0.1],
     [3.4, 0.07, FRONT + 0.1],
   ],
   [
@@ -55,22 +64,14 @@ const rails: [Vec3, Vec3][] = [
     [1.55, shelfY - 0.1, FRONT],
     [3.2, shelfY - 0.1, FRONT],
   ],
-  [
-    [1.45, TOP, FRONT],
-    [3.3, TOP, FRONT],
-  ],
-  [
-    [1.45, TOP, BACK],
-    [3.3, TOP, BACK],
-  ],
   // Diagonal braces.
   [
-    [-1.35, 0.15, FRONT],
+    [-1.35, ON_AXLE + 0.1, FRONT],
     [-0.65, 1.15, FRONT],
   ],
   [
-    [1.55, shelfY, BACK],
-    [3.2, TOP - 0.1, BACK],
+    [1.55, 0.15, BACK],
+    [3.2, shelfY - 0.1, BACK],
   ],
 ]
 

@@ -1,4 +1,4 @@
-import { beltRuns, evenAngles, helixPoints, onCircle, segment } from '@/lib/geometry'
+import { beltRuns, evenAngles, helixPoints, onCircle, roundedPath, segment } from '@/lib/geometry'
 
 describe('beltRuns', () => {
   it('runs parallel to the center line between equal pulleys', () => {
@@ -81,5 +81,66 @@ describe('helixPoints', () => {
     for (const [, y, z] of helixPoints(3.5, 0.2, 1)) {
       expect(Math.hypot(y, z)).toBeCloseTo(0.2)
     }
+  })
+})
+
+describe('roundedPath', () => {
+  it('keeps a straight run as one line', () => {
+    expect(
+      roundedPath(
+        [
+          [0, 0, 0],
+          [2, 0, 0],
+        ],
+        0.5,
+      ),
+    ).toEqual([{ kind: 'line', from: [0, 0, 0], to: [2, 0, 0] }])
+  })
+
+  it('rounds a corner off, the bend starting and ending its radius away', () => {
+    expect(
+      roundedPath(
+        [
+          [0, 0, 0],
+          [2, 0, 0],
+          [2, 3, 0],
+        ],
+        0.5,
+      ),
+    ).toEqual([
+      { kind: 'line', from: [0, 0, 0], to: [1.5, 0, 0] },
+      { kind: 'bend', from: [1.5, 0, 0], corner: [2, 0, 0], to: [2, 0.5, 0] },
+      { kind: 'line', from: [2, 0.5, 0], to: [2, 3, 0] },
+    ])
+  })
+
+  it('shrinks the bend on a short run', () => {
+    const [, bend] = roundedPath(
+      [
+        [0, 0, 0],
+        [0.4, 0, 0],
+        [0.4, 3, 0],
+      ],
+      0.5,
+    )
+    expect(bend).toEqual({
+      kind: 'bend',
+      from: [0.2, 0, 0],
+      corner: [0.4, 0, 0],
+      to: [0.4, 0.2, 0],
+    })
+  })
+
+  it('adds no bend at a straight-through point', () => {
+    expect(
+      roundedPath(
+        [
+          [0, 0, 0],
+          [1, 0, 0],
+          [3, 0, 0],
+        ],
+        0.5,
+      ),
+    ).toEqual([{ kind: 'line', from: [0, 0, 0], to: [3, 0, 0] }])
   })
 })

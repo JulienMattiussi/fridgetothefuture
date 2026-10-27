@@ -19,27 +19,40 @@ Application **100% front-end**, sans backend. Interface en français.
 
 Ce qu'on y voit : un échafaudage en bois brut sur deux niveaux contre le mur ;
 une grosse chaudière cylindrique rouillée au centre, **posée sur l'établi**, la
-même table que la bassine ; les tuyaux suivent trois séries tracées sur le plan
-large (voir `machine/Pipework.tsx`) : **rouge** (la grande diagonale du haut à
-droite vers la gauche, un piquage dans le dôme, la conduite horizontale vers la
-droite), **orange** (une descente du haut à droite, derrière la conduite rouge,
+même table que la bassine, portée non par des pieds mais par **deux gros
+montants en bois** coupés en biais vers l'arrière ; les tuyaux suivent trois séries tracées sur le plan
+large (voir `machine/Pipework.tsx`) : **rouge** (le tuyau de la cuve grise descend en diagonale jusqu'au-dessus de la
+chaudière, où un coude le fait plonger dans le dôme ; la grande diagonale du
+bloc noir passe devant ce coude, arrive un peu plus bas que la jonction et
+remonte vers l'arrière pour le rejoindre sous une bague ; la conduite horizontale part de la descente
+vers la droite), **orange** (une descente du haut à droite, derrière la conduite rouge,
 qui se divise vers le dôme et vers la bassine : le conduit froid), **bleue**
 (du flanc gauche de la chaudière à la bobine, et un court piquage à droite) ; une dizaine de manomètres ; à
-gauche, sur une table **un cran en avant** du reste, l'**unité de la bobine**
+gauche, sur un bâti en bois **un cran en avant** du reste, pas plus profond que les
+blocs (les pieds en fer des deux blocs rivetés par-dessus son bord avant ; à
+chaque bout, deux jambes écartées devant et derrière autour d'un gros poteau
+central ; une grosse traverse basse : `docs/references/video-support-bobine.jpg`), l'**unité de la bobine**
 en trois volumes (`docs/references/video-bobine.jpg`) : un gros bloc noir à
 gauche (une poulie et la **manivelle** devant, le tuyau rouge au-dessus), un
 bloc gris plus petit à droite (le tuyau bleu devant), et entre les deux une
-**bobine de tube de cuivre**, deux tiges horizontales au-dessus et un
+**bobine de tube de cuivre**, deux tiges horizontales au-dessus, soudées aux deux blocs (le bloc gris est aussi haut que le manchon), et un
 **manchon** qui coulisse de gauche à droite le long des tiges, la bobine
 passant dedans ; c'est la manivelle qui le fait coulisser ; deux manomètres
 au-dessus (un gros à cadran sombre, un petit blanc) ; trois roues de charrette à rayons, posées dans la
-profondeur de la machine (axe gauche-droite) et **immobiles** ; en haut à gauche, un volant relié par courroie à l'arbre de transmission
-sous le toit ; une cuve en verre et un tonneau en haut à droite ; une grosse
+profondeur de la machine (axe gauche-droite) et **immobiles**, les deux de
+gauche sur **un même essieu** qui porte les poteaux avant de la structure ; en haut à gauche, un volant relié par courroie à l'arbre de transmission
+sous le toit ; en haut à droite, une **énorme cuve grise** surmontée
+d'une **partie rouge** à roue de vanne, où arrivent les tuyaux qui montent,
+avec une **échelle** sur le côté (`docs/references/video-cuve.jpg`) ; une grosse
 roue de vanne en fonte à droite ; un établi avec une bassine émaillée, une
 pince, deux ballons sur un support en laiton et le grand verre à pied du thé.
 Le glaçon sort d'un **gros conduit incliné à collerette côtelée**, d'où jaillit
 la vapeur froide. Les côtés, l'arrière et le haut ne sont pas visibles : on les
 complète de façon plausible. On ignore les personnages et le cheval.
+
+**Inventions assumées** : le tracé exact des tuyaux rouge et orange entre le
+haut du cadre et la partie rouge de la cuve, l'emplacement de l'échelle et des
+deux montants, et l'appui des poteaux sur l'essieu.
 
 ### La séquence du film
 
@@ -95,19 +108,23 @@ src/
     parts/              Briques réutilisables
       ToonMesh.tsx      Mesh cell shading + contour (base de tout le reste)
       Rod.tsx, Beam.tsx Barre ronde / poutre carrée d'un point à un autre
-      Pipe.tsx          Tuyau en segments, coudes arrondis
+      Pipe.tsx          Tuyau d'un seul tube, coudes arrondis (roundedPath)
+      Flange.tsx        Bride boulonnée, là où un tuyau se fixe à une cuve ou un appareil
       Wheel.tsx         Roue à rayons (roue de charrette, volant de vanne)
       Gear.tsx, Gauge.tsx Engrenage, manomètre
       Table.tsx         Table sur quatre pieds
       Belt.tsx          Courroie plate entre deux poulies
       RibbedSleeve.tsx  Manchon côtelé (bouche du conduit froid)
       Flask.tsx         Ballon de chimie, vide ou rempli
+      Ladder.tsx        Échelle en bois
+      RivetedFoot.tsx   Pied en tôle rivetée, plié sur le bord d'une table
       CopperCoil.tsx    Tube de cuivre enroulé en hélice
     machine/            La machine de Doc, une pièce par fichier
       layout.ts         Les points d'ancrage partagés (en mètres)
       Machine.tsx       Assemble les pièces + les manomètres épars
       Scaffold, Boiler, Pipework, Drive (pièces mobiles), WagonWheels (fixes),
-      CrankCoil (unité de la bobine : blocs, bobine, manchon, manivelle), Tanks, Workbench
+      CrankCoil (unité de la bobine : blocs, bobine, manchon, manivelle),
+      CoilStand (son bâti en bois), Tanks, Workbench
     stable/Stable.tsx   L'écurie : sol, mur de planches, poutres
 tests/
   unit/                 Tests Vitest de src/lib

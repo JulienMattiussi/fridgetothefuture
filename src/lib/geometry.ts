@@ -73,3 +73,35 @@ export function helixPoints(turns: number, radius: number, length: number, perTu
     return [length * (t - 0.5), radius * Math.cos(angle), radius * Math.sin(angle)]
   })
 }
+
+/** A piece of a pipe's center line: a straight run, or a bend around a corner. */
+export type PathPiece =
+  { kind: 'line'; from: Vec3; to: Vec3 } | { kind: 'bend'; from: Vec3; corner: Vec3; to: Vec3 }
+
+/**
+ * A polyline with each corner rounded off: the bend starts `bend` before the
+ * corner and ends `bend` after it, less when a run is too short for that.
+ * Straight-through points add no bend.
+ */
+export function roundedPath(points: Vec3[], bend: number): PathPiece[] {
+  if (points.length < 2) {
+    throw new RangeError('A path needs at least two points')
+  }
+  const pieces: PathPiece[] = []
+  let start = points[0]!
+  for (let i = 1; i < points.length - 1; i++) {
+    const corner = points[i]!
+    const into = segment(points[i - 1]!, corner)
+    const out = segment(corner, points[i + 1]!)
+    const turn = into.direction.reduce((sum, d, k) => sum + d * out.direction[k]!, 0)
+    if (turn > 0.9999) continue
+    const r = Math.min(bend, into.length / 2, out.length / 2)
+    const from = corner.map((c, k) => c - into.direction[k]! * r) as Vec3
+    const to = corner.map((c, k) => c + out.direction[k]! * r) as Vec3
+    pieces.push({ kind: 'line', from: start, to: from })
+    pieces.push({ kind: 'bend', from, corner, to })
+    start = to
+  }
+  pieces.push({ kind: 'line', from: start, to: points.at(-1)! })
+  return pieces
+}

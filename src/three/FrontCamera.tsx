@@ -5,7 +5,7 @@ import { fitDistance } from '@/lib/framing'
 
 const FOV = 40
 /** What the view must always show: the whole machine and a strip of floor. */
-const FRAME = { centerX: 0.55, centerY: 1.85, front: 1.1, width: 6.2, height: 4.2 }
+const FRAME = { centerX: 0.55, centerY: 1.95, front: 1.1, width: 6.2, height: 4.4 }
 
 /**
  * A fixed, straight-on view, like a point-and-click scene: no orbiting. The

@@ -9,6 +9,8 @@ export const palette = {
   iron: '#5f5c58',
   blackIron: '#2e2a26',
   steel: '#8d8f8f',
+  galvanized: '#87908f',
+  paintRed: '#a2443c',
   brass: '#c09a4a',
   copper: '#b8693a',
   glass: '#b9dede',

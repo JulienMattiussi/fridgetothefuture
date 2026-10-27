@@ -1,4 +1,5 @@
 import type { ThreeElements } from '@react-three/fiber'
+import { DoubleSide } from 'three'
 import { evenAngles, onCircle } from '@/lib/geometry'
 import { palette } from '@/three/palette'
 import { Rod } from '@/three/parts/Rod'
@@ -8,7 +9,7 @@ type WheelProps = ThreeElements['group'] & {
   radius: number
   spokes?: number
   color?: string
-  /** The iron tire around a wagon wheel's rim; none on a valve handwheel. */
+  /** The flat iron tire round a wagon wheel's rim; none on a valve handwheel. */
   tire?: boolean
 }
 
@@ -27,9 +28,10 @@ export function Wheel({
       <ToonMesh color={color}>
         <torusGeometry args={[radius - rim, rim, 10, 48]} />
       </ToonMesh>
+      {/* The tire: a flat iron band shrunk round the felloe. */}
       {tire && (
-        <ToonMesh color={palette.iron} outline={0}>
-          <torusGeometry args={[radius - rim * 0.2, rim * 0.5, 8, 48]} />
+        <ToonMesh rotation={[Math.PI / 2, 0, 0]} color={palette.iron} side={DoubleSide}>
+          <cylinderGeometry args={[radius, radius, rim * 2.6, 48, 1, true]} />
         </ToonMesh>
       )}
       {evenAngles(spokes).map((angle) => (

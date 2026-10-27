@@ -16,16 +16,37 @@ export const layout = {
    * (docs/references/video-plan-large.jpg), not tucked behind it.
    */
   pipesZ: 0.45,
+  /**
+   * The two left wagon wheels share one axle, left-right, and the frame's two
+   * front posts there stand on it: the wheels carry that part of the frame.
+   */
+  wheelAxle: { y: 0.45, z: 0.25, wheels: [-1.55, -0.45], radius: 0.45 },
   /** The upper wooden deck, left of the boiler, over the crank coil. */
   deckY: 2.55,
   deckLeft: -1.45,
   deckRight: -0.1,
   /** The right-hand shelf carrying the tanks. */
   shelfY: 2.2,
+  /**
+   * The huge grey vat on the right shelf, topped by a red tank (`cap`) where
+   * the rising pipes end (docs/references/video-cuve.jpg). It stands at `y`,
+   * on the shelf; `radius` is at its top: it flares slightly.
+   */
+  vat: {
+    x: 2.4,
+    y: 2.235,
+    z: -0.42,
+    radius: 0.85,
+    height: 1.2,
+    cap: { radius: 0.68, height: 0.6 },
+  },
   /** The boiler stands on the workbench, the same table as the basin. */
   boiler: { x: 0.1, z: 0.3, radius: 0.36, bottom: 0.8, height: 0.8 },
-  /** The left table with the coil unit, where Marty stands: a step ahead of the rest. */
-  table: { left: -2.15, right: -0.8, back: 0.32, front: 1.2, top: 0.95 },
+  /**
+   * The left stand with the coil unit, where Marty stands: a step ahead of the
+   * rest, and no deeper than the blocks on it.
+   */
+  table: { left: -2.15, right: -0.8, back: 0.53, front: 0.97, top: 0.95 },
   /**
    * The coil unit on that table: its depth, and how far the sliding sleeve
    * sits from the middle of the coil (left negative).

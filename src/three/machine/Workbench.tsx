@@ -1,4 +1,5 @@
-import { DoubleSide } from 'three'
+import { useMemo } from 'react'
+import { DoubleSide, Shape } from 'three'
 import { palette } from '@/three/palette'
 import { Flask } from '@/three/parts/Flask'
 import { Rod } from '@/three/parts/Rod'
@@ -13,6 +14,26 @@ const [basinX, , basinZ] = ductMouth
 /** The two flasks' brass stand: a crossbar on two uprights. */
 const STAND = { left: 1.4, right: 1.75, z: 0.5, height: 0.2 }
 const GLASS = { x: 1.15, z: 0.8, height: 0.26 }
+/**
+ * The bench has no legs: it rests on two thick wooden uprights, their back
+ * edge cut on a slant, as in the film.
+ */
+const UPRIGHTS = { xs: [-0.22, 1.85], thickness: 0.12, foot: 0.45, notch: 0.18 }
+
+/** One upright's side profile, drawn in (z, y). */
+function uprightProfile() {
+  const front = bench.front - 0.05
+  const back = bench.back + 0.03
+  const under = top - 0.06
+  const shape = new Shape()
+  shape.moveTo(front, 0)
+  shape.lineTo(front, under)
+  shape.lineTo(back, under)
+  shape.lineTo(back, under - UPRIGHTS.notch)
+  shape.lineTo(front - UPRIGHTS.foot, 0)
+  shape.closePath()
+  return shape
+}
 
 /**
  * The right workbench, after the film (docs/references/video-*.jpg): the
@@ -20,9 +41,21 @@ const GLASS = { x: 1.15, z: 0.8, height: 0.26 }
  * and Doc's tall glass of tea, waiting for its ice cube.
  */
 export function Workbench() {
+  const profile = useMemo(() => uprightProfile(), [])
   return (
     <group>
-      <Table {...bench} />
+      <Table {...bench} legs={false} />
+      {/* Turned a quarter so the profile's x runs along the depth. */}
+      {UPRIGHTS.xs.map((x) => (
+        <ToonMesh
+          key={x}
+          position={[x + UPRIGHTS.thickness / 2, 0, 0]}
+          rotation={[0, -Math.PI / 2, 0]}
+          color={palette.wood}
+        >
+          <extrudeGeometry args={[profile, { depth: UPRIGHTS.thickness, bevelEnabled: false }]} />
+        </ToonMesh>
+      ))}
       {/* The basin where the ice cube lands. */}
       <ToonMesh position={[basinX, top + 0.05, basinZ]} color={palette.enamel} side={DoubleSide}>
         <cylinderGeometry args={[0.2, 0.13, 0.1, 32, 1, true]} />

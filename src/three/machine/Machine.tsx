@@ -15,7 +15,7 @@ const gauges: { position: Vec3; radius: number; reading: number }[] = [
   { position: [-0.67, 1.7, 0.33], radius: 0.08, reading: 0.5 },
   { position: [-0.35, 2.8, 0.0], radius: 0.09, reading: 0.6 },
   { position: [1.36, 1.92, 0.33], radius: 0.08, reading: 0.2 },
-  { position: [2.35, 2.9, -0.1], radius: 0.1, reading: -0.5 },
+  { position: [2.2, 2.85, 0.42], radius: 0.1, reading: -0.5 },
   // The big brass gauge, like a porthole, on the right.
   { position: [2.36, 1.98, 0.33], radius: 0.17, reading: -0.2 },
   { position: [2.62, 1.75, 0.33], radius: 0.08, reading: 1.0 },

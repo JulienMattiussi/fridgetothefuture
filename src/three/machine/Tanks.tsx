@@ -1,41 +1,47 @@
 import { palette } from '@/three/palette'
+import { Ladder } from '@/three/parts/Ladder'
 import { ToonMesh } from '@/three/parts/ToonMesh'
+import { Wheel } from '@/three/parts/Wheel'
 import { layout } from '@/three/machine/layout'
 
-const GLASS = { x: 1.95, z: -0.6, radius: 0.32, height: 0.9 }
-const BARREL = { x: 2.8, z: -0.6, radius: 0.42, height: 1.1 }
+const { vat } = layout
+const capY = vat.y + vat.height + vat.cap.height / 2
 
-/** Up on the right shelf: the big glass tank and the wooden water tank. */
+/**
+ * Up on the right shelf, the huge grey vat, its red cap
+ * taking the rising pipes, a valve handwheel on its front and a ladder
+ * leaning on its right (docs/references/video-cuve.jpg).
+ */
 export function Tanks() {
-  const glassY = layout.shelfY + 0.05 + GLASS.height / 2
-  const barrelY = layout.shelfY + 0.05 + BARREL.height / 2
   return (
     <group>
-      <ToonMesh position={[GLASS.x, glassY, GLASS.z]} color={palette.glass} opacity={0.45}>
-        <cylinderGeometry args={[GLASS.radius, GLASS.radius, GLASS.height, 32]} />
+      <ToonMesh position={[vat.x, vat.y + vat.height / 2, vat.z]} color={palette.galvanized}>
+        <cylinderGeometry args={[vat.radius, vat.radius * 0.92, vat.height, 40]} />
       </ToonMesh>
-      {[-1, 1].map((side) => (
-        <ToonMesh
-          key={side}
-          position={[GLASS.x, glassY + (side * GLASS.height) / 2, GLASS.z]}
-          color={palette.brass}
-        >
-          <cylinderGeometry args={[GLASS.radius + 0.03, GLASS.radius + 0.03, 0.07, 32]} />
-        </ToonMesh>
-      ))}
-      <ToonMesh position={[BARREL.x, barrelY, BARREL.z]} color={palette.woodDark}>
-        <cylinderGeometry args={[BARREL.radius, BARREL.radius, BARREL.height, 24]} />
+      {/* The rolled lip round the vat's rim. */}
+      <ToonMesh
+        position={[vat.x, vat.y + vat.height, vat.z]}
+        rotation={[Math.PI / 2, 0, 0]}
+        color={palette.galvanized}
+      >
+        <torusGeometry args={[vat.radius, 0.03, 8, 48]} />
       </ToonMesh>
-      {[-0.4, 0, 0.4].map((h) => (
-        <ToonMesh
-          key={h}
-          position={[BARREL.x, barrelY + h * BARREL.height, BARREL.z]}
-          rotation={[Math.PI / 2, 0, 0]}
-          color={palette.iron}
-        >
-          <torusGeometry args={[BARREL.radius + 0.01, 0.022, 8, 40]} />
-        </ToonMesh>
-      ))}
+      <ToonMesh position={[vat.x, capY, vat.z]} color={palette.paintRed}>
+        <cylinderGeometry args={[vat.cap.radius, vat.cap.radius, vat.cap.height, 32]} />
+      </ToonMesh>
+      <Wheel
+        position={[vat.x, capY, vat.z + vat.cap.radius + 0.06]}
+        radius={0.17}
+        spokes={6}
+        tire={false}
+        color={palette.iron}
+      />
+      <Ladder
+        foot={[vat.x + vat.radius + 0.55, 0, vat.z + 0.35]}
+        top={[vat.x + vat.radius + 0.05, vat.y + vat.height + 0.1, vat.z + 0.1]}
+        across={[0.17, 0, 0.13]}
+        rungs={12}
+      />
     </group>
   )
 }

@@ -2,9 +2,10 @@ import { palette } from '@/three/palette'
 import { Beam } from '@/three/parts/Beam'
 import { CopperCoil } from '@/three/parts/CopperCoil'
 import { Gauge } from '@/three/parts/Gauge'
+import { RivetedFoot } from '@/three/parts/RivetedFoot'
 import { Rod } from '@/three/parts/Rod'
-import { Table } from '@/three/parts/Table'
 import { ToonMesh } from '@/three/parts/ToonMesh'
+import { CoilStand } from '@/three/machine/CoilStand'
 import { layout } from '@/three/machine/layout'
 
 const { table, coilUnit } = layout
@@ -13,14 +14,18 @@ const Z = coilUnit.z
 
 /** The big black block on the left, with a pulley and the crank in front. */
 const LEFT = { left: -2.05, right: -1.6, height: 0.55, depth: 0.44 }
-/** The smaller grey block on the right. */
-const RIGHT = { left: -1.2, right: -0.9, height: 0.4, depth: 0.36 }
 /** The copper coil between the blocks. */
 const COIL = { y: top + 0.25, radius: 0.15, turns: 9 }
-/** The two rods joining the blocks above the coil, front and back. */
-const RODS = { y: top + 0.47, spread: 0.1 }
 /** The sleeve sliding along the rods, the coil running through it. */
 const SLEEVE = { width: 0.16, half: 0.2, plate: 0.02 }
+const sleeveTop = COIL.y + SLEEVE.half + SLEEVE.plate / 2
+/** The smaller grey block on the right, as tall as the sleeve. */
+const RIGHT = { left: -1.2, right: -0.9, height: sleeveTop - top, depth: 0.36 }
+/**
+ * The two rods, front and back, welded into both blocks: they run just under
+ * the sleeve's top plate, inside it, clear of the coil.
+ */
+const RODS = { y: sleeveTop - 0.04, spread: 0.1 }
 /** The crank on the left block's front, Marty's handle. */
 const CRANK = { x: -1.75, y: top + 0.18, arm: 0.14, handle: 0.12 }
 
@@ -40,7 +45,19 @@ const s = SLEEVE.half
 export function CrankCoil() {
   return (
     <group>
-      <Table {...table} />
+      <CoilStand />
+      {/* Each block stands on an iron foot riveted over the stand's front edge. */}
+      {[LEFT, RIGHT].map((block) => (
+        <RivetedFoot
+          key={block.left}
+          left={block.left - 0.05}
+          right={block.right + 0.05}
+          top={top}
+          front={table.front}
+          reach={table.front - (Z - block.depth / 2)}
+          drop={0.14}
+        />
+      ))}
       <ToonMesh
         position={[(LEFT.left + LEFT.right) / 2, top + LEFT.height / 2, Z]}
         color={palette.blackIron}
@@ -68,6 +85,19 @@ export function CrankCoil() {
           color={palette.steel}
         />
       ))}
+      {/* Weld beads where the rods meet the blocks. */}
+      {[LEFT.right, RIGHT.left].flatMap((x) =>
+        [-1, 1].map((side) => (
+          <ToonMesh
+            key={`${x}:${side}`}
+            position={[x, RODS.y, Z + side * RODS.spread]}
+            rotation={[0, Math.PI / 2, 0]}
+            color={palette.iron}
+          >
+            <torusGeometry args={[0.018, 0.008, 6, 16]} />
+          </ToonMesh>
+        )),
+      )}
       {/* The sliding sleeve: four plates around the coil, open at both ends. */}
       <group position={[sleeveX, COIL.y, Z]}>
         {[
@@ -108,14 +138,6 @@ export function CrankCoil() {
         to={[CRANK.x, CRANK.y + CRANK.arm, leftFront + 0.03 + CRANK.handle]}
         radius={0.018}
         color={palette.woodDark}
-      />
-      {/* Perforated angle iron along the table's front edge. */}
-      <Beam
-        from={[table.left, top - 0.05, table.front + 0.01]}
-        to={[table.right, top - 0.05, table.front + 0.01]}
-        size={0.09}
-        depth={0.012}
-        color={palette.steel}
       />
       {/* The two gauges on their bar above the left block. */}
       <Rod
