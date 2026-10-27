@@ -11,11 +11,7 @@ const { deckY, deckLeft, deckRight, deckPosts, deckCorner, shelfY, wheelAxle } =
 const [postL, postR] = deckPosts
 /** The frame's right end, where rungs run all up between its two posts. */
 const RIGHT_END = 3.2
-/**
- * The lower plank across the right frame, thinner, just under the workbench's
- * bearers and clear of its splayed back legs.
- */
-const LOW_PLANK = { y: 0.61, height: 0.1 }
+const LOW_PLANK = layout.lowPlank
 /** The right shelf's left edge, and the big timber under it. */
 const SHELF_LEFT = 1.45
 const { shelfTimber: SHELF_TIMBER } = layout

@@ -49,8 +49,9 @@ gauche sur **un même essieu** qui porte les poteaux avant de la structure ; en 
 sous le toit ; en haut à droite, une **énorme cuve grise** surmontée
 d'une **partie rouge** à roue de vanne, où arrivent les tuyaux qui montent,
 avec des **barreaux** tout le long du bout droit de la structure, et une **échelle** appuyée contre le flanc droit de la cuve,
-parallèle aux barreaux (`docs/references/video-cuve.jpg`) ; une grosse
-roue de vanne en fonte à droite ; un établi avec une bassine émaillée, une
+parallèle aux barreaux (`docs/references/video-cuve.jpg`) ; à droite, sur une planche de la structure, la **grosse roue de vanne**
+cuivrée, de profil (axe gauche-droite), une colonne à engrenages (pignon en haut, couple conique au milieu) et
+une petite vanne à volant (`machine/ValveGear.tsx`) ; un établi avec une bassine émaillée, une
 pince, deux ballons sur un support en laiton et le grand verre à pied du thé.
 Le glaçon sort d'un **gros conduit incliné à collerette côtelée**, d'où jaillit
 la vapeur froide. Les côtés, l'arrière et le haut ne sont pas visibles : on les
@@ -118,7 +119,7 @@ src/
       Pipe.tsx          Tuyau d'un seul tube, coudes arrondis (roundedPath)
       Flange.tsx        Bride boulonnée, là où un tuyau se fixe à une cuve ou un appareil
       Wheel.tsx         Roue à rayons (roue de charrette, volant de vanne)
-      Gear.tsx, Gauge.tsx Engrenage, manomètre
+      Gear.tsx, BevelGear.tsx, Gauge.tsx Engrenage droit, conique, manomètre
       Table.tsx         Table sur quatre pieds
       Belt.tsx          Courroie plate entre deux poulies
       RibbedSleeve.tsx  Manchon côtelé (bouche du conduit froid)
@@ -130,7 +131,7 @@ src/
     machine/            La machine de Doc, une pièce par fichier
       layout.ts         Les points d'ancrage partagés (en mètres)
       Machine.tsx       Assemble les pièces + les manomètres épars
-      Scaffold, Boiler, Pipework, Drive (pièces mobiles), WagonWheels (fixes),
+      Scaffold, Boiler, Pipework, Drive (pièces mobiles), ValveGear, WagonWheels (fixes),
       CrankCoil (unité de la bobine : blocs, bobine, manchon, manivelle),
       CoilStand (son bâti en bois), Tanks, Workbench
     stable/Stable.tsx   L'écurie : sol, mur de planches, poutres

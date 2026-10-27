@@ -37,6 +37,13 @@ export const layout = {
   shelfTimber: { x: 1.52, width: 0.14, height: 0.12, front: 0.7 },
   /** A big plank nailed across the right frame's front posts, the valve wheel on it. */
   valvePlank: { y: 1.38, height: 0.18, depth: 0.04 },
+  /** A thinner one lower down, under the workbench's bearers, clear of its legs. */
+  lowPlank: { y: 0.61, height: 0.1 },
+  /**
+   * The small pipe from the vat's right that runs under the shelf, level with
+   * the red line's run there: its height and depth.
+   */
+  vatSmallPipe: { y: 1.86, z: -0.1 },
   /**
    * The huge grey vat on the right shelf, topped by a red tank (`cap`) where
    * the rising pipes end (docs/references/video-cuve.jpg). It stands at `y`,

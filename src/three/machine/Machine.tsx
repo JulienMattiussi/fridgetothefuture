@@ -7,6 +7,7 @@ import { Pipework } from '@/three/machine/Pipework'
 import { Scaffold } from '@/three/machine/Scaffold'
 import { Tanks } from '@/three/machine/Tanks'
 import { WagonWheels } from '@/three/machine/WagonWheels'
+import { ValveGear } from '@/three/machine/ValveGear'
 import { Workbench } from '@/three/machine/Workbench'
 
 /**
@@ -23,6 +24,7 @@ export function Machine() {
       <Boiler />
       <Pipework />
       <Drive />
+      <ValveGear />
       <WagonWheels />
       <CrankCoil />
       <Tanks />

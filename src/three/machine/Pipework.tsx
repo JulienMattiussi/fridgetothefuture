@@ -30,7 +30,7 @@ const overCapTop = (dx: number, dz: number, rise: number): Vec3 => [
 /** The middle of the grey vat's bottom, where the red line comes up into it through the shelf. */
 const VAT_BOTTOM: Vec3 = [vat.x, vat.y, vat.z]
 /** The red line's straight run slopes down to here, under the shelf. */
-const UNDER_SHELF_Y = 1.86
+const UNDER_SHELF_Y = layout.vatSmallPipe.y
 /** Its right end, clear left of the big gauge there. */
 const RED_DOWN_X = 2.1
 const front = layout.pipesZ
@@ -155,7 +155,7 @@ const vatLowAngle = Math.acos((vat.x - VAT_GAUGE.x) / vat.radius)
  * The right small pipe leaves the cap's right flank at depth `z`, clear in
  * front of the ladder, and comes down at `x`, past the shelf's right end.
  */
-const RIGHT_SMALL_Z = -0.1
+const RIGHT_SMALL_Z = layout.vatSmallPipe.z
 const RIGHT_SMALL = {
   z: RIGHT_SMALL_Z,
   x: 3.45,
