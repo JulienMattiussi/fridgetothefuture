@@ -41,7 +41,7 @@ on les complète de façon plausible.
 | -------------------------- | ---------------------------------------------------------- |
 | React 19 + TypeScript      | UI                                                         |
 | Vite                       | Build / dev server                                         |
-| React Three Fiber + drei   | Rendu 3D déclaratif (three.js), OrbitControls, Outlines    |
+| React Three Fiber + drei   | Rendu 3D déclaratif (three.js), Outlines (contours)        |
 | three                      | Moteur 3D sous-jacent                                      |
 | Tailwind CSS v4            | Styles de l'interface superposée (via `@tailwindcss/vite`) |
 | Vitest                     | Tests unitaires de la logique pure                         |
@@ -62,26 +62,61 @@ Node : version du `.nvmrc` (`source ~/.nvm/nvm.sh && nvm use`).
 
 ```
 src/
-  main.tsx            Point d'entrée
-  App.tsx             Assemble la page
-  index.css           Tailwind + base plein écran
-  lib/                Logique pure (aucun import React ni three.js)
-    toonSteps.ts      Les paliers de lumière du cell shading
-  three/              Rendu 3D (composants R3F, hooks three.js)
-    Scene.tsx         Canvas, lumières, caméra orbitale bornée
-    Boiler.tsx        La chaudière (provisoire, en attendant la machine)
-    useToonGradient.ts La texture de dégradé partagée des matériaux toon
+  main.tsx              Point d'entrée
+  App.tsx               Assemble la page
+  index.css             Tailwind + base plein écran
+  lib/                  Logique pure (aucun import React ni three.js)
+    toonSteps.ts        Les paliers de lumière du cell shading
+    geometry.ts         Segments, angles réguliers, points sur un cercle
+    framing.ts          Recul de caméra pour cadrer la scène
+  three/                Rendu 3D (composants R3F, hooks three.js)
+    Scene.tsx           Canvas et lumières
+    FrontCamera.tsx     Caméra fixe de face, recadrée selon la fenêtre
+    palette.ts          Les couleurs de la scène
+    parts/              Briques réutilisables
+      ToonMesh.tsx      Mesh cell shading + contour (base de tout le reste)
+      Rod.tsx, Beam.tsx Barre ronde / poutre carrée d'un point à un autre
+      Pipe.tsx          Tuyau en segments, coudes arrondis
+      Wheel.tsx         Roue à rayons (roue de charrette, volant de vanne)
+      Gear.tsx, Gauge.tsx Engrenage, manomètre
+      Table.tsx         Table sur quatre pieds
+    machine/            La machine de Doc, une pièce par fichier
+      layout.ts         Les points d'ancrage partagés (en mètres)
+      Machine.tsx       Assemble les pièces + les manomètres épars
+      Scaffold, Boiler, Pipework, Drive, ControlBox, Tanks, Workbench
+    stable/Stable.tsx   L'écurie : sol, mur de planches, poutres
 tests/
-  unit/               Tests Vitest de src/lib
-  e2e/                Tests Playwright
-docs/references/      Images de référence du film
+  unit/                 Tests Vitest de src/lib
+  e2e/                  Tests Playwright
+docs/references/        Images de référence du film
 ```
+
+### Vue
+
+**Vue fixe de face**, comme une scène de point and click : pas de caméra
+orbitale. `FrontCamera` recule la caméra pour que le cadre (`FRAME`) tienne
+entier quelle que soit la forme de la fenêtre.
+
+**Toujours en paysage** : en portrait, `index.css` fait pivoter la page d'un
+quart de tour, et le canvas mesure sa taille `offsetSize` (insensible à la
+rotation). Le mobile n'est pas la cible : on ne le teste pas.
+
+### Échelle et repère
+
+Mètres, Y vers le haut, Z vers le spectateur, X vers la droite comme sur la
+référence de face. Marty (environ 1,75 m) donne l'échelle. Les pièces se
+raccordent par les ancres de `machine/layout.ts`.
 
 ### Cell shading
 
-- Matériaux `meshToonMaterial` avec la texture de `useToonGradient` (3
-  paliers, filtre `Nearest` pour des bandes nettes).
-- Contours noirs avec `<Outlines screenspace />` de drei (coque inversée).
+- Tout passe par `ToonMesh` : `meshToonMaterial` avec un dégradé partagé à 3
+  paliers (filtre `Nearest` pour des bandes nettes), et un contour encre.
+- Contours : `<Outlines>` de drei (coque inversée). **Piège** : dans cette
+  version de drei, le drapeau `screenspace` est inversé. Laissé à `false`,
+  l'épaisseur est en pixels du tampon de dessin (d'où le facteur `dpr`) ; à
+  `true`, elle est en mètres.
+- `outline={0}` pour les surfaces de fond (sol, planches du mur) et les petits
+  détails, pour alléger.
 
 ---
 
