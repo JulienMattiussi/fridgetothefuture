@@ -19,8 +19,8 @@ Application **100% front-end**, sans backend. Interface en français.
 
 Ce qu'on y voit : un échafaudage en bois brut sur deux niveaux contre le mur ;
 une grosse chaudière cylindrique rouillée au centre, **posée sur l'établi**, la
-même table que la bassine, portée non par des pieds mais par **deux gros
-montants en bois** coupés en biais vers l'arrière ; les tuyaux suivent trois séries tracées sur le plan
+même table que la bassine, sur deux paires de pieds en retrait des bouts, un bandeau devant et, sous la
+chaudière, deux jambes de force en biais ; les tuyaux suivent trois séries tracées sur le plan
 large (voir `machine/Pipework.tsx`) : **rouge** (le tuyau de la cuve grise descend en diagonale jusqu'au-dessus de la
 chaudière, où un coude le fait plonger dans le dôme ; la grande diagonale du
 bloc noir passe devant ce coude, arrive un peu plus bas que la jonction et

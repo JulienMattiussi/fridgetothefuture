@@ -41,7 +41,7 @@ export const layout = {
     cap: { radius: 0.76, height: 0.8 },
   },
   /** The boiler stands on the workbench, the same table as the basin. */
-  boiler: { x: 0.1, z: 0.3, radius: 0.36, bottom: 0.8, height: 0.8 },
+  boiler: { x: 0.1, z: 0.68, radius: 0.36, bottom: 0.8, height: 0.8 },
   /**
    * The left stand with the coil unit, where Marty stands: a step ahead of the
    * rest, and no deeper than the blocks on it.
@@ -60,10 +60,10 @@ export const layout = {
     slide: 0,
   },
   /** The workbench under the boiler, the basin and the glassware. */
-  bench: { left: -0.32, right: 1.95, back: -0.12, front: 1.05, top: 0.8 },
+  bench: { left: -0.32, right: 1.95, back: 0.31, front: 1.05, top: 0.8 },
   /**
    * The mouth of the cold-air duct, over the basin: the cold vapor gushes out
    * here and the ice cube drops from it (docs/references/video-conduit-froid.jpg).
    */
-  ductMouth: [0.63, 1.22, 0.7] as Vec3,
+  ductMouth: [0.72, 1.22, 0.8] as Vec3,
 }

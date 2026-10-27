@@ -1,3 +1,4 @@
+import { Path, Shape } from 'three'
 import { palette } from '@/three/palette'
 import { Beam } from '@/three/parts/Beam'
 import { CopperCoil } from '@/three/parts/CopperCoil'
@@ -14,7 +15,7 @@ const Z = coilUnit.z
 /** The big black block on the left, with the crank in front. */
 const LEFT = { ...coilUnit.blackBlock, depth: 0.44 }
 /** The copper coil between the blocks. */
-const COIL = { y: top + 0.25, radius: 0.15, turns: 9 }
+const COIL = { y: top + 0.25, radius: 0.15, tube: 0.016, turns: 9 }
 /** The sleeve sliding along the rods, the coil running through it. */
 const SLEEVE = { width: 0.16, half: 0.2, plate: 0.02 }
 const sleeveTop = COIL.y + SLEEVE.half + SLEEVE.plate / 2
@@ -24,7 +25,7 @@ const RIGHT = { ...coilUnit.greyBlock, height: sleeveTop - top }
  * The two rods, front and back, welded into both blocks: they run just under
  * the sleeve's top plate, inside it, clear of the coil.
  */
-const RODS = { y: sleeveTop - 0.04, spread: 0.1 }
+const RODS = { y: sleeveTop - 0.04, spread: 0.1, radius: 0.014 }
 /** The crank on the left block's front, Marty's handle. */
 /**
  * The crank, low near the black block's left edge: far enough from the thin
@@ -35,7 +36,28 @@ const CRANK = { x: -2.0, y: top + 0.04, arm: 0.11, handle: 0.12 }
 const leftFront = Z + LEFT.depth / 2
 const coilLength = RIGHT.left - LEFT.right
 const sleeveX = (LEFT.right + RIGHT.left) / 2 + coilUnit.slide
-const s = SLEEVE.half
+const s = SLEEVE.half + SLEEVE.plate / 2
+/**
+ * The sleeve's face, across the coil's axis: a square with a round bore that
+ * hugs the coil, and two small holes where the rods run through it.
+ */
+const sleeveShape = (() => {
+  const shape = new Shape()
+  shape.moveTo(-s, -s)
+  shape.lineTo(s, -s)
+  shape.lineTo(s, s)
+  shape.lineTo(-s, s)
+  shape.closePath()
+  const bore = new Path()
+  bore.absarc(0, 0, COIL.radius + COIL.tube + 0.006, 0, Math.PI * 2, true)
+  shape.holes.push(bore)
+  for (const side of [-1, 1]) {
+    const rod = new Path()
+    rod.absarc(side * RODS.spread, RODS.y - COIL.y, RODS.radius + 0.002, 0, Math.PI * 2, true)
+    shape.holes.push(rod)
+  }
+  return shape
+})()
 
 /**
  * The coil unit on the left table, where Marty stands
@@ -77,6 +99,7 @@ export function CrankCoil() {
         position={[(LEFT.right + RIGHT.left) / 2, COIL.y, Z]}
         turns={COIL.turns}
         radius={COIL.radius}
+        tube={COIL.tube}
         length={coilLength}
       />
       {[-1, 1].map((side) => (
@@ -84,7 +107,7 @@ export function CrankCoil() {
           key={side}
           from={[LEFT.right, RODS.y, Z + side * RODS.spread]}
           to={[RIGHT.left, RODS.y, Z + side * RODS.spread]}
-          radius={0.014}
+          radius={RODS.radius}
           color={palette.steel}
         />
       ))}
@@ -101,19 +124,14 @@ export function CrankCoil() {
           </ToonMesh>
         )),
       )}
-      {/* The sliding sleeve: four plates around the coil, open at both ends. */}
-      <group position={[sleeveX, COIL.y, Z]}>
-        {[
-          { y: s, z: 0, size: [SLEEVE.width, SLEEVE.plate, 2 * s] },
-          { y: -s, z: 0, size: [SLEEVE.width, SLEEVE.plate, 2 * s] },
-          { y: 0, z: s, size: [SLEEVE.width, 2 * s, SLEEVE.plate] },
-          { y: 0, z: -s, size: [SLEEVE.width, 2 * s, SLEEVE.plate] },
-        ].map(({ y, z, size }) => (
-          <ToonMesh key={`${y}:${z}`} position={[0, y, z]} color={palette.iron}>
-            <boxGeometry args={size as [number, number, number]} />
-          </ToonMesh>
-        ))}
-      </group>
+      {/* The sliding sleeve: a square iron block bored round to fit the coil. */}
+      <ToonMesh
+        position={[sleeveX - SLEEVE.width / 2, COIL.y, Z]}
+        rotation={[0, Math.PI / 2, 0]}
+        color={palette.iron}
+      >
+        <extrudeGeometry args={[sleeveShape, { depth: SLEEVE.width, bevelEnabled: false }]} />
+      </ToonMesh>
       {/* Sight glass at the left block's front corner. */}
       <Rod
         from={[LEFT.left - 0.03, top + 0.05, leftFront - 0.04]}

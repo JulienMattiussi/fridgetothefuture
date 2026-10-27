@@ -103,31 +103,39 @@ const onRedLine = (x: number): Vec3 => [
   RED_LINE_Z,
 ]
 const BLUE_TEE = onRedLine(1.17)
+/** Where the big blue pipe bolts onto the grey block's front, and the depth it comes in at. */
+const GREY_FLANGE: Vec3 = [
+  (greyBlock.left + greyBlock.right) / 2,
+  layout.table.top + 0.19,
+  coilUnit.z + greyBlock.depth / 2,
+]
+const GREY_FLANGE_RUN_Z = GREY_FLANGE[2] + 0.12
+/** A gauge hangs under the red line, past where the blue pipe tees in. */
+const LINE_GAUGE_ON = onRedLine(1.42)
+const LINE_GAUGE = {
+  radius: 0.086,
+  on: LINE_GAUGE_ON,
+  at: [LINE_GAUGE_ON[0], LINE_GAUGE_ON[1] - RED_LINE_RADIUS - 0.04 - 0.086, RED_LINE_Z] as Vec3,
+}
+/** The blue pipe from the boiler's right flank runs back here, behind the duct. */
+const BLUE_BEHIND_DUCT_Z = 0.35
 const RED_LONG_RADIUS = 0.075
 /** The first thin pipe's start, on the black block's front. */
 const THIN1_START: Vec3 = [-1.85, 1.08, coilUnit.z + 0.22]
 /** A gauge stands on it just out of the block (the white disc of the film). */
 const BLOCK_GAUGE = { radius: 0.097, stem: 0.04, foot: [-1.79, 1.07, coilUnit.z + 0.26] as Vec3 }
 /** The thin pipe's last corner, and its end low on the boiler. */
-const THIN_CORNER: Vec3 = [-0.33, 1.12, 0.76]
-const THIN_END = onBoiler(0.9, THIN_CORNER[1])
+const THIN_CORNER: Vec3 = [-0.33, 1.12, 0.9]
+/** Its end on the boiler's left flank, about level in depth with the corner. */
+const THIN_END_ANGLE = 0.5
+const THIN_END = onBoiler(THIN_END_ANGLE, THIN_CORNER[1])
 /** A point on the thin pipe's last run, `t` of the way to the boiler. */
 const onThinLastRun = (t: number): Vec3 =>
   THIN_CORNER.map((v, k) => v + (THIN_END[k]! - v) * t) as Vec3
 /** The second thin pipe joins the first there, just before its gauge. */
-const THIN_MERGE = onThinLastRun(0.4)
+const THIN_MERGE = onThinLastRun(0.1)
 /** A gauge stands on the last run, right against the boiler. */
-const THIN_GAUGE = { radius: 0.066, stem: 0.08, foot: onThinLastRun(0.85) }
-/** The second thin pipe's hump, a gauge standing on its top run. */
-const HUMP_FROM: Vec3 = [-0.7, 1.84, 1.25]
-const HUMP_TO: Vec3 = [-0.45, 1.84, 0.85]
-const HUMP_GAUGE = {
-  radius: 0.081,
-  stem: 0.06,
-  foot: HUMP_FROM.map((v, k) => v + (HUMP_TO[k]! - v) * 0.25) as Vec3,
-}
-/** The thin pipe's low run, toward the boiler. */
-const THIN_LOW_Y = 0.88
+const THIN_GAUGE = { radius: 0.066, stem: 0.08, foot: onThinLastRun(0.45) }
 /** The second thin pipe's run over the coil unit, from the black block on. */
 const THIN2_RUN_FROM: Vec3 = [-1.95, 1.8, 1.45]
 const THIN2_RUN_TO: Vec3 = [-1.0, 1.76, 1.45]
@@ -139,6 +147,16 @@ const onThin2Run = (x: number): Vec3 =>
       v +
       ((THIN2_RUN_TO[k]! - v) * (x - THIN2_RUN_FROM[0])) / (THIN2_RUN_TO[0] - THIN2_RUN_FROM[0]),
   ) as Vec3
+/**
+ * Past the run it slopes down to the right, over the big blue pipe, to a
+ * bend where it drops into the first thin pipe; a gauge stands on the slope.
+ */
+const THIN2_BEND: Vec3 = [-0.42, 1.62, 0.98]
+const SLOPE_GAUGE = {
+  radius: 0.081,
+  stem: 0.06,
+  foot: THIN2_RUN_TO.map((v, k) => v + (THIN2_BEND[k]! - v) * 0.3) as Vec3,
+}
 /**
  * The two gauges over the black block stand on that thin run, in front of
  * the long red diagonal (docs/references/video-bobine.jpg): the big dark one on
@@ -165,12 +183,12 @@ const ORANGE_AFTER_TEE: Vec3 = [1.04, 2.3, 0.15]
 /** Mid-run between those two corners, clear of their bends. */
 const ORANGE_TEE = ORANGE_BEFORE_TEE.map((v, k) => (v + ORANGE_AFTER_TEE[k]!) / 2) as Vec3
 /** The cold-air duct's last run, ending in its corrugated sleeve. */
-const DUCT_BEND: Vec3 = [0.75, 1.61, 0.55]
-const SLEEVE_START: Vec3 = [0.69, 1.42, 0.62]
+const DUCT_BEND: Vec3 = [0.82, 1.61, 0.62]
+const SLEEVE_START: Vec3 = [0.77, 1.42, 0.72]
 /**
  * The duct hangs from the red line by two strings in a V: both tied round the
  * duct just above its sleeve, one rising straight up to the red line, the
- * other slanting up to it right of the whistle.
+ * other slanting up to it further right.
  */
 const RED_LINE_ALONG: Vec3 = RED_LINE_TO.map((v, k) => v - RED_LINE_FROM[k]!) as Vec3
 const DUCT_TIE: Vec3 = DUCT_BEND.map((v, k) => v + (SLEEVE_START[k]! - v) * 0.2) as Vec3
@@ -251,30 +269,25 @@ const pipes: ComponentProps<typeof Pipe>[] = [
       THIN1_START,
       [-1.28, 1.0, coilUnit.z + 0.28],
       [-1.15, 1.36, coilUnit.z + 0.28],
-      // One straight run down across the grey block's front, slipping behind
-      // the big blue pipe, then square corners back and along to the boiler.
-      [-0.6, THIN_LOW_Y, 1.42],
-      [-0.6, THIN_LOW_Y, 0.76],
-      [-0.33, THIN_LOW_Y, 0.76],
+      // Down across the grey block's front, clear of it until past its edge,
+      // slipping behind the big blue pipe, then straight on to the boiler.
+      [greyBlock.right + 0.02, 1.28, coilUnit.z + greyBlock.depth / 2 + 0.03],
       THIN_CORNER,
       THIN_END,
     ],
     radius: 0.02,
     flangeStart: [0, 0, -1],
-    flangeEnd: inward(0.9),
+    flangeEnd: inward(THIN_END_ANGLE),
   },
   // A second thin pipe, from the black block's top: along over the coil unit,
-  // a hump over the big blue pipe, then down into the first, just before its
-  // gauge by the boiler.
+  // sloping down over the big blue pipe, then down into the first, just
+  // before its gauge by the boiler.
   {
     points: [
       [-1.95, layout.table.top + blackBlock.height, 1.45],
       THIN2_RUN_FROM,
       THIN2_RUN_TO,
-      [-0.9, 1.84, 1.4],
-      HUMP_FROM,
-      HUMP_TO,
-      [THIN_MERGE[0], 1.6, THIN_MERGE[2]],
+      THIN2_BEND,
       THIN_MERGE,
     ],
     radius: THIN2_RADIUS,
@@ -290,16 +303,13 @@ const pipes: ComponentProps<typeof Pipe>[] = [
       [0.63, 2.24, 0.15],
       [0.55, 2.0, BEHIND_BOILER_Z],
       // Out from behind, it runs forward hugging the boiler's left side.
-      [BOILER_LEFT_HUG_X, 1.62, BEHIND_BOILER_Z],
-      [BOILER_LEFT_HUG_X, 1.58, front],
-      // Then one straight run down to the left and forward, round elbows.
-      // Run forward to just in front of the grey block, then up the diagonal into it.
-      [-0.85, 1.03, coilUnit.z + greyBlock.depth / 2 + 0.25],
-      [
-        (greyBlock.left + greyBlock.right) / 2,
-        layout.table.top + 0.19,
-        coilUnit.z + greyBlock.depth / 2,
-      ],
+      [BOILER_LEFT_HUG_X, 1.54, BEHIND_BOILER_Z],
+      [BOILER_LEFT_HUG_X, 1.5, front],
+      // Then left and forward, high; straight down beside the grey block; and
+      // left, level, into its front.
+      [-0.8, 1.5, GREY_FLANGE_RUN_Z],
+      [-0.8, GREY_FLANGE[1], GREY_FLANGE_RUN_Z],
+      GREY_FLANGE,
     ],
     radius: 0.06,
     bend: 0.3,
@@ -310,9 +320,9 @@ const pipes: ComponentProps<typeof Pipe>[] = [
   {
     points: [
       [bx + br, 1.6, bz],
-      [0.6, 1.63, bz],
-      [BLUE_TEE[0], 1.66, bz],
-      [BLUE_TEE[0], 1.9, bz],
+      [0.6, 1.63, BLUE_BEHIND_DUCT_Z],
+      [BLUE_TEE[0], 1.66, BLUE_BEHIND_DUCT_Z],
+      [BLUE_TEE[0], 1.9, BLUE_BEHIND_DUCT_Z],
       [BLUE_TEE[0], BLUE_TEE[1] - 0.12, RED_LINE_Z],
       BLUE_TEE,
     ],
@@ -321,7 +331,7 @@ const pipes: ComponentProps<typeof Pipe>[] = [
   },
 ]
 
-/** All the pipes, the cold-air duct's mouth, the steam whistle and its pull cord. */
+/** All the pipes, the cold-air duct's mouth and the gauges standing on them. */
 export function Pipework() {
   return (
     <group>
@@ -387,18 +397,18 @@ export function Pipework() {
         reading={-0.4}
       />
       <Rod
-        from={HUMP_GAUGE.foot}
-        to={[HUMP_GAUGE.foot[0], HUMP_GAUGE.foot[1] + HUMP_GAUGE.stem, HUMP_GAUGE.foot[2]]}
+        from={SLOPE_GAUGE.foot}
+        to={[SLOPE_GAUGE.foot[0], SLOPE_GAUGE.foot[1] + SLOPE_GAUGE.stem, SLOPE_GAUGE.foot[2]]}
         radius={0.012}
         color={palette.copperGrey}
       />
       <Gauge
         position={[
-          HUMP_GAUGE.foot[0],
-          HUMP_GAUGE.foot[1] + HUMP_GAUGE.stem + HUMP_GAUGE.radius,
-          HUMP_GAUGE.foot[2],
+          SLOPE_GAUGE.foot[0],
+          SLOPE_GAUGE.foot[1] + SLOPE_GAUGE.stem + SLOPE_GAUGE.radius,
+          SLOPE_GAUGE.foot[2],
         ]}
-        radius={HUMP_GAUGE.radius}
+        radius={SLOPE_GAUGE.radius}
         reading={0.5}
       />
       <Gauge position={SMALL_GAUGE_AT} radius={SMALL_GAUGE.radius} reading={0.4} />
@@ -412,16 +422,14 @@ export function Pipework() {
       >
         <boxGeometry args={[0.05, SMALL_GAUGE.fitting + 0.02, 0.06]} />
       </ToonMesh>
-      {/* Steam whistle on the red horizontal line, its cord hanging down for Doc. */}
-      <ToonMesh position={[1.2, 2.2, RED_LINE_Z]} color={palette.brass}>
-        <cylinderGeometry args={[0.05, 0.05, 0.22, 16]} />
-      </ToonMesh>
+      {/* A gauge hanging under the red line on a short stem. */}
       <Rod
-        from={[1.25, 2.1, RED_LINE_Z + 0.05]}
-        to={[1.25, 1.45, RED_LINE_Z + 0.08]}
-        radius={0.008}
-        color={palette.hay}
+        from={LINE_GAUGE.on}
+        to={[LINE_GAUGE.on[0], LINE_GAUGE.at[1] + LINE_GAUGE.radius, LINE_GAUGE.on[2]]}
+        radius={0.012}
+        color={palette.copperGrey}
       />
+      <Gauge position={LINE_GAUGE.at} radius={LINE_GAUGE.radius} reading={0.2} />
     </group>
   )
 }

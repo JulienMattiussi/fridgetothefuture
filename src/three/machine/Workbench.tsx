@@ -1,6 +1,6 @@
-import { useMemo } from 'react'
-import { DoubleSide, Shape } from 'three'
+import { DoubleSide } from 'three'
 import { palette } from '@/three/palette'
+import { Beam } from '@/three/parts/Beam'
 import { Flask } from '@/three/parts/Flask'
 import { Rod } from '@/three/parts/Rod'
 import { Table } from '@/three/parts/Table'
@@ -15,47 +15,45 @@ const [basinX, , basinZ] = ductMouth
 const STAND = { left: 1.4, right: 1.75, z: 0.5, height: 0.2 }
 const GLASS = { x: 1.15, z: 0.8, height: 0.26 }
 /**
- * The bench has no legs: it rests on two thick wooden uprights, their back
- * edge cut on a slant, as in the film.
+ * Under the bench, as in the film: two pairs of square
+ * legs set in from the ends, an apron along the front under the top, and at
+ * the left end, under the boiler, two struts slanting down from the top's
+ * edge to the foot of the left legs.
  */
-const UPRIGHTS = { xs: [-0.22, 1.85], thickness: 0.12, foot: 0.45, notch: 0.18 }
-
-/** One upright's side profile, drawn in (z, y). */
-function uprightProfile() {
-  const front = bench.front - 0.05
-  const back = bench.back + 0.03
-  const under = top - 0.06
-  const shape = new Shape()
-  shape.moveTo(front, 0)
-  shape.lineTo(front, under)
-  shape.lineTo(back, under)
-  shape.lineTo(back, under - UPRIGHTS.notch)
-  shape.lineTo(front - UPRIGHTS.foot, 0)
-  shape.closePath()
-  return shape
-}
-
+const UNDER = top - 0.06
+const LEG_XS = [0.25, 1.5]
+const LEG_ZS = [bench.back + 0.1, bench.front - 0.1]
+const LEG = 0.08
 /**
  * The right workbench, after the film (docs/references/video-*.jpg): the
  * enamel basin under the cold-air duct, the tongs, the flasks on their stand
  * and Doc's tall glass of tea, waiting for its ice cube.
  */
 export function Workbench() {
-  const profile = useMemo(() => uprightProfile(), [])
   return (
     <group>
       <Table {...bench} legs={false} />
-      {/* Turned a quarter so the profile's x runs along the depth. */}
-      {UPRIGHTS.xs.map((x) => (
-        <ToonMesh
-          key={x}
-          position={[x + UPRIGHTS.thickness / 2, 0, 0]}
-          rotation={[0, -Math.PI / 2, 0]}
-          color={palette.wood}
-        >
-          <extrudeGeometry args={[profile, { depth: UPRIGHTS.thickness, bevelEnabled: false }]} />
-        </ToonMesh>
+      {LEG_XS.flatMap((x) =>
+        LEG_ZS.map((z) => (
+          <Beam key={`${x}:${z}`} from={[x, 0, z]} to={[x, UNDER, z]} size={LEG} />
+        )),
+      )}
+      {LEG_ZS.map((z) => (
+        <Beam
+          key={z}
+          from={[bench.left + 0.06, UNDER, z]}
+          to={[LEG_XS[0]! - LEG / 2, 0.06, z]}
+          size={LEG}
+          color={palette.woodLight}
+        />
       ))}
+      <Beam
+        from={[bench.left + 0.05, UNDER - 0.06, bench.front - 0.06]}
+        to={[bench.right - 0.05, UNDER - 0.06, bench.front - 0.06]}
+        size={0.12}
+        depth={0.03}
+        color={palette.woodDark}
+      />
       {/* The basin where the ice cube lands. */}
       <ToonMesh position={[basinX, top + 0.05, basinZ]} color={palette.enamel} side={DoubleSide}>
         <cylinderGeometry args={[0.2, 0.13, 0.1, 32, 1, true]} />
