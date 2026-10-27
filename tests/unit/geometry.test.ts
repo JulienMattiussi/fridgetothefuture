@@ -1,4 +1,12 @@
-import { beltRuns, evenAngles, helixPoints, onCircle, roundedPath, segment } from '@/lib/geometry'
+import {
+  beltRuns,
+  evenAngles,
+  helixPoints,
+  onCircle,
+  ringPoint,
+  roundedPath,
+  segment,
+} from '@/lib/geometry'
 
 describe('beltRuns', () => {
   it('runs parallel to the center line between equal pulleys', () => {
@@ -142,5 +150,14 @@ describe('roundedPath', () => {
         0.5,
       ),
     ).toEqual([{ kind: 'line', from: [0, 0, 0], to: [3, 0, 0] }])
+  })
+})
+
+describe('ringPoint', () => {
+  it('steps out square to the axis, toward the given side', () => {
+    const [x, y, z] = ringPoint([1, 2, 3], [1, 0, 0], 0.5, [5, 0, 1])
+    expect(x).toBeCloseTo(1)
+    expect(y).toBeCloseTo(2)
+    expect(z).toBeCloseTo(3.5)
   })
 })

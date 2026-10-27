@@ -1,12 +1,15 @@
 import type { Vec3 } from '@/lib/geometry'
 import { palette } from '@/three/palette'
 import { Beam } from '@/three/parts/Beam'
+import { Rod } from '@/three/parts/Rod'
 import { ToonMesh } from '@/three/parts/ToonMesh'
 import { layout } from '@/three/machine/layout'
 
 const FRONT = layout.frameFront
 const BACK = -1.1
 const { deckY, deckLeft, deckRight, shelfY, wheelAxle } = layout
+/** The frame's right end, where rungs run all up between its two posts. */
+const RIGHT_END = 3.2
 /** Where the front posts over the wheel axle stand, on its bearing blocks. */
 const ON_AXLE = wheelAxle.y + 0.08
 
@@ -24,7 +27,7 @@ function postPair(x: number, top: number): [Vec3, Vec3][] {
   ]
 }
 
-const posts = [
+const posts: [Vec3, Vec3][] = [
   // Over the wheel axle, the front posts stand on it, the back ones on the floor.
   ...[-1.35, -0.65].flatMap((x): [Vec3, Vec3][] => [
     [
@@ -37,8 +40,11 @@ const posts = [
   postPair(-0.2, deckY)[1]!,
   // The right frame stops at the shelf: the vat stands on it.
   ...postPair(1.55, shelfY),
-  ...postPair(3.2, shelfY),
+  ...postPair(RIGHT_END, shelfY),
 ]
+
+/** Rungs all up the right end, under the vat, the frame's depth long. */
+const RUNG_YS = Array.from({ length: 7 }, (_, i) => 0.35 + i * 0.27)
 
 const rails: [Vec3, Vec3][] = [
   // Skids on the floor, under the whole machine.
@@ -81,6 +87,15 @@ export function Scaffold() {
     <group>
       {[...posts, ...rails].map(([from, to], i) => (
         <Beam key={i} from={from} to={to} size={0.11} />
+      ))}
+      {RUNG_YS.map((y) => (
+        <Rod
+          key={y}
+          from={[RIGHT_END + 0.07, y, FRONT]}
+          to={[RIGHT_END + 0.07, y, BACK]}
+          radius={0.022}
+          color={palette.wood}
+        />
       ))}
       <ToonMesh
         position={[(deckLeft + deckRight) / 2, deckY, (FRONT + BACK) / 2]}

@@ -1,5 +1,7 @@
 import type { Vec3 } from '@/lib/geometry'
+import { palette } from '@/three/palette'
 import { Beam } from '@/three/parts/Beam'
+import { Rod } from '@/three/parts/Rod'
 
 interface LadderProps {
   /** The middle of the ladder's foot. */
@@ -17,7 +19,7 @@ const shift = (p: Vec3, v: Vec3, k: number): Vec3 => [
   p[2] + v[2] * k,
 ]
 
-/** A wooden ladder: two rails and evenly spaced rungs. */
+/** A wooden ladder: two parallel rails and evenly spaced round rungs. */
 export function Ladder({ foot, top, across, rungs }: LadderProps) {
   const up: Vec3 = [top[0] - foot[0], top[1] - foot[1], top[2] - foot[2]]
   return (
@@ -33,12 +35,12 @@ export function Ladder({ foot, top, across, rungs }: LadderProps) {
       {Array.from({ length: rungs }, (_, i) => {
         const at = shift(foot, up, (i + 1) / (rungs + 1))
         return (
-          <Beam
+          <Rod
             key={i}
             from={shift(at, across, -1)}
             to={shift(at, across, 1)}
-            size={0.04}
-            outline={0}
+            radius={0.02}
+            color={palette.wood}
           />
         )
       })}

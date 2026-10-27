@@ -26,14 +26,20 @@ chaudière, où un coude le fait plonger dans le dôme ; la grande diagonale du
 bloc noir passe devant ce coude, arrive un peu plus bas que la jonction et
 remonte vers l'arrière pour le rejoindre sous une bague ; la conduite horizontale part de la descente
 vers la droite), **orange** (une descente du haut à droite, derrière la conduite rouge,
-qui se divise vers le dôme et vers la bassine : le conduit froid), **bleue**
-(du flanc gauche de la chaudière à la bobine, et un court piquage à droite) ; une dizaine de manomètres ; à
+qui se divise : vers la bassine, c'est le conduit froid, suspendu à la conduite
+rouge par deux ficelles en V nouées autour des deux tuyaux ; l'autre branche
+passe derrière la chaudière sans la toucher et devient le tuyau **bleu** qui
+va à la bobine), **bleue** encore (du flanc droit de la chaudière, derrière le
+conduit froid, jusque sous la conduite rouge) ; deux petits tuyaux à plusieurs coudes partent du bloc noir (l'un de
+son devant, l'autre de son dessus) et fusionnent juste avant un manomètre collé à la chaudière, où ils
+arrivent juste au-dessus de son unique anneau, un fil fin ; une dizaine de manomètres à
+cerclage gris cuivré, jamais deux de la même taille ni avec le même cadran ; à
 gauche, sur un bâti en bois **un cran en avant** du reste, pas plus profond que les
 blocs (les pieds en fer des deux blocs rivetés par-dessus son bord avant ; à
 chaque bout, deux jambes écartées devant et derrière autour d'un gros poteau
 central ; une grosse traverse basse : `docs/references/video-support-bobine.jpg`), l'**unité de la bobine**
 en trois volumes (`docs/references/video-bobine.jpg`) : un gros bloc noir à
-gauche (une poulie et la **manivelle** devant, le tuyau rouge au-dessus), un
+gauche (un manomètre et la **manivelle** devant, le tuyau rouge au-dessus), un
 bloc gris plus petit à droite (le tuyau bleu devant), et entre les deux une
 **bobine de tube de cuivre**, deux tiges horizontales au-dessus, soudées aux deux blocs (le bloc gris est aussi haut que le manchon), et un
 **manchon** qui coulisse de gauche à droite le long des tiges, la bobine
@@ -43,7 +49,8 @@ profondeur de la machine (axe gauche-droite) et **immobiles**, les deux de
 gauche sur **un même essieu** qui porte les poteaux avant de la structure ; en haut à gauche, un volant relié par courroie à l'arbre de transmission
 sous le toit ; en haut à droite, une **énorme cuve grise** surmontée
 d'une **partie rouge** à roue de vanne, où arrivent les tuyaux qui montent,
-avec une **échelle** sur le côté (`docs/references/video-cuve.jpg`) ; une grosse
+avec des **barreaux** tout le long du bout droit de la structure, et une **échelle** appuyée contre le flanc droit de la cuve,
+parallèle aux barreaux (`docs/references/video-cuve.jpg`) ; une grosse
 roue de vanne en fonte à droite ; un établi avec une bassine émaillée, une
 pince, deux ballons sur un support en laiton et le grand verre à pied du thé.
 Le glaçon sort d'un **gros conduit incliné à collerette côtelée**, d'où jaillit
@@ -100,6 +107,7 @@ src/
   lib/                  Logique pure (aucun import React ni three.js)
     toonSteps.ts        Les paliers de lumière du cell shading
     geometry.ts         Segments, angles, cercles, courroies, hélice
+    gaugeDial.ts        Le dessin des cadrans de manomètre, tiré de leur taille
     framing.ts          Recul de caméra pour cadrer la scène
   three/                Rendu 3D (composants R3F, hooks three.js)
     Scene.tsx           Canvas et lumières
@@ -117,6 +125,7 @@ src/
       RibbedSleeve.tsx  Manchon côtelé (bouche du conduit froid)
       Flask.tsx         Ballon de chimie, vide ou rempli
       Ladder.tsx        Échelle en bois
+      Lashing.tsx       Tour de ficelle noué autour d'un tuyau
       RivetedFoot.tsx   Pied en tôle rivetée, plié sur le bord d'une table
       CopperCoil.tsx    Tube de cuivre enroulé en hélice
     machine/            La machine de Doc, une pièce par fichier
@@ -135,8 +144,12 @@ docs/references/        Images de référence du film
 ### Vue
 
 **Vue fixe de face**, comme une scène de point and click : pas de caméra
-orbitale. `FrontCamera` recule la caméra pour que le cadre (`FRAME`) tienne
-entier quelle que soit la forme de la fenêtre.
+orbitale. `FrontCamera` recule la caméra pour que le cadre (`FRAME`,
+`three/viewFrame.ts`) tienne entier quelle que soit la forme de la fenêtre.
+
+**Inspection** : ajouter `?orbit` à l'URL (http://localhost:1885/?orbit) rend
+la souris libre de tourner autour de la machine, pour la vérifier pendant la
+modélisation. Sans ce paramètre, la vue reste fixe.
 
 **Toujours en paysage** : en portrait, `index.css` fait pivoter la page d'un
 quart de tour, et le canvas mesure sa taille `offsetSize` (insensible à la

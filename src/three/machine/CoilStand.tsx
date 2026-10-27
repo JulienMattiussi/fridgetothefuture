@@ -11,6 +11,20 @@ const UNDER = top - 0.06
 const SPLAY = 0.16
 /** Each end's frame stands this far in from the stand's ends. */
 const ENDS = [left + 0.12, right - 0.08]
+const LEG = 0.08
+/**
+ * The low stretcher, nailed flat onto the front legs' front face: it leans
+ * back like them, `tilt` off upright, and sits on their face at its height.
+ */
+const STRETCHER = { y: 0.17, height: 0.16, depth: 0.07 }
+const tilt = Math.atan2(SPLAY + 0.05, UNDER)
+const frontLegZ = (y: number) => front + SPLAY - ((SPLAY + 0.05) * y) / UNDER
+const out = LEG / 2 + STRETCHER.depth / 2
+const STRETCHER_AT: [number, number, number] = [
+  (left - 0.1 + right + 0.05) / 2,
+  STRETCHER.y + Math.sin(tilt) * out,
+  frontLegZ(STRETCHER.y) + Math.cos(tilt) * out,
+]
 
 /**
  * The coil unit's stand (docs/references/video-support-bobine.jpg): no plain
@@ -39,17 +53,13 @@ export function CoilStand() {
             size={0.13}
             color={palette.woodDark}
           />
-          <Beam from={[x, UNDER, front - 0.05]} to={[x, 0, front + SPLAY]} size={0.08} />
-          <Beam from={[x, UNDER, back + 0.05]} to={[x, 0, back - SPLAY]} size={0.08} />
+          <Beam from={[x, UNDER, front - 0.05]} to={[x, 0, front + SPLAY]} size={LEG} />
+          <Beam from={[x, UNDER, back + 0.05]} to={[x, 0, back - SPLAY]} size={LEG} />
         </group>
       ))}
-      <Beam
-        from={[left - 0.1, 0.17, front + SPLAY * 0.8]}
-        to={[right + 0.05, 0.17, front + SPLAY * 0.8]}
-        size={0.16}
-        depth={0.07}
-        color={palette.woodLight}
-      />
+      <ToonMesh position={STRETCHER_AT} rotation={[-tilt, 0, 0]} color={palette.woodLight}>
+        <boxGeometry args={[right - left + 0.15, STRETCHER.height, STRETCHER.depth]} />
+      </ToonMesh>
     </group>
   )
 }

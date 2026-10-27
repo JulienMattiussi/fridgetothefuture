@@ -1,7 +1,6 @@
 import { palette } from '@/three/palette'
 import { Beam } from '@/three/parts/Beam'
 import { CopperCoil } from '@/three/parts/CopperCoil'
-import { Gauge } from '@/three/parts/Gauge'
 import { RivetedFoot } from '@/three/parts/RivetedFoot'
 import { Rod } from '@/three/parts/Rod'
 import { ToonMesh } from '@/three/parts/ToonMesh'
@@ -12,22 +11,26 @@ const { table, coilUnit } = layout
 const top = table.top
 const Z = coilUnit.z
 
-/** The big black block on the left, with a pulley and the crank in front. */
-const LEFT = { left: -2.05, right: -1.6, height: 0.55, depth: 0.44 }
+/** The big black block on the left, with the crank in front. */
+const LEFT = { ...coilUnit.blackBlock, depth: 0.44 }
 /** The copper coil between the blocks. */
 const COIL = { y: top + 0.25, radius: 0.15, turns: 9 }
 /** The sleeve sliding along the rods, the coil running through it. */
 const SLEEVE = { width: 0.16, half: 0.2, plate: 0.02 }
 const sleeveTop = COIL.y + SLEEVE.half + SLEEVE.plate / 2
 /** The smaller grey block on the right, as tall as the sleeve. */
-const RIGHT = { left: -1.2, right: -0.9, height: sleeveTop - top, depth: 0.36 }
+const RIGHT = { ...coilUnit.greyBlock, height: sleeveTop - top }
 /**
  * The two rods, front and back, welded into both blocks: they run just under
  * the sleeve's top plate, inside it, clear of the coil.
  */
 const RODS = { y: sleeveTop - 0.04, spread: 0.1 }
 /** The crank on the left block's front, Marty's handle. */
-const CRANK = { x: -1.75, y: top + 0.18, arm: 0.14, handle: 0.12 }
+/**
+ * The crank, low near the black block's left edge: far enough from the thin
+ * pipe for its arm to turn a full circle clear of it. It rests pointing down.
+ */
+const CRANK = { x: -2.0, y: top + 0.04, arm: 0.11, handle: 0.12 }
 
 const leftFront = Z + LEFT.depth / 2
 const coilLength = RIGHT.left - LEFT.right
@@ -37,8 +40,8 @@ const s = SLEEVE.half
 /**
  * The coil unit on the left table, where Marty stands
  * (docs/references/video-bobine.jpg): three volumes in a row. The black block
- * on the left takes the long red pipe on top and carries a pulley and the
- * crank on its front; the smaller grey block on the right takes the blue pipe
+ * on the left takes the long red pipe on top and carries the crank on its
+ * front; the smaller grey block on the right takes the blue pipe
  * in front; between them a copper coil, two rods above, and a sleeve that the
  * crank slides left and right along the rods, the coil running through it.
  */
@@ -118,41 +121,19 @@ export function CrankCoil() {
         radius={0.022}
         color={palette.glass}
       />
-      {/* The pulley on the left block's front. */}
-      <ToonMesh
-        position={[-1.93, top + 0.38, leftFront + 0.02]}
-        rotation={[Math.PI / 2, 0, 0]}
-        color={palette.dial}
-      >
-        <cylinderGeometry args={[0.1, 0.1, 0.04, 32]} />
-      </ToonMesh>
       {/* The crank: arm and wooden handle, in front of the left block. */}
       <Beam
-        from={[CRANK.x, CRANK.y, leftFront + 0.03]}
-        to={[CRANK.x, CRANK.y + CRANK.arm, leftFront + 0.03]}
+        from={[CRANK.x, CRANK.y, leftFront + 0.05]}
+        to={[CRANK.x, CRANK.y - CRANK.arm, leftFront + 0.05]}
         size={0.035}
         color={palette.iron}
       />
       <Rod
-        from={[CRANK.x, CRANK.y + CRANK.arm, leftFront + 0.03]}
-        to={[CRANK.x, CRANK.y + CRANK.arm, leftFront + 0.03 + CRANK.handle]}
+        from={[CRANK.x, CRANK.y - CRANK.arm, leftFront + 0.05]}
+        to={[CRANK.x, CRANK.y - CRANK.arm, leftFront + 0.05 + CRANK.handle]}
         radius={0.018}
         color={palette.woodDark}
       />
-      {/* The two gauges on their bar above the left block. */}
-      <Rod
-        from={[-2.1, top + 0.85, Z - 0.1]}
-        to={[-1.45, top + 0.85, Z - 0.1]}
-        radius={0.015}
-        color={palette.steel}
-      />
-      <Gauge
-        position={[-1.78, top + 1.0, Z - 0.05]}
-        radius={0.15}
-        face={palette.dialDark}
-        needle={palette.dial}
-      />
-      <Gauge position={[-1.56, top + 0.86, Z]} radius={0.1} reading={0.4} />
     </group>
   )
 }

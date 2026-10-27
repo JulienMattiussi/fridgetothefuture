@@ -9,16 +9,18 @@ import { Tanks } from '@/three/machine/Tanks'
 import { WagonWheels } from '@/three/machine/WagonWheels'
 import { Workbench } from '@/three/machine/Workbench'
 
-/** The gauges scattered over the frame, beyond the crank coil's two. */
+/**
+ * The gauges scattered over the frame, beyond those on the pipes. Each has its
+ * own size, so its own dial (see Gauge).
+ */
 const gauges: { position: Vec3; radius: number; reading: number }[] = [
-  { position: [-0.94, 2.24, 0.33], radius: 0.07, reading: -0.3 },
-  { position: [-0.67, 1.7, 0.33], radius: 0.08, reading: 0.5 },
-  { position: [-0.35, 2.8, 0.0], radius: 0.09, reading: 0.6 },
-  { position: [1.36, 1.92, 0.33], radius: 0.08, reading: 0.2 },
-  { position: [2.2, 2.85, 0.42], radius: 0.1, reading: -0.5 },
-  // The big brass gauge, like a porthole, on the right.
-  { position: [2.36, 1.98, 0.33], radius: 0.17, reading: -0.2 },
-  { position: [2.62, 1.75, 0.33], radius: 0.08, reading: 1.0 },
+  { position: [-0.94, 2.24, 0.33], radius: 0.072, reading: -0.3 },
+  { position: [-0.35, 2.8, 0.0], radius: 0.094, reading: 0.6 },
+  { position: [1.36, 1.92, 0.33], radius: 0.086, reading: 0.2 },
+  { position: [2.2, 2.85, 0.42], radius: 0.104, reading: -0.5 },
+  // The big gauge, like a porthole, on the right.
+  { position: [2.36, 1.98, 0.33], radius: 0.168, reading: -0.2 },
+  { position: [2.62, 1.75, 0.33], radius: 0.077, reading: 1.0 },
 ]
 
 /** Doc's steam-powered refrigerator, as it stands in the livery stable. */

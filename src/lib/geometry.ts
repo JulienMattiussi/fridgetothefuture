@@ -105,3 +105,16 @@ export function roundedPath(points: Vec3[], bend: number): PathPiece[] {
   pieces.push({ kind: 'line', from: start, to: points.at(-1)! })
   return pieces
 }
+
+/**
+ * The point at `distance` from `center`, square to `axis`, on the side
+ * `toward` points to: where a string tied round a pipe leaves it.
+ */
+export function ringPoint(center: Vec3, axis: Vec3, distance: number, toward: Vec3): Vec3 {
+  const axisLength = Math.hypot(...axis)
+  const unit = axis.map((v) => v / axisLength)
+  const along = toward.reduce((sum, v, k) => sum + v * unit[k]!, 0)
+  const side = toward.map((v, k) => v - along * unit[k]!)
+  const scale = distance / Math.hypot(...side)
+  return center.map((v, k) => v + side[k]! * scale) as Vec3
+}

@@ -30,15 +30,15 @@ export const layout = {
   /**
    * The huge grey vat on the right shelf, topped by a red tank (`cap`) where
    * the rising pipes end (docs/references/video-cuve.jpg). It stands at `y`,
-   * on the shelf; `radius` is at its top: it flares slightly.
+   * on the shelf: a straight cylinder.
    */
   vat: {
     x: 2.4,
     y: 2.235,
     z: -0.42,
     radius: 0.85,
-    height: 1.2,
-    cap: { radius: 0.68, height: 0.6 },
+    height: 1.0,
+    cap: { radius: 0.76, height: 0.8 },
   },
   /** The boiler stands on the workbench, the same table as the basin. */
   boiler: { x: 0.1, z: 0.3, radius: 0.36, bottom: 0.8, height: 0.8 },
@@ -46,12 +46,19 @@ export const layout = {
    * The left stand with the coil unit, where Marty stands: a step ahead of the
    * rest, and no deeper than the blocks on it.
    */
-  table: { left: -2.15, right: -0.8, back: 0.53, front: 0.97, top: 0.95 },
+  table: { left: -2.15, right: -0.8, back: 1.13, front: 1.57, top: 0.95 },
   /**
-   * The coil unit on that table: its depth, and how far the sliding sleeve
-   * sits from the middle of the coil (left negative).
+   * The coil unit on that table: its depth, its big black block on the left
+   * (the long red pipe rises from the middle of its top), its grey block on
+   * the right (the blue pipe enters its front), and how far the sliding
+   * sleeve sits from the middle of the coil (left negative).
    */
-  coilUnit: { z: 0.75, slide: 0 },
+  coilUnit: {
+    z: 1.35,
+    blackBlock: { left: -2.05, right: -1.6, height: 0.55 },
+    greyBlock: { left: -1.2, right: -0.9, depth: 0.36 },
+    slide: 0,
+  },
   /** The workbench under the boiler, the basin and the glassware. */
   bench: { left: -0.32, right: 1.95, back: -0.12, front: 1.05, top: 0.8 },
   /**
