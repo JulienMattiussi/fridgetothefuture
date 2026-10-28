@@ -30,8 +30,9 @@ export function createSequenceStore() {
   /** Bumped on each change the overlay shows. */
   let version = 0
   const set = (next: SequenceState) => {
-    // The overlay redraws on a new phase, or the first log in (it can then reset).
-    const changed = next.phase !== state.phase || next.logs.length !== state.logs.length
+    // The overlay redraws on a new phase, a log in (it can then reset), or up the ladder.
+    const changed =
+      next.phase !== state.phase || next.logs.length !== state.logs.length || next.up !== state.up
     state = next
     current = readouts(state)
     if (changed) {

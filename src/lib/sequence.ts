@@ -80,6 +80,11 @@ export interface SequenceState {
   doom: Failure | null
   /** Whether the vat's valve was opened with the small one still shut: no ice will come. */
   smallShut: boolean
+  /**
+   * Up the ladder out of turn (in turn, the phase says so): there, only the
+   * vat's valve can be worked, and turning it brings the visitor back down.
+   */
+  up: boolean
   /** Once failed: how, and the phase it failed in (the machine still shows it). */
   failure: { kind: Failure; during: Phase } | null
 }
@@ -151,6 +156,7 @@ export const initialState: SequenceState = {
   logs: [],
   doom: null,
   smallShut: false,
+  up: false,
   failure: null,
 }
 
@@ -160,6 +166,8 @@ export const initialState: SequenceState = {
  */
 function enter(state: SequenceState, phase: Phase): SequenceState {
   const next = { ...state, phase, elapsed: 0, worked: 0, auto: false, turning: null }
+  // The vat's valve already opened: no need to climb up to it any more.
+  if (phase === 'primed' && state.opened.includes('openTopValve')) return enter(next, 'climbed')
   const awaited = awaitedTurn(phase)
   return awaited && state.opened.includes(awaited[0]) ? enter(next, awaited[1].to) : next
 }
@@ -193,16 +201,27 @@ const ahead = (state: SequenceState, from: Phase) =>
  */
 export function availableActions(state: SequenceState): Action[] {
   if (state.phase === 'served' || state.phase === 'failed') return ['reset']
+  // Up the ladder, the vat's valve is all there is to work.
+  if (isUp(state)) return ['openTopValve', 'reset']
   const actions = [...entries(ON_CLICK), ...entries(ON_TURN)]
     .filter(
       ([action, step]) =>
         (ahead(state, step.from) && !state.opened.includes(action as TurnAction)) ||
         lateValve(state, action),
     )
+    // The vat's valve only from up the ladder; the ladder, any time till that valve is open.
+    .filter(
+      ([action]) =>
+        action !== 'openTopValve' &&
+        (action !== 'climbLadder' || !state.opened.includes('openTopValve')),
+    )
     .map(([action]) => action)
   const untouched = state.phase === 'idle' && state.logs.length === 0
   return untouched ? actions : [...actions, 'reset']
 }
+
+/** Whether the visitor is up the ladder: in turn, or out of it. */
+const isUp = (state: SequenceState) => state.up || state.phase === 'climbed'
 
 /** The small valve, skipped, can still be opened late: to the boiler's ruin. */
 const lateValve = (state: SequenceState, action: Action) =>
@@ -225,7 +244,10 @@ export function act(state: SequenceState, action: Action): SequenceState {
   }
   if (action === 'loadStove') return load(state, state.logs.length + 1)
   const step = ON_CLICK[action as ClickAction]
-  return step.from === state.phase ? enter(state, step.to) : doom(state, 'pipeBurst')
+  if (step.from === state.phase) return enter(state, step.to)
+  // Up the ladder early: nothing wrong yet, but the only way down is the vat's valve.
+  if (action === 'climbLadder') return { ...state, up: true }
+  return doom(state, 'pipeBurst')
 }
 
 /**
@@ -271,11 +293,11 @@ function turnedOutOfTurn(state: SequenceState, action: TurnAction): SequenceStat
       // the fire: nothing, for now.
       return state.smallShut ? fail(state, 'boilerExplodes') : doom(left, 'pipeBurst')
     case 'openTopValve':
-      // The fire lit, the engine starts all the same; without the small valve
-      // there will be no ice, without the ladder something will give.
-      if (state.phase === 'lit') return enter({ ...state, smallShut: true }, 'starting')
-      if (state.phase === 'primed') return enter(doom(state, 'pipeBurst'), 'starting')
-      return doom(left, 'pipeBurst')
+      // Turned from up the ladder, climbed early: back down. The fire lit, the
+      // engine starts all the same, but without the small valve there will be
+      // no ice; before the fire, nothing, for now.
+      if (state.phase === 'lit') return enter({ ...state, up: false, smallShut: true }, 'starting')
+      return doom({ ...left, up: false }, 'pipeBurst')
     case 'turnCrank':
       return fail(state, 'pipeBurst')
     case 'openValve':
@@ -466,7 +488,7 @@ export function readouts(state: SequenceState): Readouts {
         : reached(state, 'starting')
           ? 0
           : handle(state, 'openTopValve'),
-    closeUp: phase === 'climbed' ? 'vat' : reached(state, 'jet') ? 'basin' : 'none',
+    closeUp: isUp(state) ? 'vat' : reached(state, 'jet') ? 'basin' : 'none',
     pressure: pressure(state),
     steam: engine,
     crank: handle(state, 'turnCrank'),

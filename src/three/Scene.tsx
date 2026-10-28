@@ -15,12 +15,12 @@ import { Stable } from '@/three/stable/Stable'
 const inspect = new URLSearchParams(window.location.search).has('orbit')
 
 /** The full-page 3D scene: the livery stable's wall and Doc's machine. */
-export function Scene({ orbit = false }: { orbit?: boolean }) {
+export function Scene({ orbit = false, label }: { orbit?: boolean; label: string }) {
   const free = inspect || orbit
   return (
     // Offset size, not the bounding box: in portrait the page is rotated
     // (index.css), and the bounding box would swap width and height.
-    <Canvas aria-label="Le réfrigérateur de Doc Brown" resize={{ offsetSize: true }}>
+    <Canvas aria-label={label} resize={{ offsetSize: true }}>
       <FrontCamera still={free} />
       <SequenceClock />
       {free && <OrbitControls target={[...FRAME_CENTER]} makeDefault />}

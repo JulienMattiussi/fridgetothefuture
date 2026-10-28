@@ -1,6 +1,7 @@
 import { useState, useSyncExternalStore } from 'react'
 import { ENDINGS } from '@/lib/endings'
 import type { EndingsStore } from '@/ui/endingsStore'
+import { useLanguage } from '@/ui/useLanguage'
 import { Plate, PlateRule, PlateTitle } from '@/ui/Plate'
 
 interface TrophiesProps {
@@ -27,6 +28,7 @@ function Cup({ className }: { className: string }) {
 export function Trophies({ endings, orbit, onOrbit }: TrophiesProps) {
   const { seen, last } = useSyncExternalStore(endings.subscribe, endings.get)
   const [open, setOpen] = useState(false)
+  const { t } = useLanguage()
   if (seen.length === 0) return null
   const all = seen.length === ENDINGS.length
   return (
@@ -34,13 +36,13 @@ export function Trophies({ endings, orbit, onOrbit }: TrophiesProps) {
       {open && (
         <Plate className="w-80">
           <div id="endings">
-            <PlateTitle>Succès</PlateTitle>
+            <PlateTitle>{t.trophies}</PlateTitle>
             <p className="mt-1 text-center text-sm tracking-widest text-[#d8c3a0] uppercase">
-              {seen.length} / {ENDINGS.length} fins
+              {t.count(seen.length, ENDINGS.length)}
             </p>
             <PlateRule />
             <ol className="flex flex-col gap-1.5">
-              {ENDINGS.map(({ ending, title }, i) => {
+              {ENDINGS.map((ending, i) => {
                 const found = seen.includes(ending)
                 return (
                   <li key={ending} className="flex items-center gap-3">
@@ -54,7 +56,7 @@ export function Trophies({ endings, orbit, onOrbit }: TrophiesProps) {
                       {i + 1}
                     </span>
                     <span className={found ? 'text-lg' : 'text-lg tracking-widest text-[#8a7458]'}>
-                      {found ? title : '????'}
+                      {found ? t.endings[ending] : t.hidden}
                     </span>
                   </li>
                 )
@@ -63,7 +65,7 @@ export function Trophies({ endings, orbit, onOrbit }: TrophiesProps) {
             <PlateRule />
             {all ? (
               <label className="flex cursor-pointer items-center justify-between gap-3">
-                <span className="text-[#f0cf7f]">Mode rotation</span>
+                <span className="text-[#f0cf7f]">{t.orbit}</span>
                 <input
                   type="checkbox"
                   checked={orbit}
@@ -72,17 +74,15 @@ export function Trophies({ endings, orbit, onOrbit }: TrophiesProps) {
                 />
               </label>
             ) : (
-              <p className="text-center text-sm text-[#8a7458] italic">
-                Toutes les fins débloquent un mode secret.
-              </p>
+              <p className="text-center text-sm text-[#8a7458] italic">{t.secret}</p>
             )}
           </div>
         </Plate>
       )}
       <button
         type="button"
-        title="Succès"
-        aria-label="Succès"
+        title={t.trophies}
+        aria-label={t.trophies}
         aria-expanded={open}
         aria-controls="endings"
         onClick={() => setOpen(!open)}

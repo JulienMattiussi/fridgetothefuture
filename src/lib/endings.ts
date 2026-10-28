@@ -8,27 +8,26 @@ import type { Failure } from '@/lib/sequence'
 /** An ending: the iced tea served, or a breakdown. */
 export type Ending = 'served' | Failure
 
-/** The endings in their order (their number is their place, from 1), with their names. */
-export const ENDINGS: { ending: Ending; title: string }[] = [
-  { ending: 'served', title: 'Thé glacé' },
-  { ending: 'boilerExplodes', title: 'Explosion' },
-  { ending: 'gaugesBurst', title: 'Manomètres en éclats' },
-  { ending: 'pipeBurst', title: 'Tuyau arraché' },
-  { ending: 'water', title: 'Eau du robinet' },
-  { ending: 'cubeOnFloor', title: 'Glaçon par terre' },
-  { ending: 'noIce', title: 'Froid sans glaçon' },
+/** The endings in their order: their number is their place, from 1 (names in i18n). */
+export const ENDINGS: Ending[] = [
+  'served',
+  'boilerExplodes',
+  'gaugesBurst',
+  'pipeBurst',
+  'water',
+  'cubeOnFloor',
+  'noIce',
 ]
 
 /** An ending's number, from 1. */
-export const endingNumber = (ending: Ending) =>
-  ENDINGS.findIndex((entry) => entry.ending === ending) + 1
+export const endingNumber = (ending: Ending) => ENDINGS.indexOf(ending) + 1
 
 /** The endings seen so far, read back from storage: anything unknown is dropped. */
 export function parseSeen(stored: string | null): Ending[] {
   try {
     const parsed: unknown = JSON.parse(stored ?? '[]')
     if (!Array.isArray(parsed)) return []
-    return ENDINGS.map(({ ending }) => ending).filter((ending) => parsed.includes(ending))
+    return ENDINGS.filter((ending) => parsed.includes(ending))
   } catch {
     return []
   }

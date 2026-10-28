@@ -1,6 +1,9 @@
+// The page speaks the browser's language: these tests read it in French.
 import { expect, test, type Page } from '@playwright/test'
 import type { Action } from '@/lib/sequence'
 import type { SequenceStore } from '@/three/sequence/store'
+
+test.use({ locale: 'fr-FR' })
 
 /** Plays a step through the sequence the page hands over (`?e2e`). */
 const act = (page: Page, action: Action) =>
@@ -21,7 +24,7 @@ test('the film plays through to the iced tea, then starts over', async ({ page }
   await expect(page.getByRole('button', { name: 'Recommencer' })).toBeHidden()
   for (let log = 0; log < 3; log++) await act(page, 'loadStove')
   await expect(page.getByText('petite vanne')).toBeVisible({ timeout: 60_000 })
-  await play(page, 'openSmallValve', "Montez à l'échelle")
+  await play(page, 'openSmallValve', 'Montez à l’échelle')
   await play(page, 'climbLadder', 'vanne du haut')
   await play(page, 'openTopValve', 'Tourne à fond')
   await play(page, 'turnCrank', 'grande vanne de cuivre')
@@ -30,7 +33,10 @@ test('the film plays through to the iced tea, then starts over', async ({ page }
   await play(page, 'useTongs', '« Thé glacé ? »')
   await expect(page.getByText('Fin n°1 débloquée !')).toBeVisible()
   await page.getByRole('button', { name: 'Succès' }).click()
-  await expect(page.getByText('Fin 1 : Thé glacé')).toBeVisible()
+  await expect(page.getByRole('listitem').filter({ hasText: 'Thé glacé' })).toBeVisible()
   await page.getByRole('button', { name: 'Recommencer' }).click()
   await expect(page.getByText('bûches de Doc')).toBeVisible()
+  // And in English.
+  await page.getByRole('button', { name: 'EN' }).click()
+  await expect(page.getByText('Drag Doc’s logs into the stove')).toBeVisible()
 })

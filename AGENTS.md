@@ -7,7 +7,9 @@ vapeur de Doc Brown** dans _Retour vers le futur III_ (1885, l'écurie de
 Hill Valley). La machine doit être **fidèle au film** et **interactive** :
 mêmes mécanismes, mêmes leviers et roues à actionner.
 
-Application **100% front-end**, sans backend. Interface en français.
+Application **100% front-end**, sans backend. Interface **bilingue** français /
+anglais : la langue du navigateur, ou le choix du visiteur (sélecteur en haut à
+droite, gardé dans le localStorage).
 
 ### Références visuelles
 
@@ -92,7 +94,9 @@ Les étapes, choix assumés au-delà du film :
 2. ouvrir la petite vanne en bas à droite (son manomètre grimpe) ;
 3. monter à l'échelle (un clic, la vue se rapproche de la cuve), ouvrir la
    vanne du haut (ses tuyaux vibrent, leurs manomètres réagissent, puis le
-   moteur démarre) ;
+   moteur démarre). La vanne du haut ne s'atteint que de l'échelle ; on peut
+   y monter à tout moment (tant que la vanne est fermée), mais une fois en
+   haut, seule cette vanne fait redescendre ;
 4. tourner la manivelle (le manchon fait plusieurs allers-retours, la vapeur
    jaillit du haut) ;
 5. ouvrir la grande vanne de cuivre (le froid jaillit du conduit, la vue
@@ -155,9 +159,13 @@ src/
     framing.ts          Recul de caméra pour cadrer la scène
     sequence.ts         La séquence du film : étapes, clics, durées, ce que la machine montre
     endings.ts          Les fins, numérotées, et celles déjà vues
+    language.ts         La langue à afficher : choix gardé, sinon celle du navigateur
     stoking.ts          Le minutage d'une bûche qui entre dans le poêle (porte, bûche)
   ui/Controls.tsx       L'interface superposée : consigne, fin de partie, « Recommencer »
   ui/Trophies.tsx       La coupe des fins vues ; endingsStore.ts les garde (localStorage)
+  ui/LanguageSwitch.tsx Le sélecteur FR / EN ; LanguageProvider, useLanguage (contexte)
+  ui/Plate.tsx          Plaque de cuir sertie de laiton : le style des fenêtres
+  i18n/texts.ts         Tous les textes affichés, en français et en anglais
   three/                Rendu 3D (composants R3F, hooks three.js)
     Scene.tsx           Canvas et lumières
     FrontCamera.tsx     Caméra fixe de face, recadrée selon la fenêtre
@@ -263,8 +271,8 @@ dans le plan `layout.pipesZ`, devant `layout.frameFront` (la face des poteaux).
 
 ## Règles de développement
 
-- **Code en anglais** (identifiants, commentaires) ; seuls les textes affichés
-  sont en français.
+- **Code en anglais** (identifiants, commentaires) ; les textes affichés vivent
+  dans `i18n/texts.ts`, en français et en anglais (rien d'affiché en dur).
 - **Factoriser, pas dupliquer** ; un composant par fichier ; viser < ~300
   lignes par fichier.
 - **Pas de code mort** : tout export est utilisé ou testé (`make knip`).

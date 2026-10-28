@@ -1,4 +1,7 @@
+// The page speaks the browser's language: these tests read it in French.
 import { expect, test } from '@playwright/test'
+
+test.use({ locale: 'fr-FR' })
 
 test('the scene fills the window', async ({ page }) => {
   await page.goto('/')

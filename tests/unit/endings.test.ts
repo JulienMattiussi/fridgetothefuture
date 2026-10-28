@@ -4,7 +4,7 @@ describe('endings', () => {
   it('numbers the iced tea first, then each breakdown', () => {
     expect(endingNumber('served')).toBe(1)
     expect(endingNumber('boilerExplodes')).toBe(2)
-    expect(new Set(ENDINGS.map(({ ending }) => endingNumber(ending))).size).toBe(ENDINGS.length)
+    expect(new Set(ENDINGS.map(endingNumber)).size).toBe(ENDINGS.length)
   })
 
   it('reads back the endings seen, dropping anything unknown or broken', () => {

@@ -274,13 +274,13 @@ describe('out of order', () => {
   })
 
   it("blows up the boiler when the small valve opens after the vat's", () => {
-    const skipped = play(...LOAD, 2, ['openTopValve', -2])
+    const skipped = play(...LOAD, 2, 'climbLadder', ['openTopValve', -2])
     expect(skipped).toMatchObject({ phase: 'starting', smallShut: true, doom: null })
     expect(failed(turn(skipped, 'openSmallValve', 1.5))).toBe('boilerExplodes')
   })
 
   it('never makes ice when the small valve stays shut', () => {
-    const skipped = [...LOAD, 2, ['openTopValve', -2], 3] as Step[]
+    const skipped = [...LOAD, 2, 'climbLadder', ['openTopValve', -2], 3] as Step[]
     const up = play(...skipped, ['turnCrank', CRANK_TURNS], ['openValve', -2], 'holdBasin')
     expect(up.phase).toBe('waiting')
     expect(failed(advance(up, 4))).toBe('noIce')
@@ -293,6 +293,18 @@ describe('out of order', () => {
     expect(readouts(early).smallValve).toBe(1)
     // Its step counts as done when it comes: the fire lit, straight on to the ladder.
     expect(play(['openSmallValve', 1.5], ...LOAD, 2).phase).toBe('primed')
+  })
+
+  it("keeps the vat's valve out of reach till up the ladder, and nothing else once up", () => {
+    expect(availableActions(play(...LOAD, 2))).not.toContain('openTopValve')
+    const up = play('climbLadder')
+    expect(availableActions(up)).toEqual(['openTopValve', 'reset'])
+    expect(readouts(up).closeUp).toBe('vat')
+    // Down again by that valve: before the fire, nothing yet, but the run is doomed.
+    expect(play('climbLadder', ['openTopValve', -2])).toMatchObject({
+      up: false,
+      doom: 'pipeBurst',
+    })
   })
 
   it('tears a pipe off when the crank turns before the engine runs', () => {
