@@ -9,6 +9,7 @@ import { Trophies } from '@/ui/Trophies'
 export default function App() {
   const [sequence] = useState(createSequenceStore)
   const [endings] = useState(() => createEndingsStore(sequence))
+  const [orbit, setOrbit] = useState(false)
   // `?e2e` hands the sequence to the end-to-end tests, which play it without
   // the mouse gestures.
   useEffect(() => {
@@ -17,10 +18,10 @@ export default function App() {
   return (
     <main className="relative h-full w-full">
       <SequenceContext value={sequence}>
-        <Scene />
+        <Scene orbit={orbit} />
       </SequenceContext>
       <Controls sequence={sequence} endings={endings} />
-      <Trophies endings={endings} />
+      <Trophies endings={endings} orbit={orbit} onOrbit={setOrbit} />
     </main>
   )
 }

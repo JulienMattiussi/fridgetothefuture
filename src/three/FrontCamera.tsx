@@ -37,7 +37,9 @@ export function FrontCamera({ still = false }: { still?: boolean }) {
     camera.position.copy(base.current.at)
     camera.lookAt(base.current.look)
     camera.updateProjectionMatrix()
-  }, [get, width, height])
+    // Back from the free view: the closing in starts over from the whole view.
+    shot.current.k = 0
+  }, [get, width, height, still])
 
   useFrame(({ camera }, dt) => {
     if (still || !sequence) return

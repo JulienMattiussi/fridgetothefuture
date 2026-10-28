@@ -1,6 +1,7 @@
 import { useSyncExternalStore } from 'react'
 import { usePhase } from '@/three/sequence/context'
 import type { EndingsStore } from '@/ui/endingsStore'
+import { BRASS_BUTTON, Plate, PlateRule, PlateTitle } from '@/ui/Plate'
 import type { SequenceStore } from '@/three/sequence/store'
 
 /** What to do or what happens, phase by phase. */
@@ -20,9 +21,6 @@ const HINTS: Record<string, string> = {
   served: '« Thé glacé ? »',
 }
 
-const BUTTON =
-  'pointer-events-auto rounded border border-amber-200/40 bg-stone-900/80 px-3 py-1.5 text-amber-50 hover:bg-stone-800 focus-visible:outline-2 focus-visible:outline-amber-300'
-
 /**
  * The overlay: the current hint, and a button to start over once begun; at
  * the end, the verdict: success, or a mishandling (the machine shows what
@@ -38,7 +36,7 @@ export function Controls({
   const phase = usePhase(sequence)
   const { last } = useSyncExternalStore(endings.subscribe, endings.get)
   const restart = (
-    <button type="button" onClick={() => sequence.act('reset')} className={BUTTON}>
+    <button type="button" onClick={() => sequence.act('reset')} className={BRASS_BUTTON}>
       Recommencer
     </button>
   )
@@ -46,31 +44,37 @@ export function Controls({
     const won = phase === 'served'
     return (
       <div className="pointer-events-none absolute inset-x-0 top-0 flex justify-center p-4">
-        <div
-          role="status"
-          className={`flex max-w-xl flex-col items-center gap-3 rounded-lg border-2 bg-black/75 px-6 py-4 text-center text-amber-50 ${
-            won ? 'border-amber-300' : 'border-red-500'
-          }`}
-        >
-          <p className={`text-2xl font-bold ${won ? 'text-amber-300' : 'text-red-400'}`}>
-            {won ? 'Réussite !' : 'Échec'}
-          </p>
-          <p className="text-lg">{won ? HINTS.served : 'Il y a eu une erreur de manipulation.'}</p>
-          {last && (
-            <p className="text-amber-200">
-              {last.isNew ? `Fin ${last.number} débloquée !` : `Fin ${last.number}`}
+        <Plate metal={won ? 'brass' : 'rust'} className="max-w-xl">
+          <div role="status" className="flex flex-col items-center text-center">
+            <PlateTitle tone={won ? 'brass' : 'rust'}>{won ? 'Réussite' : 'Échec'}</PlateTitle>
+            <PlateRule />
+            <p className="text-xl italic">
+              {won ? HINTS.served : 'Il y a eu une erreur de manipulation.'}
             </p>
-          )}
-          {restart}
-        </div>
+            {last && (
+              <p
+                className={`mt-3 rounded-full border px-4 py-0.5 text-sm tracking-widest uppercase ${
+                  last.isNew
+                    ? 'border-[#f0cf7f] bg-[#f0cf7f]/15 text-[#f0cf7f]'
+                    : 'border-[#b07d36]/60 text-[#d8c3a0]'
+                }`}
+              >
+                {last.isNew ? `Fin n°${last.number} débloquée !` : `Fin n°${last.number}`}
+              </p>
+            )}
+            <div className="mt-4">{restart}</div>
+          </div>
+        </Plate>
       </div>
     )
   }
   return (
     <div className="pointer-events-none absolute inset-x-0 top-0 flex flex-col items-center gap-3 p-4">
-      <p aria-live="polite" className="rounded bg-black/60 px-4 py-2 text-lg text-amber-50">
-        {HINTS[phase]}
-      </p>
+      <Plate compact className="max-w-3xl">
+        <p aria-live="polite" className="text-center text-lg italic">
+          {HINTS[phase]}
+        </p>
+      </Plate>
       {sequence.can('reset') && restart}
     </div>
   )

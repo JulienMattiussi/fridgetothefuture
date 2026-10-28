@@ -28,7 +28,7 @@ test('the film plays through to the iced tea, then starts over', async ({ page }
   await play(page, 'openValve', 'levez la bassine')
   await play(page, 'holdBasin', 'à la pince')
   await play(page, 'useTongs', '« Thé glacé ? »')
-  await expect(page.getByText('Fin 1 débloquée !')).toBeVisible()
+  await expect(page.getByText('Fin n°1 débloquée !')).toBeVisible()
   await page.getByRole('button', { name: 'Succès' }).click()
   await expect(page.getByText('Fin 1 : Thé glacé')).toBeVisible()
   await page.getByRole('button', { name: 'Recommencer' }).click()

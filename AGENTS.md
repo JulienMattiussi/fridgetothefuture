@@ -110,7 +110,10 @@ L'échec s'affiche alors, sans détail.
 
 Chaque fin (le thé glacé, et chaque casse) est numérotée (`lib/endings.ts`) et
 gardée dans le localStorage une fois vue. Une coupe en bas à droite les liste
-(« ???? » pour celles pas encore vues) et s'agite à chaque nouvelle fin. Le sifflet a été retiré du modèle, donc
+(« ???? » pour celles pas encore vues) et s'agite à chaque nouvelle fin.
+Toutes vues, elle offre le mode rotation (la vue libre de `?orbit`). Les
+fenêtres suivent le style de la machine : plaque de cuir sertie de laiton
+riveté (`ui/Plate.tsx`). Le sifflet a été retiré du modèle, donc
 de la séquence.
 
 ---
@@ -208,9 +211,10 @@ docs/references/        Images de référence du film
 orbitale. `FrontCamera` recule la caméra pour que le cadre (`FRAME`,
 `three/viewFrame.ts`) tienne entier quelle que soit la forme de la fenêtre.
 
-**Inspection** : ajouter `?orbit` à l'URL (http://localhost:1885/?orbit) rend
-la souris libre de tourner autour de la machine, pour la vérifier pendant la
-modélisation. Sans ce paramètre, la vue reste fixe.
+**Inspection** : ajouter `?orbit` à l'URL (http://localhost:1885/?orbit), ou
+débloquer toutes les fins, rend la souris libre de tourner autour de la
+machine, pour la vérifier pendant la modélisation. Sans cela, la vue reste
+fixe.
 
 **Toujours en paysage** : en portrait, `index.css` fait pivoter la page d'un
 quart de tour, et le canvas mesure sa taille `offsetSize` (insensible à la
