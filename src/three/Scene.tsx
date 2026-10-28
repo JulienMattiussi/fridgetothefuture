@@ -21,7 +21,7 @@ export function Scene({ orbit = false, label }: { orbit?: boolean; label: string
     // Offset size, not the bounding box: in portrait the page is rotated
     // (index.css), and the bounding box would swap width and height.
     <Canvas aria-label={label} resize={{ offsetSize: true }}>
-      <FrontCamera still={free} />
+      <FrontCamera free={free} />
       <SequenceClock />
       {free && <OrbitControls target={[...FRAME_CENTER]} makeDefault />}
       <color attach="background" args={[palette.ink]} />

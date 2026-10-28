@@ -113,6 +113,7 @@ export function SideWheel() {
       <Handle actions={['turnSideWheel']}>
         <Wheel
           ref={wheel}
+          grip
           position={AT}
           radius={RADIUS}
           spokes={4}

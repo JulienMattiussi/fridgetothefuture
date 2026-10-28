@@ -64,15 +64,28 @@ export function Trophies({ endings, orbit, onOrbit }: TrophiesProps) {
             </ol>
             <PlateRule />
             {all ? (
-              <label className="flex cursor-pointer items-center justify-between gap-3">
-                <span className="text-[#f0cf7f]">{t.orbit}</span>
-                <input
-                  type="checkbox"
-                  checked={orbit}
-                  onChange={(event) => onOrbit(event.target.checked)}
-                  className="h-5 w-5 accent-[#d9b25f]"
-                />
-              </label>
+              <button
+                type="button"
+                role="switch"
+                aria-checked={orbit}
+                onClick={() => onOrbit(!orbit)}
+                className="flex w-full cursor-pointer items-center justify-between gap-3 rounded-md focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#f0cf7f]"
+              >
+                <span className="text-lg text-[#f0cf7f]">{t.orbit}</span>
+                {/* A brass toggle: a sunk track, a polished knob sliding across. */}
+                <span
+                  aria-hidden="true"
+                  className={`relative h-7 w-13 shrink-0 rounded-full border border-[#b07d36] shadow-[inset_0_2px_6px_rgba(0,0,0,0.8)] transition-colors ${
+                    orbit ? 'bg-[#8a5a22]' : 'bg-[#120a05]'
+                  }`}
+                >
+                  <span
+                    className={`absolute top-0.5 h-[22px] w-[22px] rounded-full bg-[radial-gradient(circle_at_35%_30%,#fff3c4,#d9b25f_45%,#6b4416)] shadow-[0_2px_4px_rgba(0,0,0,0.7)] transition-[left] duration-200 ${
+                      orbit ? 'left-[26px]' : 'left-0.5'
+                    }`}
+                  />
+                </span>
+              </button>
             ) : (
               <p className="text-center text-sm text-[#8a7458] italic">{t.secret}</p>
             )}

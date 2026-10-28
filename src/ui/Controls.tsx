@@ -1,9 +1,12 @@
-import { useSyncExternalStore } from 'react'
+import { useEffect, useState, useSyncExternalStore } from 'react'
 import { usePhase } from '@/three/sequence/context'
 import type { EndingsStore } from '@/ui/endingsStore'
 import { useLanguage } from '@/ui/useLanguage'
 import { BRASS_BUTTON, Plate, PlateRule, PlateTitle } from '@/ui/Plate'
 import type { SequenceStore } from '@/three/sequence/store'
+
+/** How long a breakdown plays out before the verdict comes up, in milliseconds. */
+const VERDICT_DELAY = 2200
 
 /**
  * The overlay: the current hint, and a button to start over once begun; at
@@ -20,12 +23,25 @@ export function Controls({
   const phase = usePhase(sequence)
   const { t } = useLanguage()
   const { last } = useSyncExternalStore(endings.subscribe, endings.get)
+  // A breakdown plays out before the verdict comes up: which run's verdict is up.
+  const [verdictFor, setVerdictFor] = useState(-1)
+  const ended = phase === 'failed' || phase === 'served'
+  useEffect(() => {
+    if (!ended) return
+    const run = sequence.version
+    const timer = setTimeout(() => setVerdictFor(run), phase === 'failed' ? VERDICT_DELAY : 0)
+    return () => clearTimeout(timer)
+  }, [ended, phase, sequence])
   const restart = (
     <button type="button" onClick={() => sequence.act('reset')} className={BRASS_BUTTON}>
       {t.restart}
     </button>
   )
-  if (phase === 'failed' || phase === 'served') {
+  if (ended && verdictFor !== sequence.version) return null
+  // Up the ladder out of turn, the vat's valve is the way down; no hint while
+  // the machine is just at work.
+  const hint = t.hints[sequence.readouts.closeUp === 'vat' ? 'climbed' : phase]
+  if (ended) {
     const won = phase === 'served'
     return (
       <div className="pointer-events-none absolute inset-x-0 top-0 flex justify-center p-4">
@@ -53,12 +69,13 @@ export function Controls({
   }
   return (
     <div className="pointer-events-none absolute inset-x-0 top-0 flex flex-col items-center gap-3 p-4">
-      <Plate compact className="max-w-3xl">
-        <p aria-live="polite" className="text-center text-lg italic">
-          {/* Up the ladder out of turn, the vat's valve is the way down. */}
-          {t.hints[sequence.readouts.closeUp === 'vat' ? 'climbed' : phase]}
-        </p>
-      </Plate>
+      {hint && (
+        <Plate compact className="max-w-3xl">
+          <p aria-live="polite" className="text-center text-lg italic">
+            {hint}
+          </p>
+        </Plate>
+      )}
       {sequence.can('reset') && restart}
     </div>
   )

@@ -1,7 +1,6 @@
 import { useCallback, useRef } from 'react'
 import { Vector3 } from 'three'
 import type { Vec3 } from '@/lib/geometry'
-import { palette } from '@/three/palette'
 import { Basin } from '@/three/machine/Basin'
 import { BigLever } from '@/three/machine/BigLever'
 import { Boiler } from '@/three/machine/Boiler'
@@ -9,7 +8,7 @@ import { CrankCoil } from '@/three/machine/CrankCoil'
 import { Drive } from '@/three/machine/Drive'
 import { ColdJet } from '@/three/machine/effects/ColdJet'
 import { IceCube } from '@/three/machine/effects/IceCube'
-import { Burst } from '@/three/machine/effects/Burst'
+import { BoilerBlast } from '@/three/machine/effects/BoilerBlast'
 import { Shaking } from '@/three/machine/effects/Shaking'
 import { Vanish } from '@/three/machine/effects/Vanish'
 import { Water } from '@/three/machine/effects/Water'
@@ -59,13 +58,8 @@ export function Machine() {
           <Boiler />
         </Vanish>
       </Shaking>
-      <Burst
-        on="boilerExplodes"
+      <BoilerBlast
         at={[layout.boiler.x, layout.boiler.bottom + layout.boiler.height / 2, layout.boiler.z]}
-        count={60}
-        reach={2.2}
-        size={3}
-        colors={['#ffffff', '#e4e1d8', palette.rust, palette.rustDark, '#c9c4b8']}
       />
       <Water mouth={ductMouth} floor={bench.top} />
       <Pipework />

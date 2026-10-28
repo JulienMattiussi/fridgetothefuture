@@ -101,6 +101,8 @@ export const layout = {
   ductMouth: [0.72, 1.22, 0.8] as Vec3,
   /** How high the basin is lifted off the bench, under the duct's mouth, for the ice cube. */
   basinLift: 0.22,
+  /** The enamel basin: its bottom's and rim's radii, and its depth. */
+  basin: { bottom: 0.13, rim: 0.2, depth: 0.1 },
   /** Doc's tall glass of tea on the workbench, waiting for its ice cube. */
   teaGlass: { x: 1.15, z: 0.8, height: 0.26 },
 }

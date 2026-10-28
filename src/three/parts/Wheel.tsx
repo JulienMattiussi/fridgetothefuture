@@ -13,6 +13,8 @@ type WheelProps = ThreeElements['group'] & {
   tire?: boolean
   /** A flat-faced rim, square in section (a cast flywheel), instead of a round one. */
   flatRim?: boolean
+  /** An unseen disc across the whole wheel, so a handwheel is taken between its spokes too. */
+  grip?: boolean
 }
 
 /** A flat ring in the XY plane, from `inner` to `outer`, extruded `depth` along Z. */
@@ -32,6 +34,7 @@ export function Wheel({
   color = palette.woodLight,
   tire = true,
   flatRim = false,
+  grip = false,
   ...props
 }: WheelProps) {
   const rim = radius * 0.08
@@ -71,6 +74,13 @@ export function Wheel({
       <ToonMesh rotation={[Math.PI / 2, 0, 0]} color={palette.iron}>
         <cylinderGeometry args={[radius * 0.16, radius * 0.16, radius * 0.3, 20]} />
       </ToonMesh>
+      {grip && (
+        // Drawn but never seen: hidden objects don't catch the pointer.
+        <mesh rotation={[Math.PI / 2, 0, 0]}>
+          <cylinderGeometry args={[radius, radius, radius * 0.3, 24]} />
+          <meshBasicMaterial transparent opacity={0} depthWrite={false} colorWrite={false} />
+        </mesh>
+      )}
     </group>
   )
 }

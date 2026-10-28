@@ -56,6 +56,7 @@ export function Tanks() {
       <Handle actions={['openTopValve']}>
         <Wheel
           ref={valve}
+          grip
           position={[vat.x, VALVE.y, vat.z + vat.cap.radius + 0.06]}
           radius={VALVE.radius}
           spokes={6}

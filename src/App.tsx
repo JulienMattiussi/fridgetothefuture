@@ -7,6 +7,7 @@ import { createEndingsStore } from '@/ui/endingsStore'
 import { LanguageProvider } from '@/ui/LanguageProvider'
 import { useLanguage } from '@/ui/useLanguage'
 import { LanguageSwitch } from '@/ui/LanguageSwitch'
+import { Splash } from '@/ui/Splash'
 import { Trophies } from '@/ui/Trophies'
 
 export default function App() {
@@ -35,6 +36,7 @@ function Page() {
       <Controls sequence={sequence} endings={endings} />
       <Trophies endings={endings} orbit={orbit} onOrbit={setOrbit} />
       <LanguageSwitch />
+      <Splash />
     </main>
   )
 }

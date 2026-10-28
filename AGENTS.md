@@ -113,7 +113,7 @@ chaudière qui explose, gros tuyau arraché qui gicle, eau au lieu du glaçon,
 glaçon par terre, ou froid sans glaçon (règles dans `lib/sequence.ts`). Le
 petit volant à droite des engrenages ne sert à rien : le tourner, il reste
 dans la main et l'axe fuit (`machine/SideWheel.tsx`).
-L'échec s'affiche alors, sans détail.
+L'échec s'affiche alors, sans détail, après deux secondes de casse.
 
 Chaque fin (le thé glacé, et chaque casse) est numérotée (`lib/endings.ts`) et
 gardée dans le localStorage une fois vue. Une coupe en bas à droite les liste
@@ -168,6 +168,7 @@ src/
   ui/Trophies.tsx       La coupe des fins vues ; endingsStore.ts les garde (localStorage)
   ui/LanguageSwitch.tsx Le sélecteur FR / EN ; LanguageProvider, useLanguage (contexte)
   ui/Plate.tsx          Plaque de cuir sertie de laiton : le style des fenêtres
+  ui/Splash.tsx         Le panneau-titre « The Fridge Timeback Machine », 4 s à l'ouverture
   i18n/texts.ts         Tous les textes affichés, en français et en anglais
   three/                Rendu 3D (composants R3F, hooks three.js)
     Scene.tsx           Canvas et lumières
@@ -207,7 +208,7 @@ src/
       Basin.tsx, Tongs.tsx La bassine qu'on lève, la pince qui porte le glaçon
       FireDoor.tsx      La porte du poêle, qui s'ouvre sur les flammes à chaque bûche
       effects/          Vapeur et jet froid (PuffStream), glaçon, secousses, casses
-                        (Burst, Tear, Vanish, Water)
+                        (BoilerBlast, Burst, Tear, Vanish, Water)
       pipework/         Les tuyaux : anchors.ts (points partagés), pipes.ts (tracés
                         par série), PipeGauges (manomètres sur tuyau), PipeFittings
                         (bouche du conduit froid, ficelles, bague, sortie de vapeur)

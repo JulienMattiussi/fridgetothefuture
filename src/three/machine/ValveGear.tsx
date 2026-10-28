@@ -95,6 +95,7 @@ export function ValveGear() {
       <Handle actions={['openValve']}>
         <Wheel
           ref={bigWheel}
+          grip
           position={BIG_WHEEL.at}
           radius={BIG_WHEEL.radius}
           spokes={5}
@@ -175,6 +176,7 @@ export function ValveGear() {
       <Handle actions={['openSmallValve']}>
         <Wheel
           ref={smallWheel}
+          grip
           position={[SMALL_VALVE.x, SMALL_VALVE.y, VALVE_LINE_Z + 0.12]}
           radius={SMALL_VALVE.radius}
           spokes={6}

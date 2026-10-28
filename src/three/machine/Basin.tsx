@@ -8,8 +8,8 @@ import { useSequence } from '@/three/sequence/context'
 import { Handle } from '@/three/sequence/Handle'
 import { layout } from '@/three/machine/layout'
 
-const { bench, ductMouth, basinLift } = layout
-const DEPTH = 0.1
+const { bench, ductMouth, basinLift, basin: BASIN } = layout
+const DEPTH = BASIN.depth
 /** On the bench under the duct, and lifted up under its mouth. */
 const REST: Vec3 = [ductMouth[0], bench.top, ductMouth[2]]
 const UP: Vec3 = [REST[0], REST[1] + basinLift, REST[2]]
@@ -48,10 +48,10 @@ export function Basin({ onMove }: { onMove: (at: Vector3) => void }) {
     <Handle actions={['holdBasin']} drag={{ target: UP_MIDDLE, move }}>
       <group ref={basin} position={REST}>
         <ToonMesh position={[0, DEPTH / 2, 0]} color={palette.enamel} side={DoubleSide}>
-          <cylinderGeometry args={[0.2, 0.13, DEPTH, 32, 1, true]} />
+          <cylinderGeometry args={[BASIN.rim, BASIN.bottom, DEPTH, 32, 1, true]} />
         </ToonMesh>
         <ToonMesh position={[0, 0.005, 0]} color={palette.enamel} outline={0}>
-          <cylinderGeometry args={[0.13, 0.13, 0.01, 32]} />
+          <cylinderGeometry args={[BASIN.bottom, BASIN.bottom, 0.01, 32]} />
         </ToonMesh>
       </group>
     </Handle>

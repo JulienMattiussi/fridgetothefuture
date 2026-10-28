@@ -346,8 +346,9 @@ export function advance(state: SequenceState, dt: number): SequenceState {
 
 /** A timed phase over: on to the next, unless the run breaks down there. */
 function moveOn(state: SequenceState, next: Phase): SequenceState {
-  // The basin never came: the cube falls on the floor.
-  if (state.phase === 'jet') return fail(state, 'cubeOnFloor')
+  // The basin never came: the cube falls on the floor; without the small
+  // valve, no cube was ever coming.
+  if (state.phase === 'jet') return fail(state, state.smallShut ? 'noIce' : 'cubeOnFloor')
   // Out-of-order logs: the gauges burst as the engine comes up to speed.
   if (state.phase === 'starting' && state.doom === 'gaugesBurst') return fail(state, 'gaugesBurst')
   // No small valve: the cold died down, and no ice comes.
@@ -489,8 +490,13 @@ export function readouts(state: SequenceState): Readouts {
       shaking: before.shaking * down,
       coldJet: 0,
       basin: 0,
-      // Water running out of the duct is watched close, as the ice would have been.
-      closeUp: kind === 'water' ? 'basin' : before.closeUp === 'vat' ? 'none' : before.closeUp,
+      // Water, or no ice, are watched close at the basin, as the ice would have been.
+      closeUp:
+        kind === 'water' || kind === 'noIce'
+          ? 'basin'
+          : before.closeUp === 'vat'
+            ? 'none'
+            : before.closeUp,
       cube:
         kind === 'cubeOnFloor' ? { where: 'floor', fall: clamp01(since / 0.9) ** 2 } : before.cube,
       failure: { kind, since },

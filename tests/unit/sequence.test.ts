@@ -342,6 +342,13 @@ describe('out of order', () => {
     expect(readouts(play(...RUNNING, ['openValve', -2])).closeUp).toBe('basin')
   })
 
+  it('makes no ice when the small valve stayed shut and the basin never came', () => {
+    const skipped = [...LOAD, 2, 'climbLadder', ['openTopValve', -2], 3] as Step[]
+    const lost = play(...skipped, ['turnCrank', CRANK_TURNS], ['openValve', -2], 'pullLever', 6)
+    expect(failed(lost)).toBe('noIce')
+    expect(readouts(lost).closeUp).toBe('basin')
+  })
+
   it('drops the cube on the floor when the basin does not come in time', () => {
     const lost = play(...JET, 6)
     expect(failed(lost)).toBe('cubeOnFloor')
