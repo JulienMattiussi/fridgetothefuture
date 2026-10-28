@@ -44,6 +44,13 @@ const DROP_REACH = 90
 /** How far toward the viewer a dragged part comes, in meters. */
 const LIFT = 0.8
 
+/**
+ * The part that set the pointer's cursor last, and the parts the pointer is
+ * on or working: shared by all the parts, as a part left hands over to the next.
+ */
+let cursorOwner: symbol | null = null
+const workedParts = new Set<symbol>()
+
 /** Lights the toon meshes under `group` up, or puts them back. */
 function glow(group: Group, on: boolean) {
   group.traverse((object) => {
@@ -71,6 +78,7 @@ export function Handle({ actions, drag, when, children }: HandleProps) {
   const { camera, gl } = useThree()
   const get = useThree((state) => state.get)
   const group = useRef<Group>(null)
+  const [id] = useState(() => Symbol('handle'))
   const latestDrag = useRef(drag)
   useEffect(() => {
     latestDrag.current = drag
@@ -99,17 +107,21 @@ export function Handle({ actions, drag, when, children }: HandleProps) {
   useEffect(() => {
     const controls = get().controls as { enabled: boolean } | null
     if (!controls || !working) return
+    workedParts.add(id)
     controls.enabled = false
     return () => {
-      controls.enabled = true
+      // Another part may have the pointer by now: the view frees only once none has.
+      workedParts.delete(id)
+      if (workedParts.size === 0) controls.enabled = true
     }
-  }, [get, working])
+  }, [get, working, id])
   useEffect(() => {
     if (group.current) glow(group.current, lit)
   }, [lit])
   useEffect(() => {
     if (!hovered && !held) return
     const gesture = action && gestureOf(action, !!drag)
+    cursorOwner = id
     document.body.style.cursor = held
       ? drag
         ? // The carried part stands in for the pointer.
@@ -121,9 +133,12 @@ export function Handle({ actions, drag, when, children }: HandleProps) {
           ? 'pointer'
           : 'grab'
     return () => {
+      // Left for another part, the cursor is that part's now: leave it be.
+      if (cursorOwner !== id) return
+      cursorOwner = null
       document.body.style.cursor = ''
     }
-  }, [hovered, held, action, drag])
+  }, [hovered, held, action, drag, id])
 
   const middle = () => new Box3().setFromObject(group.current!).getCenter(new Vector3())
   const onOver = (event: ThreeEvent<PointerEvent>) => {
@@ -185,8 +200,8 @@ export function Handle({ actions, drag, when, children }: HandleProps) {
   return (
     <group
       ref={group}
-      onPointerOver={onOver}
-      onPointerOut={() => setHovered(false)}
+      onPointerEnter={onOver}
+      onPointerLeave={() => setHovered(false)}
       onPointerDown={onPress}
       onClick={(event: ThreeEvent<MouseEvent>) => {
         event.stopPropagation()
