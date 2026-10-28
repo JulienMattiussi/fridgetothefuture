@@ -47,15 +47,18 @@ au-dessus (un gros à cadran sombre, un petit blanc) ; trois roues de charrette 
 profondeur de la machine (axe gauche-droite) et **immobiles**, les deux de
 gauche sur **un même essieu** qui porte les poteaux avant de la structure ; en haut à gauche, sur le plancher, un
 grand volant relié par courroie à l'arbre de transmission sous le toit, et un
-palier en bois portant un disque, un petit volant et deux engrenages, relié par
-une bielle à un petit disque sur son support (`machine/Drive.tsx`) ; en haut à droite, une **énorme cuve grise** surmontée
+axe portant un disque de poulie à l'avant, un petit volant et deux
+engrenages, relié par une bielle à un petit disque sur son support et
+actionnant par manivelle un **soufflet** logé dans une arche en bois derrière (`machine/Drive.tsx`) ; en haut à droite, une **énorme cuve grise** surmontée
 d'une **partie rouge** à roue de vanne, où arrivent les tuyaux qui montent,
 avec des **barreaux** tout le long du bout droit de la structure, et une **échelle** appuyée contre le flanc droit de la cuve,
 parallèle aux barreaux (`docs/references/video-cuve.jpg`) ; à droite, sur une planche de la structure, la **grosse roue de vanne**
 cuivrée, de profil (axe gauche-droite), une colonne à engrenages (pignon en haut, couple conique au milieu) et
 une petite vanne à volant (`machine/ValveGear.tsx`) ; un établi avec une bassine émaillée, une
 pince, deux ballons sur un support en laiton et le grand verre à pied du thé.
-Le glaçon sort d'un **gros conduit incliné à collerette côtelée**, d'où jaillit
+Entre les deux étagères, au fond, un **poêle** en fonte dont le gros conduit
+monte au toit, rejoint par un coude venu du dessus de la partie rouge de la cuve
+(`machine/Stove.tsx`). Le glaçon sort d'un **gros conduit incliné à collerette côtelée**, d'où jaillit
 la vapeur froide. Les côtés, l'arrière et le haut ne sont pas visibles : on les
 complète de façon plausible. On ignore les personnages et le cheval.
 
@@ -135,7 +138,7 @@ src/
       Machine.tsx       Assemble les pièces + les manomètres épars
       Scaffold, Boiler, Pipework, Drive (pièces mobiles), ValveGear, WagonWheels (fixes),
       CrankCoil (unité de la bobine : blocs, bobine, manchon, manivelle),
-      CoilStand (son bâti en bois), Tanks, Workbench
+      CoilStand (son bâti en bois), Tanks, Stove, Workbench
     stable/Stable.tsx   L'écurie : sol, mur de planches, poutres
 tests/
   unit/                 Tests Vitest de src/lib

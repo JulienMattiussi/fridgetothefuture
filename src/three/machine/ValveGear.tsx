@@ -15,7 +15,7 @@ const PLANK_FRONT = layout.frameFront + 0.055 + valvePlank.depth
 const Z = PLANK_FRONT + 0.28
 
 /** The big copper valve handwheel, edge-on, its spindle across into the column. */
-const BIG_WHEEL = { at: [1.68, 1.25, Z] as Vec3, radius: 0.24 }
+const BIG_WHEEL = { at: [1.86, 1.25, Z] as Vec3, radius: 0.24 }
 /** The iron column to its right, carrying the gear train. */
 const COLUMN = { x: 1.99, bottom: 0.9, top: 1.4, radius: 0.022 }
 /** The big bevel gear, its axle left-right, driving the column's lower bevel gear. */
@@ -66,7 +66,7 @@ export function ValveGear() {
         spokes={5}
         tire={false}
         rotation={[0, Math.PI / 2, 0]}
-        color={palette.copper}
+        color={palette.copperDark}
       />
       <Rod
         from={[COLUMN.x, COLUMN.bottom, Z]}

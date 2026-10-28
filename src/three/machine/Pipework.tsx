@@ -1,4 +1,5 @@
 import type { ComponentProps } from 'react'
+import { DoubleSide } from 'three'
 import { ringPoint, type Vec3 } from '@/lib/geometry'
 import { palette } from '@/three/palette'
 import { Gauge } from '@/three/parts/Gauge'
@@ -54,8 +55,9 @@ const BOILER_LEFT_HUG_X = bx - br - 0.075
  * into the black block's back. A branch tees off it behind the boiler and
  * comes down to the grey block.
  */
-const HIGH_RUN_FROM: Vec3 = [0.715, 2.375, 0.1]
-const HIGH_RUN_TO: Vec3 = [-1.7, 2.25, 0.0]
+/** It runs well back in the frame, behind the big wheel under the deck. */
+const HIGH_RUN_FROM: Vec3 = [0.715, 2.375, -0.25]
+const HIGH_RUN_TO: Vec3 = [-1.7, 2.25, -0.25]
 const HIGH_RUN_RADIUS = 0.06
 /** The point on the high run's axis at `x`. */
 const onHighRun = (x: number): Vec3 =>
@@ -181,6 +183,10 @@ const VAT_GAUGE_AT: Vec3 = [VAT_GAUGE.x, VAT_GAUGE.y, VAT_GAUGE.pipeZ + SMALL + 
 /** Where a string ties the red line up to the shelf's big timber. */
 const TIMBER_TIE = onRedLine(layout.shelfTimber.x)
 const TIMBER_BOTTOM = layout.shelfY - 0.035 - layout.shelfTimber.height
+/** The iron strap holding the steam vent to the timber's right side. */
+const VENT_STRAP_FROM = layout.shelfTimber.x + layout.shelfTimber.width / 2 - 0.01
+const VENT_STRAP_LENGTH = layout.steamVent.x + layout.steamVent.radius + 0.015 - VENT_STRAP_FROM
+const VENT_STRAP_X = VENT_STRAP_FROM + VENT_STRAP_LENGTH / 2
 /** Where the big blue pipe bolts onto the grey block's front, and the depth it comes in at. */
 const GREY_FLANGE: Vec3 = [
   (greyBlock.left + greyBlock.right) / 2,
@@ -558,6 +564,27 @@ export function Pipework() {
         color={palette.copperGrey}
       >
         <boxGeometry args={[0.05, SMALL_GAUGE.fitting + 0.02, 0.06]} />
+      </ToonMesh>
+      {/* The steam vent: up from the red line, strapped to the big timber, flared. */}
+      <Pipe
+        points={[
+          onRedLine(layout.steamVent.x),
+          [layout.steamVent.x, layout.steamVent.top, RED_LINE_Z],
+        ]}
+        radius={layout.steamVent.radius}
+      />
+      <ToonMesh
+        position={[layout.steamVent.x, layout.steamVent.top + 0.09, RED_LINE_Z]}
+        color={palette.steel}
+        side={DoubleSide}
+      >
+        <cylinderGeometry args={[0.12, layout.steamVent.radius, 0.18, 24, 1, true]} />
+      </ToonMesh>
+      <ToonMesh
+        position={[VENT_STRAP_X, TIMBER_BOTTOM + layout.shelfTimber.height / 2, RED_LINE_Z]}
+        color={palette.iron}
+      >
+        <boxGeometry args={[VENT_STRAP_LENGTH, 0.035, 2 * layout.steamVent.radius + 0.02]} />
       </ToonMesh>
       {/* The red line tied up to the shelf's big timber by a string. */}
       <Lashing at={TIMBER_TIE} along={RED_LINE_ALONG} radius={RED_LINE_RADIUS} />

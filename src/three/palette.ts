@@ -13,6 +13,8 @@ export const palette = {
   paintRed: '#8a4f45',
   brass: '#c09a4a',
   copper: '#b8693a',
+  /** Old, darkened copper: the big valve handwheel. */
+  copperDark: '#7e4a2e',
   /** Gauge rims and their stems: a coppery grey, never gold. */
   copperGrey: '#8c7462',
   glass: '#b9dede',

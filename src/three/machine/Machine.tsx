@@ -5,6 +5,7 @@ import { CrankCoil } from '@/three/machine/CrankCoil'
 import { Drive } from '@/three/machine/Drive'
 import { Pipework } from '@/three/machine/Pipework'
 import { Scaffold } from '@/three/machine/Scaffold'
+import { Stove } from '@/three/machine/Stove'
 import { Tanks } from '@/three/machine/Tanks'
 import { WagonWheels } from '@/three/machine/WagonWheels'
 import { ValveGear } from '@/three/machine/ValveGear'
@@ -28,6 +29,7 @@ export function Machine() {
       <WagonWheels />
       <CrankCoil />
       <Tanks />
+      <Stove />
       <Workbench />
       {gauges.map((gauge) => (
         <Gauge key={gauge.position.join(':')} {...gauge} />

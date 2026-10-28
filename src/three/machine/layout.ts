@@ -20,14 +20,15 @@ export const layout = {
    * The two left wagon wheels share one axle, left-right, and the frame's two
    * front posts there stand on it: the wheels carry that part of the frame.
    */
-  wheelAxle: { y: 0.45, z: 0.25, wheels: [-2.05, -0.95], radius: 0.45 },
+  wheelAxle: { y: 0.45, z: 0.7, wheels: [-2.05, -0.5], radius: 0.45 },
   /** The upper wooden deck, behind the coil unit. */
   deckY: 2.55,
   deckLeft: -1.95,
   deckRight: -0.6,
-  /** The deck's posts: two pairs on the wheel axle, and one at the back right. */
-  deckPosts: [-1.85, -1.15] as [number, number],
-  deckCorner: -0.7,
+  /** The deck's posts, at its two edges: front ones on the wheel axle, back ones on the floor. */
+  deckPosts: [-1.85, -0.7] as [number, number],
+  /** The deck's front edge, its posts' front: brought forward of the rest of the frame. */
+  deckFront: 0.7,
   /** The right-hand shelf carrying the tanks. */
   shelfY: 2.2,
   /**
@@ -35,6 +36,11 @@ export const layout = {
    * x, its section, and its front end, jutting out over the red line.
    */
   shelfTimber: { x: 1.52, width: 0.14, height: 0.12, front: 0.7 },
+  /**
+   * The steam vent: a pipe up from the red line beside that timber, strapped to
+   * its right side, ending in a flared mouth where the white plume will gush out.
+   */
+  steamVent: { x: 1.66, top: 2.35, radius: 0.05 },
   /** A big plank nailed across the right frame's front posts, the valve wheel on it. */
   valvePlank: { y: 1.38, height: 0.18, depth: 0.04 },
   /** A thinner one lower down, under the workbench's bearers, clear of its legs. */
@@ -57,6 +63,11 @@ export const layout = {
     height: 1.0,
     cap: { radius: 0.76, height: 0.8 },
   },
+  /**
+   * The cast-iron stove on the floor between the two shelves, at the back: its
+   * body's radius and top, and its big flue rising out of view, through the roof.
+   */
+  stove: { x: -0.42, z: -0.7, radius: 0.3, top: 1.0, flue: 0.14, flueTop: 9 },
   /** The boiler stands on the workbench, the same table as the basin. */
   boiler: { x: 0.1, z: 0.68, radius: 0.36, bottom: 0.8, height: 0.8 },
   /**

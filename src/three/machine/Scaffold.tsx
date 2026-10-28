@@ -3,12 +3,21 @@ import { palette } from '@/three/palette'
 import { Beam } from '@/three/parts/Beam'
 import { Rod } from '@/three/parts/Rod'
 import { ToonMesh } from '@/three/parts/ToonMesh'
+import { Wheel } from '@/three/parts/Wheel'
 import { layout } from '@/three/machine/layout'
 
 const FRONT = layout.frameFront
 const BACK = -1.1
-const { deckY, deckLeft, deckRight, deckPosts, deckCorner, shelfY, wheelAxle } = layout
+const { deckY, deckLeft, deckRight, deckPosts, deckFront: DECK_FRONT, shelfY, wheelAxle } = layout
 const [postL, postR] = deckPosts
+/**
+ * The big wheel inside the frame under the deck, its hub fixed on the back of
+ * the deck's right front post, in front of the pipes behind it.
+ */
+const UNDER_DECK_WHEEL = {
+  at: [deckPosts[1], 1.95, layout.deckFront - 0.055 - 0.045] as Vec3,
+  radius: 0.42,
+}
 /** The frame's right end, where rungs run all up between its two posts. */
 const RIGHT_END = 3.2
 const LOW_PLANK = layout.lowPlank
@@ -38,13 +47,11 @@ const posts: [Vec3, Vec3][] = [
   // Over the wheel axle, the front posts stand on it, the back ones on the floor.
   ...deckPosts.flatMap((x): [Vec3, Vec3][] => [
     [
-      [x, ON_AXLE, FRONT],
-      [x, deckY, FRONT],
+      [x, ON_AXLE, DECK_FRONT],
+      [x, deckY, DECK_FRONT],
     ],
     postPair(x, deckY)[1]!,
   ]),
-  // The deck's right corner post, at the back only.
-  postPair(deckCorner, deckY)[1]!,
   // The right frame stops at the shelf: the vat stands on it.
   // The left ones stop under the big timber that carries the shelf's edge.
   ...postPair(1.55, TIMBER_Y - SHELF_TIMBER.height / 2),
@@ -62,12 +69,12 @@ const rails: [Vec3, Vec3][] = [
   ],
   // Mid-height rail and the deck's front edge.
   [
-    [postL, 1.2, FRONT],
-    [postR, 1.2, FRONT],
+    [postL, 1.2, DECK_FRONT],
+    [postR, 1.2, DECK_FRONT],
   ],
   [
-    [deckLeft, deckY - 0.1, FRONT],
-    [postR, deckY - 0.1, FRONT],
+    [deckLeft, deckY - 0.1, DECK_FRONT],
+    [postR, deckY - 0.1, DECK_FRONT],
   ],
   [
     [1.55, shelfY - 0.1, FRONT],
@@ -75,8 +82,8 @@ const rails: [Vec3, Vec3][] = [
   ],
   // Diagonal braces.
   [
-    [postL, ON_AXLE + 0.1, FRONT],
-    [postR, 1.15, FRONT],
+    [postL, ON_AXLE + 0.1, DECK_FRONT],
+    [postR, 1.15, DECK_FRONT],
   ],
   [
     [1.55, 0.15, BACK],
@@ -115,6 +122,21 @@ export function Scaffold() {
       >
         <boxGeometry args={[RIGHT_END - 1.55 + 0.15, LOW_PLANK.height, layout.valvePlank.depth]} />
       </ToonMesh>
+      {/* A big spoked wheel inside the frame under the deck, hub on the right post. */}
+      <Wheel
+        position={UNDER_DECK_WHEEL.at}
+        radius={UNDER_DECK_WHEEL.radius}
+        spokes={8}
+        flatRim
+        tire={false}
+        color={palette.iron}
+      />
+      <Rod
+        from={UNDER_DECK_WHEEL.at}
+        to={[UNDER_DECK_WHEEL.at[0], UNDER_DECK_WHEEL.at[1], DECK_FRONT]}
+        radius={0.04}
+        color={palette.steel}
+      />
       {RUNG_YS.map((y) => (
         <Rod
           key={y}
@@ -125,10 +147,10 @@ export function Scaffold() {
         />
       ))}
       <ToonMesh
-        position={[(deckLeft + deckRight) / 2, deckY, (FRONT + BACK) / 2]}
+        position={[(deckLeft + deckRight) / 2, deckY, (DECK_FRONT + BACK) / 2]}
         color={palette.woodDark}
       >
-        <boxGeometry args={[deckRight - deckLeft, 0.07, FRONT - BACK + 0.2]} />
+        <boxGeometry args={[deckRight - deckLeft, 0.07, DECK_FRONT - BACK + 0.2]} />
       </ToonMesh>
       <ToonMesh position={[SHELF_LEFT + 0.95, shelfY, (FRONT + BACK) / 2]} color={palette.woodDark}>
         <boxGeometry args={[1.9, 0.07, FRONT - BACK + 0.2]} />

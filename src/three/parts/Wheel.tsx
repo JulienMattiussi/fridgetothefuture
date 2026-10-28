@@ -1,5 +1,5 @@
 import type { ThreeElements } from '@react-three/fiber'
-import { DoubleSide } from 'three'
+import { DoubleSide, Path, Shape } from 'three'
 import { evenAngles, onCircle } from '@/lib/geometry'
 import { palette } from '@/three/palette'
 import { Rod } from '@/three/parts/Rod'
@@ -11,6 +11,18 @@ type WheelProps = ThreeElements['group'] & {
   color?: string
   /** The flat iron tire round a wagon wheel's rim; none on a valve handwheel. */
   tire?: boolean
+  /** A flat-faced rim, square in section (a cast flywheel), instead of a round one. */
+  flatRim?: boolean
+}
+
+/** A flat ring in the XY plane, from `inner` to `outer`, extruded `depth` along Z. */
+function ringShape(inner: number, outer: number) {
+  const shape = new Shape()
+  shape.absarc(0, 0, outer, 0, Math.PI * 2, false)
+  const hole = new Path()
+  hole.absarc(0, 0, inner, 0, Math.PI * 2, true)
+  shape.holes.push(hole)
+  return shape
 }
 
 /** A spoked wheel facing +Z: wagon wheel turned flywheel, or valve handwheel. */
@@ -19,15 +31,27 @@ export function Wheel({
   spokes = 12,
   color = palette.woodLight,
   tire = true,
+  flatRim = false,
   ...props
 }: WheelProps) {
   const rim = radius * 0.08
   const spoke = radius * 0.035
   return (
     <group {...props}>
-      <ToonMesh color={color}>
-        <torusGeometry args={[radius - rim, rim, 10, 48]} />
-      </ToonMesh>
+      {flatRim ? (
+        <ToonMesh position={[0, 0, -rim * 1.5]} color={color}>
+          <extrudeGeometry
+            args={[
+              ringShape(radius - rim, radius),
+              { depth: rim * 3, bevelEnabled: false, curveSegments: 48 },
+            ]}
+          />
+        </ToonMesh>
+      ) : (
+        <ToonMesh color={color}>
+          <torusGeometry args={[radius - rim, rim, 10, 48]} />
+        </ToonMesh>
+      )}
       {/* The tire: a flat iron band shrunk round the felloe. */}
       {tire && (
         <ToonMesh rotation={[Math.PI / 2, 0, 0]} color={palette.iron} side={DoubleSide}>
