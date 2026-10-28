@@ -19,7 +19,7 @@ export function Scene() {
     // Offset size, not the bounding box: in portrait the page is rotated
     // (index.css), and the bounding box would swap width and height.
     <Canvas aria-label="Le réfrigérateur de Doc Brown" resize={{ offsetSize: true }}>
-      <FrontCamera />
+      <FrontCamera still={inspect} />
       <SequenceClock />
       {inspect && <OrbitControls target={[...FRAME_CENTER]} makeDefault />}
       <color attach="background" args={[palette.ink]} />

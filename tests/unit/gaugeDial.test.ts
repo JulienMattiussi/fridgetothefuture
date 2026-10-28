@@ -1,4 +1,4 @@
-import { dialDesign, dialTicks } from '@/lib/gaugeDial'
+import { dialDesign, dialTicks, needleTemper } from '@/lib/gaugeDial'
 
 describe('dialDesign', () => {
   it('draws the same dial from the same seed', () => {
@@ -30,5 +30,26 @@ describe('dialTicks', () => {
     expect(ticks[0]).toEqual({ angle: -Math.PI / 2, major: true })
     expect(ticks[5]!.angle).toBeCloseTo(0)
     expect(ticks[10]).toEqual({ angle: Math.PI / 2, major: true })
+  })
+})
+
+describe('needleTemper', () => {
+  const seeds = [660, 720, 770, 810, 860, 940, 970, 1040, 1180, 1680, 1820]
+  const tempers = seeds.map(needleTemper)
+
+  it('gives the same needle the same temper', () => {
+    expect(needleTemper(1200)).toEqual(needleTemper(1200))
+  })
+
+  it('makes the needles climb at their own pace', () => {
+    expect(new Set(tempers.map((t) => t.lag)).size).toBe(seeds.length)
+    expect(Math.min(...tempers.map((t) => t.curve))).toBeLessThan(1)
+    expect(Math.max(...tempers.map((t) => t.curve))).toBeGreaterThan(1)
+  })
+
+  it('lets some needles swing wildly while the others quiver', () => {
+    const swings = tempers.map((t) => t.swing)
+    expect(swings.some((swing) => swing > 0.25)).toBe(true)
+    expect(swings.some((swing) => swing < 0.1)).toBe(true)
   })
 })

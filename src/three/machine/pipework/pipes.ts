@@ -251,3 +251,10 @@ const thinPipes: PipeRun[] = [
 ]
 
 export const pipes: PipeRun[] = [...vatPipes, ...redPipes, ...orangeBluePipes, ...thinPipes]
+
+/**
+ * The pipes out of the vat: they rumble first, as its valve lets the steam
+ * down, before the engine runs (the ones round it, the red one down its
+ * diagonal, the orange one down to the duct).
+ */
+export const vatLines = new Set<PipeRun>([...vatPipes, redPipes[0]!, orangeBluePipes[0]!])

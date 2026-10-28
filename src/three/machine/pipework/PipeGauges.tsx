@@ -1,5 +1,6 @@
 import { atX, lerp } from '@/lib/geometry'
 import { palette } from '@/three/palette'
+import type { GaugeDrive } from '@/three/parts/Gauge'
 import { MountedGauge, type MountedGaugeProps } from '@/three/parts/MountedGauge'
 import {
   coilUnit,
@@ -21,6 +22,12 @@ import {
   UNDER_SHELF_Y,
   VAT_FRONT_PIPE,
 } from '@/three/machine/pipework/anchors'
+
+/** The gauges on the vat's lines: they stir and climb as its valve opens. */
+const vatSteam: GaugeDrive = ({ pressure, topValve, stir }) => ({
+  pressure: Math.max(pressure, 0.6 * topValve),
+  stir,
+})
 
 /**
  * Every gauge standing on a pipe. Each has its own size, so its own dial
@@ -87,6 +94,7 @@ const gauges: MountedGaugeProps[] = [
     pipeRadius: SMALL,
     stem: 0.06,
     radius: 0.104,
+    drive: vatSteam,
     reading: -0.5,
   },
   // Under the shelf: the big porthole gauge hanging from the red line's run
@@ -97,9 +105,12 @@ const gauges: MountedGaugeProps[] = [
     pipeRadius: RED_LINE_RADIUS,
     stem: 0.05,
     radius: 0.168,
+    drive: vatSteam,
     reading: -0.2,
     rod: 0.018,
   },
+  // It reads the small valve's line, just below: it climbs and shudders as
+  // that valve opens, before the rest of the machine stirs.
   {
     on: [2.62, UNDER_SHELF_Y, RIGHT_SMALL.z],
     side: 'front',
@@ -108,6 +119,11 @@ const gauges: MountedGaugeProps[] = [
     radius: 0.077,
     reading: 1.0,
     rod: 0.01,
+    drive: ({ pressure, smallValve, topValve }) => ({
+      pressure: Math.max(pressure, 0.85 * smallValve),
+      // Calming once the vat's valve takes over.
+      stir: smallValve * (1 - topValve),
+    }),
   },
   // Hanging under the red line, past where the blue pipe tees in.
   {
@@ -116,6 +132,7 @@ const gauges: MountedGaugeProps[] = [
     pipeRadius: RED_LINE_RADIUS,
     stem: 0.04,
     radius: 0.086,
+    drive: vatSteam,
     reading: 0.2,
   },
 ]

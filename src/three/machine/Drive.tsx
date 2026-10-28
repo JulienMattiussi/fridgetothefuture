@@ -63,6 +63,20 @@ const SIDE_DISC = { at: [-0.72, deckY + 0.3, -0.18] as Vec3, radius: 0.1 }
 const CRANK_PIN: Vec3 = [HUB.x + 0.07, HUB.y - 0.04, BIG_GEAR.z + 0.03]
 const SIDE_PIN: Vec3 = [SIDE_DISC.at[0] - 0.06, SIDE_DISC.at[1], SIDE_DISC.at[2] + 0.03]
 
+/** A cast-iron disc facing the viewer, with a turned steel rim. */
+function IronDisc({ at, radius, thickness }: { at: Vec3; radius: number; thickness: number }) {
+  return (
+    <group position={at}>
+      <ToonMesh rotation={[Math.PI / 2, 0, 0]} color={palette.blackIron}>
+        <cylinderGeometry args={[radius, radius, thickness, 40]} />
+      </ToonMesh>
+      <ToonMesh position={[0, 0, thickness / 2]} color={palette.steel} outline={0}>
+        <torusGeometry args={[radius * 0.9, radius * 0.06, 8, 40]} />
+      </ToonMesh>
+    </group>
+  )
+}
+
 /**
  * The moving parts on the deck that the engine drives (after the film's shot
  * of the deck): the big flywheel belted up to the line shaft, and the axle
@@ -127,13 +141,7 @@ export function Drive() {
         radius={0.02}
         color={palette.steel}
       />
-      <ToonMesh
-        position={[HUB.x, HUB.y, DISC.z]}
-        rotation={[Math.PI / 2, 0, 0]}
-        color={palette.dial}
-      >
-        <cylinderGeometry args={[DISC.radius, DISC.radius, 0.025, 40]} />
-      </ToonMesh>
+      <IronDisc at={[HUB.x, HUB.y, DISC.z]} radius={DISC.radius} thickness={0.025} />
       <Gear
         ref={bigGear}
         position={[HUB.x, HUB.y, BIG_GEAR.z]}
@@ -185,9 +193,7 @@ export function Drive() {
         to={[SIDE_DISC.at[0], SIDE_DISC.at[1], SIDE_DISC.at[2] - 0.06]}
         size={0.06}
       />
-      <ToonMesh position={SIDE_DISC.at} rotation={[Math.PI / 2, 0, 0]} color={palette.dial}>
-        <cylinderGeometry args={[SIDE_DISC.radius, SIDE_DISC.radius, 0.03, 32]} />
-      </ToonMesh>
+      <IronDisc at={SIDE_DISC.at} radius={SIDE_DISC.radius} thickness={0.03} />
       <Rod from={CRANK_PIN} to={SIDE_PIN} radius={0.012} color={palette.iron} />
       <Rod
         from={[SHAFT.left, SHAFT.y, SHAFT.z]}

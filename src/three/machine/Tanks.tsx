@@ -1,8 +1,11 @@
+import type { Group } from 'three'
 import type { Vec3 } from '@/lib/geometry'
 import { palette } from '@/three/palette'
 import { Ladder } from '@/three/parts/Ladder'
 import { ToonMesh } from '@/three/parts/ToonMesh'
 import { Wheel } from '@/three/parts/Wheel'
+import { Handle } from '@/three/sequence/Handle'
+import { useTurn } from '@/three/sequence/useTurn'
 import { layout } from '@/three/machine/layout'
 
 const { vat } = layout
@@ -28,6 +31,7 @@ const onVatSide = (out: number, y: number): Vec3 => [
  * leaning on its right (docs/references/video-cuve.jpg).
  */
 export function Tanks() {
+  const valve = useTurn<Group>('z', (s) => s.readouts.topValve * 4 * Math.PI)
   return (
     <group>
       <ToonMesh position={[vat.x, vat.y + vat.height / 2, vat.z]} color={palette.galvanized}>
@@ -44,19 +48,25 @@ export function Tanks() {
       <ToonMesh position={[vat.x, capY, vat.z]} color={palette.paintRed}>
         <cylinderGeometry args={[vat.cap.radius, vat.cap.radius, vat.cap.height, 32]} />
       </ToonMesh>
-      <Wheel
-        position={[vat.x, VALVE.y, vat.z + vat.cap.radius + 0.06]}
-        radius={VALVE.radius}
-        spokes={6}
-        tire={false}
-        color={palette.iron}
-      />
-      <Ladder
-        foot={onVatSide(LADDER.lean + vat.radius + 0.05, 0)}
-        top={onVatSide(vat.radius + 0.05, vat.y + LADDER.reach)}
-        across={[-Math.sin(LADDER.angle) * 0.2, 0, Math.cos(LADDER.angle) * 0.2]}
-        rungs={10}
-      />
+      {/* Opened from up the ladder: two turns. */}
+      <Handle actions={['openTopValve']}>
+        <Wheel
+          ref={valve}
+          position={[vat.x, VALVE.y, vat.z + vat.cap.radius + 0.06]}
+          radius={VALVE.radius}
+          spokes={6}
+          tire={false}
+          color={palette.iron}
+        />
+      </Handle>
+      <Handle actions={['climbLadder']}>
+        <Ladder
+          foot={onVatSide(LADDER.lean + vat.radius + 0.05, 0)}
+          top={onVatSide(vat.radius + 0.05, vat.y + LADDER.reach)}
+          across={[-Math.sin(LADDER.angle) * 0.2, 0, Math.cos(LADDER.angle) * 0.2]}
+          rungs={10}
+        />
+      </Handle>
     </group>
   )
 }

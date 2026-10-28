@@ -77,11 +77,22 @@ deux montants, et l'appui des poteaux sur l'essieu.
    dessous, un seul glaçon y tombe. Il le prend à la pince et le met dans son
    verre de thé : « Iced tea? »
 
-**Dans la page** (`lib/sequence.ts`), le visiteur joue Doc et Marty, en
-cliquant les pièces ou les boutons de l'interface : la grande vanne de cuivre
-lance le moteur (choix assumé : le film ne montre pas de levier de démarrage),
-la manivelle fait glisser le manchon, la bassine recueille le glaçon, la pince
-le met dans le verre. Le sifflet a été retiré du modèle, donc de la séquence.
+**Dans la page** (`lib/sequence.ts`), le visiteur joue Doc et Marty, avec
+les pièces ou les boutons de l'interface (un bouton tourne la poignée tout
+seul). Les pièces actionnables s'allument au survol, un signe au-dessus
+montre le geste (`three/sequence/Handle.tsx`) : un clic, un glisser-déposer,
+ou un cercle de la souris, bouton enfoncé, autour d'une roue ou d'une
+manivelle, dans le bon sens (vers la gauche pour ouvrir). Les étapes, choix
+assumés au-delà du film : glisser dans le poêle, dans l'ordre, les trois bûches spéciales de Doc
+(rayées, numérotées 1 à 3 à la façon Playmobil, posées sur un tas de bûches
+ordinaires devant, le poêle étant caché ; `machine/LogPile.tsx`), ouvrir
+la petite vanne en bas à droite (son manomètre grimpe), monter à l'échelle
+(un clic, la vue se rapproche un peu de la cuve), ouvrir la vanne du haut de
+la cuve (ses tuyaux se mettent à vibrer, leurs manomètres à réagir, puis le
+moteur démarre), tourner la manivelle (le manchon glisse), ouvrir la grande
+vanne de cuivre (le froid jaillit du conduit, le glaçon tombe), présenter la
+bassine (la vue se rapproche un peu, pour l'arrivée du glaçon), et prendre le
+glaçon à la pince. Le sifflet a été retiré du modèle, donc de la séquence.
 
 ---
 
@@ -121,13 +132,15 @@ src/
     gaugeDial.ts        Le dessin des cadrans de manomètre, tiré de leur taille
     framing.ts          Recul de caméra pour cadrer la scène
     sequence.ts         La séquence du film : étapes, clics, durées, ce que la machine montre
+    stoking.ts          Le minutage d'une bûche qui entre dans le poêle (porte, bûche)
   ui/Controls.tsx       L'interface superposée : consigne et boutons de la séquence
   three/                Rendu 3D (composants R3F, hooks three.js)
     Scene.tsx           Canvas et lumières
     FrontCamera.tsx     Caméra fixe de face, recadrée selon la fenêtre
     palette.ts          Les couleurs de la scène
     sequence/           La séquence en direct : store (état + horloge), context,
-                        SequenceClock, Clickable (pièce cliquable), useTurn (rotation)
+                        SequenceClock, Handle (pièce à cliquer, glisser ou tourner),
+                        gestures (suivi de la souris), GestureSign, useTurn
     parts/              Briques réutilisables
       ToonMesh.tsx      Mesh cell shading + contour (base de tout le reste)
       Rod.tsx, Beam.tsx Barre ronde / poutre carrée d'un point à un autre
@@ -144,6 +157,8 @@ src/
       Lashing.tsx       Tour de ficelle noué autour d'un tuyau
       RivetedFoot.tsx   Pied en tôle rivetée, plié sur le bord d'une table
       CopperCoil.tsx    Tube de cuivre enroulé en hélice
+      Flame.tsx         Flamme de dessin animé, trois langues rouge à jaune
+      NumberedLog.tsx   Bûche spéciale de Doc, peinte et numérotée
     machine/            La machine de Doc, une pièce par fichier
       layout.ts         Les points d'ancrage partagés (en mètres)
       Machine.tsx       Assemble les pièces + les manomètres épars
@@ -151,7 +166,9 @@ src/
       CrankCoil (unité de la bobine : blocs, bobine, manchon, manivelle),
       CoilStand (son bâti en bois), Tanks, Stove, Workbench
       Bellows.tsx       Le soufflet rond du plancher, poussé par sa manivelle
-      effects/          Vapeur, jet froid, glaçon, secousses
+      LogPile.tsx       Le tas de bûches et les trois bûches de Doc à glisser dans le poêle
+      FireDoor.tsx      La porte du poêle, qui s'ouvre sur les flammes à chaque bûche
+      effects/          Vapeur et jet froid (PuffStream), glaçon, secousses
       pipework/         Les tuyaux : anchors.ts (points partagés), pipes.ts (tracés
                         par série), PipeGauges (manomètres sur tuyau), PipeFittings
                         (bouche du conduit froid, ficelles, bague, sortie de vapeur)

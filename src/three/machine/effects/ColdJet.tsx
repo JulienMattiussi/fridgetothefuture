@@ -1,52 +1,72 @@
-import { useFrame } from '@react-three/fiber'
-import { useMemo, useRef } from 'react'
-import { type Group, type Mesh, type MeshToonMaterial, Quaternion, Vector3 } from 'three'
+import { useMemo } from 'react'
+import { Vector3 } from 'three'
 import type { Vec3 } from '@/lib/geometry'
-import { palette } from '@/three/palette'
-import { ToonMesh } from '@/three/parts/ToonMesh'
-import { useSequence } from '@/three/sequence/context'
+import type { Readouts } from '@/lib/sequence'
+import { PuffStream } from '@/three/machine/effects/PuffStream'
 
-/** How far the cold vapor reaches out of the mouth, and how wide it spreads. */
-const LENGTH = 0.5
-const SPREAD = 0.2
+/** Frozen air: white with icy blue glints. */
+const FROST = ['#f4fbff', '#cfe8fa', '#a9d3f2', '#ffffff', '#bfe0f7']
+/** The blast right out of the mouth: how far it shoots before it slows. */
+const BLAST = 0.5
+/** The cloud it billows into: how far it carries along the duct, and how much it sinks. */
+const REACH = 1.5
+const SINK = 0.5
+const strength = (readouts: Readouts) => readouts.coldJet
 
 /**
- * The cold vapor gushing out of the duct's mouth, along its axis: a pale
- * flickering cone, as strong as the sequence's `coldJet`.
+ * The frozen air blasting out of the duct's mouth, along its axis: a dense
+ * blast of small puffs right at the mouth, billowing into a cloud that sinks
+ * (it is heavy) and fades, as strong as the sequence's `coldJet`.
  */
 export function ColdJet({ mouth, along }: { mouth: Vec3; along: Vec3 }) {
-  const sequence = useSequence()
-  const group = useRef<Group>(null)
-  const stretch = useRef<Group>(null)
-  const cone = useRef<Mesh>(null)
-  // A cone stands along +Y: turn it onto the duct's axis.
-  const quaternion = useMemo(
-    () =>
-      new Quaternion().setFromUnitVectors(new Vector3(0, 1, 0), new Vector3(...along).normalize()),
-    [along],
-  )
-  useFrame(() => {
-    const jet = sequence?.readouts.coldJet ?? 0
-    if (group.current) group.current.visible = jet > 0
-    if (!sequence || !cone.current || !stretch.current || jet === 0) return
-    const flicker = 1 + 0.08 * Math.sin(sequence.time * 23)
-    stretch.current.scale.set(flicker, jet, flicker)
-    ;(cone.current.material as MeshToonMaterial).opacity = 0.55 * jet
-  })
+  const axis = useMemo(() => new Vector3(...along).normalize(), [along])
+  // Two directions square to the axis, for the puffs to fan out along.
+  const [side, up] = useMemo(() => {
+    const s = new Vector3(0, 1, 0).cross(axis).normalize()
+    return [s, axis.clone().cross(s).normalize()]
+  }, [axis])
+  /** A point `reach` along the axis, `fan` out round it at puff `i`'s own angle, `sink` down. */
+  const out = (i: number, reach: number, fan: number, sink: number): Vec3 => {
+    const angle = i * 2.39996
+    const round = (k: number) =>
+      side.getComponent(k) * Math.cos(angle) + up.getComponent(k) * Math.sin(angle)
+    return [0, 1, 2].map(
+      (k) => axis.getComponent(k) * reach + round(k) * fan - (k === 1 ? sink : 0),
+    ) as Vec3
+  }
   return (
-    <group ref={group} position={mouth} quaternion={quaternion} visible={false}>
-      {/* Stretched from the mouth: the cone sits half its length along its axis. */}
-      <group ref={stretch}>
-        <ToonMesh
-          ref={cone}
-          position={[0, LENGTH / 2, 0]}
-          color={palette.glass}
-          opacity={0.5}
-          outline={0}
-        >
-          <cylinderGeometry args={[SPREAD, 0.1, LENGTH, 24, 1, true]} />
-        </ToonMesh>
-      </group>
+    <group>
+      <PuffStream
+        at={mouth}
+        count={48}
+        life={0.4}
+        color={FROST}
+        opacity={0.95}
+        fadeFrom={0.6}
+        strength={strength}
+        puff={(i, age) => ({
+          position: out(i, BLAST * age, 0.12 * age * (0.5 + ((i * 0.618) % 0.5)), 0),
+          scale: 0.35 + age * 1.1,
+        })}
+      />
+      <PuffStream
+        at={mouth}
+        count={56}
+        life={1.2}
+        color={FROST}
+        opacity={0.9}
+        fadeFrom={0.5}
+        strength={strength}
+        puff={(i, age) => ({
+          position: out(
+            i,
+            BLAST + (REACH - BLAST) * Math.sqrt(age),
+            0.15 + 0.5 * age * (0.4 + ((i * 0.618) % 0.6)),
+            SINK * age * age,
+          ),
+          scale: 1.3 + age * 2.2,
+        })}
+      />
     </group>
   )
 }

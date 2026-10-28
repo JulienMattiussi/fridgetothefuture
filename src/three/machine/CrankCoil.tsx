@@ -1,12 +1,13 @@
 import { useFrame } from '@react-three/fiber'
 import { useRef } from 'react'
 import { type Group, type Mesh, Path, Shape } from 'three'
+import { CRANK_TURNS } from '@/lib/sequence'
 import { palette } from '@/three/palette'
 import { Beam } from '@/three/parts/Beam'
 import { CopperCoil } from '@/three/parts/CopperCoil'
 import { Rod } from '@/three/parts/Rod'
 import { ToonMesh } from '@/three/parts/ToonMesh'
-import { Clickable } from '@/three/sequence/Clickable'
+import { Handle } from '@/three/sequence/Handle'
 import { useSequence } from '@/three/sequence/context'
 import { CoilStand } from '@/three/machine/CoilStand'
 import { layout } from '@/three/machine/layout'
@@ -39,12 +40,12 @@ const CRANK = { x: -1.9, y: top + 0.14, arm: 0.11, handle: 0.12, out: 0.11 }
 const leftFront = Z + LEFT.depth / 2
 const coilLength = RIGHT.left - LEFT.right
 /**
- * The sleeve rests at the coil's right end and slides hard left as the crank
- * turns (the sequence's `sleeve`, 0 to 1), the crank making this many turns.
+ * Half the sleeve's run: it rests at the coil's right end and runs back and
+ * forth as the crank turns, to end hard left (the sequence's `sleeve` and
+ * `crank`).
  */
 const SLEEVE_TRAVEL = (RIGHT.left - LEFT.right) / 2 - SLEEVE.width / 2 - 0.02
 const sleeveX = (LEFT.right + RIGHT.left) / 2
-const CRANK_TURNS = 6
 const s = SLEEVE.half + SLEEVE.plate / 2
 /**
  * The sleeve's face, across the coil's axis: a square with a round bore that
@@ -81,11 +82,11 @@ export function CrankCoil() {
   const sleeve = useRef<Mesh>(null)
   const crank = useRef<Group>(null)
   useFrame(() => {
-    const slid = sequence?.readouts.sleeve ?? 0
+    const { sleeve: slid, crank: turned } = sequence?.readouts ?? { sleeve: 0, crank: 0 }
     if (sleeve.current) {
       sleeve.current.position.x = sleeveX - SLEEVE.width / 2 + SLEEVE_TRAVEL * (1 - 2 * slid)
     }
-    if (crank.current) crank.current.rotation.z = slid * CRANK_TURNS * 2 * Math.PI
+    if (crank.current) crank.current.rotation.z = turned * CRANK_TURNS * 2 * Math.PI
   })
   return (
     <group>
@@ -155,7 +156,7 @@ export function CrankCoil() {
         color={palette.glass}
       />
       {/* The crank, Marty's handle: arm and wooden handle, turning on its boss. */}
-      <Clickable action="turnCrank">
+      <Handle actions={['turnCrank']}>
         <group ref={crank} position={[CRANK.x, CRANK.y, leftFront + CRANK.out]}>
           <Beam from={[0, 0, 0]} to={[0, -CRANK.arm, 0]} size={0.035} color={palette.iron} />
           <Rod
@@ -169,7 +170,7 @@ export function CrankCoil() {
             <boxGeometry args={[0.16, 0.24, 0.2]} />
           </mesh>
         </group>
-      </Clickable>
+      </Handle>
     </group>
   )
 }

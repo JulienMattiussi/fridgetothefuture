@@ -22,6 +22,8 @@ export const palette = {
   dial: '#f1e8d2',
   dialDark: '#26302a',
   dialRed: '#a3322a',
+  /** The bands on Doc's special logs, with the red dial's red and enamel white. */
+  logGreen: '#4f7a4a',
   tea: '#7a4a1c',
   redLiquid: '#8a2a1a',
   leather: '#3b2616',

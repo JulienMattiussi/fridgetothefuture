@@ -1,6 +1,6 @@
 import type { Vec3 } from '@/lib/geometry'
 import { palette } from '@/three/palette'
-import { Gauge } from '@/three/parts/Gauge'
+import { Gauge, type GaugeDrive } from '@/three/parts/Gauge'
 import { Rod } from '@/three/parts/Rod'
 import { ToonMesh } from '@/three/parts/ToonMesh'
 
@@ -17,6 +17,7 @@ export interface MountedGaugeProps {
   reading?: number
   face?: string
   needle?: string
+  drive?: GaugeDrive
   /** The stem's thickness. */
   rod?: number
   /** A square fitting instead of a stem, the gauge sitting a little forward on it. */
@@ -38,7 +39,18 @@ function placement({ on, side, pipeRadius = 0, stem, radius, block }: MountedGau
 
 /** A gauge mounted on a pipe, on a short stem (or a square fitting). */
 export function MountedGauge(props: MountedGaugeProps) {
-  const { on, pipeRadius = 0, stem, radius, reading, face, needle, rod = 0.012, block } = props
+  const {
+    on,
+    pipeRadius = 0,
+    stem,
+    radius,
+    reading,
+    face,
+    needle,
+    drive,
+    rod = 0.012,
+    block,
+  } = props
   const { at, stemEnd } = placement(props)
   return (
     <group>
@@ -52,7 +64,14 @@ export function MountedGauge(props: MountedGaugeProps) {
       ) : (
         <Rod from={on} to={stemEnd} radius={rod} color={palette.copperGrey} />
       )}
-      <Gauge position={at} radius={radius} reading={reading} face={face} needle={needle} />
+      <Gauge
+        position={at}
+        radius={radius}
+        reading={reading}
+        face={face}
+        needle={needle}
+        drive={drive}
+      />
     </group>
   )
 }

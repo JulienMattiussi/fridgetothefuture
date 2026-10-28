@@ -7,7 +7,7 @@ import { Pipe } from '@/three/parts/Pipe'
 import { Rod } from '@/three/parts/Rod'
 import { ToonMesh } from '@/three/parts/ToonMesh'
 import { Wheel } from '@/three/parts/Wheel'
-import { Clickable } from '@/three/sequence/Clickable'
+import { Handle } from '@/three/sequence/Handle'
 import { useTurn } from '@/three/sequence/useTurn'
 import { layout } from '@/three/machine/layout'
 
@@ -55,7 +55,8 @@ const SMALL_PIPE_X = 2.75
  * upright plank nailed across the frame's two planks.
  */
 export function ValveGear() {
-  const bigWheel = useTurn<Group>('z', (s) => s.readouts.steam * 4 * Math.PI)
+  const bigWheel = useTurn<Group>('z', (s) => s.readouts.mainValve * 4 * Math.PI)
+  const smallWheel = useTurn<Group>('z', (s) => s.readouts.smallValve * 3 * Math.PI)
   return (
     <group>
       <Rod
@@ -64,8 +65,8 @@ export function ValveGear() {
         radius={0.025}
         color={palette.steel}
       />
-      {/* Doc's steam valve: opening it, two full turns, starts the engine. */}
-      <Clickable action="openValve">
+      {/* Doc's big valve: opened, two full turns, once cranked, it lets the cold out. */}
+      <Handle actions={['openValve']}>
         <Wheel
           ref={bigWheel}
           position={BIG_WHEEL.at}
@@ -75,7 +76,7 @@ export function ValveGear() {
           rotation={[0, Math.PI / 2, 0]}
           color={palette.copperDark}
         />
-      </Clickable>
+      </Handle>
       <Rod
         from={[COLUMN.x, COLUMN.bottom, Z]}
         to={[COLUMN.x, COLUMN.top, Z]}
@@ -144,13 +145,17 @@ export function ValveGear() {
         radius={0.01}
         color={palette.steel}
       />
-      <Wheel
-        position={[SMALL_VALVE.x, SMALL_VALVE.y, Z + 0.12]}
-        radius={SMALL_VALVE.radius}
-        spokes={6}
-        tire={false}
-        color={palette.iron}
-      />
+      {/* Opened second, after the stove is lit: a turn and a half. */}
+      <Handle actions={['openSmallValve']}>
+        <Wheel
+          ref={smallWheel}
+          position={[SMALL_VALVE.x, SMALL_VALVE.y, Z + 0.12]}
+          radius={SMALL_VALVE.radius}
+          spokes={6}
+          tire={false}
+          color={palette.iron}
+        />
+      </Handle>
     </group>
   )
 }

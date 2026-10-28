@@ -2,92 +2,234 @@ import {
   act,
   advance,
   availableActions,
+  CRANK_TURNS,
   initialState,
+  STOVE_LOGS,
+  isTurn,
   readouts,
+  turn,
+  turnWay,
+  type Action,
   type SequenceState,
+  type TurnAction,
 } from '@/lib/sequence'
 
-/** Plays clicks and waits in order: a number waits that many seconds. */
-function play(...steps: (Parameters<typeof act>[1] | number)[]): SequenceState {
-  return steps.reduce<SequenceState>(
-    (state, step) => (typeof step === 'number' ? advance(state, step) : act(state, step)),
-    initialState,
-  )
+type Step = Action | number | [TurnAction, number]
+
+/** The stove's logs, put in one by one. */
+const LOAD: Step[] = Array<Step>(STOVE_LOGS).fill('loadStove')
+
+/**
+ * Plays steps in order: an action clicks, a number waits that many seconds,
+ * and a pair turns a handle by that many turns.
+ */
+function play(...steps: Step[]): SequenceState {
+  return steps.reduce<SequenceState>((state, step) => {
+    if (typeof step === 'number') return advance(state, step)
+    if (Array.isArray(step)) return turn(state, ...step)
+    return act(state, step)
+  }, initialState)
 }
 
+/** Up to the engine running: stove, small valve, ladder, the vat's valve. */
+const RUNNING: Step[] = [...LOAD, 2, ['openSmallValve', 1.5], 'climbLadder', ['openTopValve', 2], 3]
+/** Up to the cold gushing: the crank, then the big copper valve. */
+const JET: Step[] = [...RUNNING, ['turnCrank', CRANK_TURNS], ['openValve', 2]]
+const SERVED: Step[] = [...JET, 'holdBasin', 1.2, 'useTongs']
+
 describe('the sequence', () => {
-  it('only lets the valve be opened at first', () => {
-    expect(availableActions(initialState)).toEqual(['openValve'])
+  it('only lets the stove be loaded at first', () => {
+    expect(availableActions(initialState)).toEqual(['loadStove'])
   })
 
-  it('ignores clicks out of turn', () => {
-    expect(act(initialState, 'turnCrank')).toBe(initialState)
-    expect(play('openValve', 'holdBasin')).toEqual({ phase: 'starting', elapsed: 0 })
+  it('ignores clicks and turns out of turn', () => {
+    expect(act(initialState, 'holdBasin')).toBe(initialState)
+    expect(turn(initialState, 'turnCrank', 5)).toBe(initialState)
   })
 
-  it('runs through the film, clicks and timed stages in turn', () => {
-    expect(play('openValve').phase).toBe('starting')
-    expect(play('openValve', 3).phase).toBe('running')
-    expect(play('openValve', 3, 'turnCrank', 4).phase).toBe('jet')
-    expect(play('openValve', 3, 'turnCrank', 4, 'holdBasin', 1.2).phase).toBe('caught')
-    expect(play('openValve', 3, 'turnCrank', 4, 'holdBasin', 1.2, 'useTongs').phase).toBe('served')
+  it('runs through the film, clicks, turns and timed stages in turn', () => {
+    const phases = [
+      [...LOAD],
+      [...LOAD, 2],
+      [...LOAD, 2, ['openSmallValve', 1.5]],
+      [...LOAD, 2, ['openSmallValve', 1.5], 'climbLadder'],
+      [...LOAD, 2, ['openSmallValve', 1.5], 'climbLadder', ['openTopValve', 2]],
+      RUNNING,
+      [...RUNNING, ['turnCrank', CRANK_TURNS]],
+      JET,
+      [...JET, 'holdBasin'],
+      [...JET, 'holdBasin', 1.2],
+      SERVED,
+    ].map((steps) => play(...(steps as Step[])).phase)
+    expect(phases).toEqual([
+      'stoking',
+      'lit',
+      'primed',
+      'climbed',
+      'starting',
+      'running',
+      'cranked',
+      'jet',
+      'dropping',
+      'caught',
+      'served',
+    ])
+  })
+
+  it('needs the handles turned all the way, and the right way', () => {
+    const lit = play(...LOAD, 2)
+    expect(turn(lit, 'openSmallValve', 1).phase).toBe('lit')
+    expect(turn(lit, 'openSmallValve', 1).worked).toBeCloseTo(2 / 3)
+    expect(turn(lit, 'openSmallValve', -1).worked).toBe(0)
+    expect(play(...RUNNING, ['turnCrank', -CRANK_TURNS]).phase).toBe('running')
+  })
+
+  it('tells the handles from the clicks, and which way each turns', () => {
+    expect(isTurn('turnCrank')).toBe(true)
+    expect(isTurn('holdBasin')).toBe(false)
+    expect(turnWay('openTopValve')).toBe(1)
+  })
+
+  it('turns a handle by itself when its button is clicked', () => {
+    const turning = act(play(...LOAD, 2), 'openSmallValve')
+    expect(turning).toMatchObject({ phase: 'lit', auto: true })
+    expect(advance(turning, 0.3).worked).toBeCloseTo(0.4)
+    expect(advance(turning, 0.75).phase).toBe('primed')
   })
 
   it('carries leftover time into the next phase', () => {
-    expect(play('openValve', 3.5)).toEqual({ phase: 'running', elapsed: 0.5 })
-  })
-
-  it('waits for a click in untimed phases', () => {
-    expect(play('openValve', 3, 100)).toEqual({ phase: 'running', elapsed: 100 })
+    expect(play(...LOAD, 2.5)).toEqual({ phase: 'lit', elapsed: 0.5, worked: 0, auto: false })
   })
 
   it('can always be reset once started', () => {
-    const served = play('openValve', 3, 'turnCrank', 4, 'holdBasin', 2, 'useTongs')
+    const served = play(...SERVED)
     expect(availableActions(served)).toEqual(['reset'])
     expect(act(served, 'reset')).toEqual(initialState)
   })
 })
 
 describe('readouts', () => {
-  it('shows a still machine at first', () => {
+  it('shows a still, cold machine at first', () => {
     expect(readouts(initialState)).toEqual({
+      logs: 0,
+      fire: 0,
+      smallValve: 0,
+      topValve: 0,
+      mainValve: 0,
       engine: 0,
       shaking: 0,
+      stir: 0,
+      closeUp: 'none',
       pressure: 0,
       steam: 0,
+      crank: 0,
       sleeve: 0,
       coldJet: 0,
+      basin: 0,
       cube: { where: 'none', fall: 0 },
     })
   })
 
-  it('spins the engine up while starting, to full speed once running', () => {
-    const half = readouts(play('openValve', 1.5)).engine
-    expect(half).toBeGreaterThan(0)
-    expect(half).toBeLessThan(1)
-    expect(readouts(play('openValve', 3)).engine).toBe(1)
+  it('takes the logs one by one before the fire takes', () => {
+    const short = play(...LOAD.slice(1))
+    expect(short.phase).toBe('idle')
+    expect(readouts(short)).toMatchObject({ logs: STOVE_LOGS - 1, fire: 0 })
+    expect(availableActions(short)).toEqual(['loadStove', 'reset'])
+    expect(readouts(play(...LOAD)).logs).toBe(STOVE_LOGS)
   })
 
-  it('slides the sleeve hard left while cranking', () => {
-    expect(readouts(play('openValve', 3, 'turnCrank', 2)).sleeve).toBeCloseTo(0.5)
-    expect(readouts(play('openValve', 3, 'turnCrank', 4)).sleeve).toBe(1)
+  it('lights the fire once the logs are in', () => {
+    expect(readouts(play(...LOAD, 1)).fire).toBeCloseTo(0.5)
+    expect(readouts(play(...LOAD, 2)).fire).toBe(1)
+  })
+
+  it('opens each valve as far as its handle turned', () => {
+    expect(readouts(play(...LOAD, 2, ['openSmallValve', 0.75])).smallValve).toBeCloseTo(0.5)
+    const started = readouts(play(...RUNNING.slice(0, -1)))
+    expect(started).toMatchObject({ smallValve: 1, topValve: 1, mainValve: 0 })
+    expect(
+      readouts(play(...RUNNING, ['turnCrank', CRANK_TURNS], ['openValve', 1])).mainValve,
+    ).toBeCloseTo(0.5)
+  })
+
+  it('closes in on the vat while up the ladder', () => {
+    const up = [...LOAD, 2, ['openSmallValve', 1.5], 'climbLadder'] as Step[]
+    expect(readouts(play(...up)).closeUp).toBe('vat')
+    expect(readouts(play(...up, ['openTopValve', 2])).closeUp).toBe('none')
+  })
+
+  it('closes in on the basin and the glass once the cold gushes, to the end', () => {
+    expect(readouts(play(...RUNNING, ['turnCrank', CRANK_TURNS])).closeUp).toBe('none')
+    expect(readouts(play(...JET)).closeUp).toBe('basin')
+    expect(readouts(play(...SERVED)).closeUp).toBe('basin')
+  })
+
+  it("stirs the vat's pipes as its valve opens, until the engine takes over", () => {
+    const up = [...LOAD, 2, ['openSmallValve', 1.5], 'climbLadder'] as Step[]
+    expect(readouts(play(...up)).stir).toBe(0)
+    expect(readouts(play(...up, ['openTopValve', 1])).stir).toBeCloseTo(0.5)
+    expect(readouts(play(...RUNNING.slice(0, -1), 1.5)).stir).toBeCloseTo(0.5)
+    expect(readouts(play(...RUNNING)).stir).toBe(0)
+  })
+
+  it('raises the pressure step by step, on to full once cranked', () => {
+    const steps = [
+      [...LOAD, 2],
+      RUNNING.slice(0, -2),
+      RUNNING,
+      [...RUNNING, ['turnCrank', CRANK_TURNS]],
+    ]
+    const pressures = steps.map((s) => readouts(play(...(s as Step[]))).pressure)
+    expect(pressures).toEqual([...pressures].sort((a, b) => a - b))
+    expect(pressures.at(-1)).toBe(1)
+  })
+
+  it('spins the engine up while starting, and keeps it running to the end', () => {
+    const half = readouts(play(...RUNNING.slice(0, -1), 1.5)).engine
+    expect(half).toBeGreaterThan(0)
+    expect(half).toBeLessThan(1)
+    expect(readouts(play(...RUNNING)).engine).toBe(1)
+    expect(readouts(play(...SERVED))).toMatchObject({ engine: 1, steam: 1 })
+  })
+
+  it('runs the sleeve back and forth as the crank turns, to end hard left', () => {
+    const at = (turns: number) => readouts(play(...RUNNING, ['turnCrank', turns]))
+    const run = CRANK_TURNS / 5
+    expect(at(run / 2)).toMatchObject({
+      sleeve: expect.closeTo(0.5),
+      crank: expect.closeTo(1 / 10),
+    })
+    expect(at(run).sleeve).toBeCloseTo(1)
+    expect(at(2 * run).sleeve).toBeCloseTo(0)
+    expect(at(CRANK_TURNS)).toMatchObject({ sleeve: 1, crank: 1 })
+  })
+
+  it('lets the cold out once the big valve opens, not before', () => {
+    expect(readouts(play(...RUNNING, ['turnCrank', CRANK_TURNS])).coldJet).toBe(0)
+    expect(readouts(play(...JET, 1)).coldJet).toBe(1)
   })
 
   it('drops the cube from the duct into the basin, then into the glass', () => {
-    const jet = play('openValve', 3, 'turnCrank', 4)
+    const jet = play(...JET)
     expect(readouts(jet).coldJet).toBe(0)
     expect(readouts(advance(jet, 1)).coldJet).toBe(1)
-    const falling = readouts(play('openValve', 3, 'turnCrank', 4, 'holdBasin', 0.6)).cube
+    const falling = readouts(advance(act(jet, 'holdBasin'), 0.6)).cube
     expect(falling.where).toBe('falling')
     expect(falling.fall).toBeGreaterThan(0)
     expect(falling.fall).toBeLessThan(1)
-    const caught = play('openValve', 3, 'turnCrank', 4, 'holdBasin', 1.2)
+    const caught = play(...JET, 'holdBasin', 1.2)
     expect(readouts(caught).cube).toEqual({ where: 'basin', fall: 1 })
-    expect(readouts(act(caught, 'useTongs')).cube.where).toBe('glass')
+    expect(readouts(play(...SERVED)).cube.where).toBe('glass')
+  })
+
+  it('holds the basin up under the duct till the cube lands, then puts it back down', () => {
+    expect(readouts(play(...JET)).basin).toBe(0)
+    expect(readouts(play(...JET, 'holdBasin')).basin).toBe(1)
+    expect(readouts(play(...JET, 'holdBasin', 1.2)).basin).toBe(0)
   })
 
   it('lets the cold jet die down once the cube is caught', () => {
-    const caught = play('openValve', 3, 'turnCrank', 4, 'holdBasin', 1.2)
+    const caught = play(...JET, 'holdBasin', 1.2)
     expect(readouts(caught).coldJet).toBe(1)
     expect(readouts(advance(caught, 2)).coldJet).toBe(0)
   })

@@ -53,3 +53,28 @@ export function dialTicks({ sweep, ticks, majorEvery }: DialDesign) {
     major: i % majorEvery === 0,
   }))
 }
+
+/** How one gauge's needle behaves: no two climb or quiver in step. */
+export interface NeedleTemper {
+  /** Seconds it takes to catch up with the pressure, roughly. */
+  lag: number
+  /** The pressure raised to this: below 1 it shoots up early, above 1 it climbs late. */
+  curve: number
+  /** How far it swings about while the machine shakes, in radians. */
+  swing: number
+  /** How fast it swings, in radians per second. */
+  swingRate: number
+}
+
+export function needleTemper(seed: number): NeedleTemper {
+  // Another stream than the dial's, so the two don't go together.
+  const next = random(seed * 31 + 7)
+  // About one gauge in three swings wildly; the others just quiver.
+  const wild = next() < 0.35
+  return {
+    lag: 0.2 + next() * 2.3,
+    curve: 2 ** (next() * 2.6 - 1.3),
+    swing: wild ? 0.25 + next() * 0.3 : 0.03 + next() * 0.06,
+    swingRate: wild ? 2 + next() * 4 : 6 + next() * 6,
+  }
+}

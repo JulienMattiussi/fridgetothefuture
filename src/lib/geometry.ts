@@ -62,6 +62,22 @@ export function beltRuns(a: Pulley, b: Pulley): [Vec3, Vec3][] {
 }
 
 /**
+ * Where an open belt wraps round its two pulleys, between its straight runs:
+ * each arc's start angle (counterclockwise from +X) and its sweep. It wraps
+ * the first pulley on the side away from the second, and the other way round.
+ */
+export function beltWraps(a: Pulley, b: Pulley): { start: number; sweep: number }[] {
+  const [[fromA], [, toB]] = beltRuns(a, b) as [[Vec3, Vec3], [Vec3, Vec3]]
+  const upper = Math.atan2(fromA[1] - a.center[1], fromA[0] - a.center[0])
+  const lower = Math.atan2(toB[1] - b.center[1], toB[0] - b.center[0])
+  const spread = upper - Math.atan2(b.center[1] - a.center[1], b.center[0] - a.center[0])
+  return [
+    { start: upper, sweep: 2 * Math.PI - 2 * spread },
+    { start: lower, sweep: 2 * spread },
+  ]
+}
+
+/**
  * Points along a coil wound around the X axis, centered on the origin: a
  * copper tube coiled on itself, `turns` times over `length`.
  */

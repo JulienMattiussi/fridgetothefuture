@@ -1,6 +1,7 @@
 import {
   atX,
   beltRuns,
+  beltWraps,
   evenAngles,
   helixPoints,
   lerp,
@@ -33,6 +34,23 @@ describe('beltRuns', () => {
     expect(() =>
       beltRuns({ center: [0, 0, 0], radius: 2 }, { center: [0.5, 0, 0], radius: 1 }),
     ).toThrow(RangeError)
+  })
+})
+
+describe('beltWraps', () => {
+  it('wraps half of each of two equal pulleys, on their far sides', () => {
+    const [a, b] = beltWraps({ center: [0, 0, 0], radius: 1 }, { center: [0, 4, 0], radius: 1 })
+    expect(a!.sweep).toBeCloseTo(Math.PI)
+    expect(b!.sweep).toBeCloseTo(Math.PI)
+    // The lower pulley's arc passes under it (-Y), the upper one's over it.
+    expect(Math.sin(a!.start + a!.sweep / 2)).toBeCloseTo(-1)
+    expect(Math.sin(b!.start + b!.sweep / 2)).toBeCloseTo(1)
+  })
+
+  it('wraps more of the bigger pulley, the two arcs making a full turn', () => {
+    const [a, b] = beltWraps({ center: [0, 0, 0], radius: 2 }, { center: [5, 1, 0], radius: 0.5 })
+    expect(a!.sweep).toBeGreaterThan(Math.PI)
+    expect(a!.sweep + b!.sweep).toBeCloseTo(2 * Math.PI)
   })
 })
 

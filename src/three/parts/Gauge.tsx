@@ -2,7 +2,8 @@ import type { ThreeElements } from '@react-three/fiber'
 import { useMemo, useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import type { Group } from 'three'
-import { dialDesign, dialTicks } from '@/lib/gaugeDial'
+import { dialDesign, dialTicks, needleTemper } from '@/lib/gaugeDial'
+import type { Readouts } from '@/lib/sequence'
 import { palette } from '@/three/palette'
 import { ToonMesh } from '@/three/parts/ToonMesh'
 import { useSequence } from '@/three/sequence/context'
@@ -17,7 +18,17 @@ type GaugeProps = ThreeElements['group'] & {
   /** Dial color; a dark dial takes light markings. */
   face?: string
   needle?: string
+  /**
+   * What drives it, when not the machine's pressure: a gauge by a valve reads
+   * that valve's line, and is stirred (0 to 1) as it opens.
+   */
+  drive?: GaugeDrive
 }
+
+export type GaugeDrive = (readouts: Readouts) => { pressure: number; stir: number }
+
+/** How far a stirred needle swings about, in radians. */
+const STIR_SWING = 0.2
 
 /** Clockwise-from-up angles to a ring's counterclockwise-from-right theta. */
 const theta = (angle: number) => Math.PI / 2 - angle
@@ -32,6 +43,7 @@ export function Gauge({
   reading = -0.8,
   face = palette.dial,
   needle = palette.ink,
+  drive,
   ...props
 }: GaugeProps) {
   const design = useMemo(() => dialDesign(Math.round(radius * 10000)), [radius])
@@ -43,14 +55,23 @@ export function Gauge({
   const low = theta(design.sweep / 2)
   const sequence = useSequence()
   const needleRef = useRef<Group>(null)
-  // Its own wobble, so the needles don't all quiver in step.
-  const wobble = useMemo(() => 7 + ((radius * 1000) % 5), [radius])
-  useFrame(() => {
+  // Its own pace and swing, so the needles don't all move in step.
+  const temper = useMemo(() => needleTemper(Math.round(radius * 10000)), [radius])
+  /** The pressure the needle shows, catching up with the real one. */
+  const shown = useRef(0)
+  useFrame((_, dt) => {
     if (!sequence || !needleRef.current) return
-    const { pressure, shaking } = sequence.readouts
+    const { shaking } = sequence.readouts
+    const { pressure, stir } = drive?.(sequence.readouts) ?? {
+      pressure: sequence.readouts.pressure,
+      stir: 0,
+    }
+    shown.current += (pressure ** temper.curve - shown.current) * (1 - Math.exp(-dt / temper.lag))
+    const t = sequence.time * temper.swingRate
+    const amplitude = temper.swing * shaking + STIR_SWING * stir
+    const swing = amplitude * (0.7 * Math.sin(t) + 0.3 * Math.sin(2.3 * t + 1))
     const rest = -design.sweep / 2
-    const quiver = 0.06 * shaking * Math.sin(sequence.time * wobble)
-    needleRef.current.rotation.z = -(rest + (reading - rest) * pressure + quiver)
+    needleRef.current.rotation.z = -(rest + (reading - rest) * shown.current + swing)
   })
   return (
     <group {...props}>

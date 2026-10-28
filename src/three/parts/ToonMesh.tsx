@@ -1,6 +1,6 @@
 import { Outlines } from '@react-three/drei'
 import { useThree, type ThreeElements } from '@react-three/fiber'
-import { DataTexture, FrontSide, NearestFilter, RedFormat, type Side } from 'three'
+import { DataTexture, FrontSide, NearestFilter, RedFormat, type Side, type Texture } from 'three'
 import { toonSteps } from '@/lib/toonSteps'
 import { palette } from '@/three/palette'
 
@@ -21,6 +21,8 @@ type ToonMeshProps = ThreeElements['mesh'] & {
   outline?: number
   /** DoubleSide for open shapes seen from inside (a basin). */
   side?: Side
+  /** A picture painted over the color (a label, stripes). */
+  map?: Texture
 }
 
 /** A cell-shaded mesh with its ink outline. Its children give the geometry. */
@@ -29,6 +31,7 @@ export function ToonMesh({
   opacity = 1,
   outline = 2.5,
   side = FrontSide,
+  map,
   children,
   ...props
 }: ToonMeshProps) {
@@ -43,6 +46,7 @@ export function ToonMesh({
         opacity={opacity}
         depthWrite={opacity === 1}
         side={side}
+        map={map ?? null}
       />
       {/* drei's `screenspace` flag is inverted: left off, the thickness is in
           drawing-buffer pixels, hence the device pixel ratio. */}

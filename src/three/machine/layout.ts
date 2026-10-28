@@ -65,9 +65,16 @@ export const layout = {
   },
   /**
    * The cast-iron stove on the floor between the two shelves, at the back: its
-   * body's radius and top, and its big flue rising out of view, through the roof.
+   * body's radius and top, its fire door's height, and its big flue rising
+   * out of view, through the roof.
    */
-  stove: { x: -0.42, z: -0.7, radius: 0.3, top: 1.0, flue: 0.14, flueTop: 9 },
+  stove: { x: -0.42, z: -0.7, radius: 0.3, top: 1.0, doorY: 0.44, flue: 0.14, flueTop: 9 },
+  /**
+   * The log pile on the floor out in front, Doc's special logs on top, where
+   * they can be seen past the boiler's bench (an invention: the stove itself
+   * hides behind it).
+   */
+  logPile: { x: -0.36, z: 1.32 },
   /** The boiler stands on the workbench, the same table as the basin. */
   boiler: { x: 0.1, z: 0.68, radius: 0.36, bottom: 0.8, height: 0.8 },
   /**
@@ -92,6 +99,8 @@ export const layout = {
    * here and the ice cube drops from it (docs/references/video-conduit-froid.jpg).
    */
   ductMouth: [0.72, 1.22, 0.8] as Vec3,
+  /** How high the basin is lifted off the bench, under the duct's mouth, for the ice cube. */
+  basinLift: 0.22,
   /** Doc's tall glass of tea on the workbench, waiting for its ice cube. */
   teaGlass: { x: 1.15, z: 0.8, height: 0.26 },
 }

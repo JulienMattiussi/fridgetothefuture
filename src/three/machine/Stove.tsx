@@ -3,6 +3,7 @@ import { palette } from '@/three/palette'
 import { Pipe } from '@/three/parts/Pipe'
 import { Rod } from '@/three/parts/Rod'
 import { ToonMesh } from '@/three/parts/ToonMesh'
+import { FireDoor } from '@/three/machine/FireDoor'
 import { layout } from '@/three/machine/layout'
 
 const { stove, vat } = layout
@@ -10,17 +11,18 @@ const LEG = 0.2
 const BODY = stove.top - LEG
 /** Where the elbow off the red cap's top meets the flue, high up. */
 const JOIN_Y = 4.3
-
 /**
  * The pot-bellied stove between the two shelves: a cast-iron drum on four
- * short legs, its fire door to the front, and its big flue rising to the roof.
+ * short legs, its fire door to the front (FireDoor), and its big flue rising to the roof.
  * An elbowed pipe from the top of the vat's red cap runs over into the flue.
+ * Its logs lie out in front (LogPile).
  */
 export function Stove() {
   const { x, z, radius } = stove
   const capTop = vat.y + vat.height + vat.cap.height
   return (
     <group>
+      <FireDoor />
       {evenAngles(4, Math.PI / 4).map((angle) => {
         const [lx, lz] = onCircle(radius * 0.8, angle)
         return (
@@ -36,7 +38,7 @@ export function Stove() {
       <ToonMesh position={[x, LEG + BODY / 2, z]} color={palette.blackIron}>
         <cylinderGeometry args={[radius, radius * 0.92, BODY, 32]} />
       </ToonMesh>
-      {/* Its belly band, top plate and fire door. */}
+      {/* Its belly band and top plate. */}
       <ToonMesh
         position={[x, LEG + BODY * 0.55, z]}
         rotation={[Math.PI / 2, 0, 0]}
@@ -46,9 +48,6 @@ export function Stove() {
       </ToonMesh>
       <ToonMesh position={[x, stove.top + 0.02, z]} color={palette.iron}>
         <cylinderGeometry args={[radius * 0.85, radius + 0.03, 0.06, 32]} />
-      </ToonMesh>
-      <ToonMesh position={[x, LEG + BODY * 0.3, z + radius - 0.02]} color={palette.iron}>
-        <boxGeometry args={[0.2, 0.16, 0.05]} />
       </ToonMesh>
       <Rod
         from={[x, stove.top, z]}

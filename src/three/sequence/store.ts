@@ -4,9 +4,11 @@ import {
   availableActions,
   initialState,
   readouts,
+  turn,
   type Action,
   type Readouts,
   type SequenceState,
+  type TurnAction,
 } from '@/lib/sequence'
 
 /** Engine turns per second at full speed. */
@@ -46,6 +48,8 @@ export function createSequenceStore() {
     actions: () => availableActions(state),
     can: (action: Action) => availableActions(state).includes(action),
     act: (action: Action) => set(act(state, action)),
+    /** The visitor turned `action`'s handle by `turns`, counterclockwise positive. */
+    turn: (action: TurnAction, turns: number) => set(turn(state, action, turns)),
     tick: (dt: number) => {
       // A tab left in the background comes back with a huge step: cap it.
       const step = Math.min(dt, 0.1)
