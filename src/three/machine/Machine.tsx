@@ -4,6 +4,7 @@ import type { Vec3 } from '@/lib/geometry'
 import { Basin } from '@/three/machine/Basin'
 import { BigLever } from '@/three/machine/BigLever'
 import { Boiler } from '@/three/machine/Boiler'
+import { Clutter } from '@/three/machine/clutter/Clutter'
 import { CrankCoil } from '@/three/machine/CrankCoil'
 import { Drive } from '@/three/machine/Drive'
 import { ColdJet } from '@/three/machine/effects/ColdJet'
@@ -70,6 +71,7 @@ export function Machine() {
       <CrankCoil />
       <Tanks />
       <Stove />
+      <Clutter />
       <LogPile />
       <Workbench />
       <Basin onMove={moveBasin} />

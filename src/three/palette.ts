@@ -28,6 +28,12 @@ export const palette = {
   redLiquid: '#8a2a1a',
   leather: '#3b2616',
   hay: '#9c8150',
+  /** The clutter in the shelves' shadow: darker than the machine. */
+  shadowWood: '#4a3220',
+  shadowWoodDeep: '#36251a',
+  shadowIron: '#2a2724',
+  shadowSteel: '#4d4a46',
+  burlap: '#4f3f2a',
   wall: '#4e3722',
   wallLight: '#5c4129',
 } as const

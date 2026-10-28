@@ -200,6 +200,8 @@ src/
       CopperCoil.tsx    Tube de cuivre enroulé en hélice
       Flame.tsx         Flamme de dessin animé, trois langues rouge à jaune
       NumberedLog.tsx   Bûche spéciale de Doc, peinte et numérotée
+      Crate, Drum, Sack Caisse, fût, sac : le bric-à-brac
+      ShelfBoard.tsx    Planche sur tasseaux entre deux poteaux (boardTop.ts : sa hauteur utile)
     machine/            La machine de Doc, une pièce par fichier
       layout.ts         Les points d'ancrage partagés (en mètres)
       Machine.tsx       Assemble les pièces + les manomètres épars
@@ -212,6 +214,9 @@ src/
       LogPile.tsx       Le tas de bûches et les trois bûches de Doc à glisser dans le poêle
       Basin.tsx, Tongs.tsx La bassine qu'on lève, la pince qui porte le glaçon
       FireDoor.tsx      La porte du poêle, qui s'ouvre sur les flammes à chaque bûche
+      clutter/          Le bric-à-brac sombre des étagères (gauche, droite, fond) : rien
+                        ne flotte, chaque tuyau finit dans un objet, le sol, le mur ou
+                        une planche ; ni roue, ni vanne, ni manomètre, ni manivelle
       effects/          Vapeur et jet froid (PuffStream), glaçon, secousses, casses
                         (BoilerBlast, Burst, Tear, Vanish, Water)
       pipework/         Les tuyaux : anchors.ts (points partagés), pipes.ts (tracés

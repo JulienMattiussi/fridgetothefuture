@@ -50,13 +50,18 @@ export function Plate({
 export function PlateTitle({
   children,
   tone = 'brass',
+  small = false,
 }: {
   children: ReactNode
   tone?: 'brass' | 'rust'
+  /** A smaller title, for a narrow plate (a long word must fit). */
+  small?: boolean
 }) {
   return (
     <p
-      className={`text-center text-3xl font-bold tracking-[0.2em] uppercase [text-shadow:0_2px_0_rgba(0,0,0,0.8),0_0_18px_rgba(255,190,90,0.35)] ${
+      className={`text-center font-bold uppercase ${
+        small ? 'text-2xl tracking-[0.12em]' : 'text-3xl tracking-[0.2em]'
+      } [text-shadow:0_2px_0_rgba(0,0,0,0.8),0_0_18px_rgba(255,190,90,0.35)] ${
         tone === 'brass' ? 'text-[#f0cf7f]' : 'text-[#f08a5d]'
       }`}
     >

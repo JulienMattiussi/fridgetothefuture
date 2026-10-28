@@ -1,4 +1,4 @@
-import { useState, useSyncExternalStore } from 'react'
+import { useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import { ENDINGS } from '@/lib/endings'
 import type { EndingsStore } from '@/ui/endingsStore'
 import { useLanguage } from '@/ui/useLanguage'
@@ -29,14 +29,24 @@ export function Trophies({ endings, orbit, onOrbit }: TrophiesProps) {
   const { seen, last } = useSyncExternalStore(endings.subscribe, endings.get)
   const [open, setOpen] = useState(false)
   const { t } = useLanguage()
+  const box = useRef<HTMLDivElement>(null)
+  // A click anywhere else closes the list.
+  useEffect(() => {
+    if (!open) return
+    const close = (event: PointerEvent) => {
+      if (!box.current?.contains(event.target as Node)) setOpen(false)
+    }
+    document.addEventListener('pointerdown', close)
+    return () => document.removeEventListener('pointerdown', close)
+  }, [open])
   if (seen.length === 0) return null
   const all = seen.length === ENDINGS.length
   return (
-    <div className="absolute right-4 bottom-4 flex flex-col items-end gap-3">
+    <div ref={box} className="absolute right-4 bottom-4 flex flex-col items-end gap-3">
       {open && (
-        <Plate className="w-80">
+        <Plate className="w-88">
           <div id="endings">
-            <PlateTitle>{t.trophies}</PlateTitle>
+            <PlateTitle small>{t.trophies}</PlateTitle>
             <p className="mt-1 text-center text-sm tracking-widest text-[#d8c3a0] uppercase">
               {t.count(seen.length, ENDINGS.length)}
             </p>
