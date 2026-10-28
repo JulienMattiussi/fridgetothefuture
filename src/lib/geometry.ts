@@ -118,3 +118,13 @@ export function ringPoint(center: Vec3, axis: Vec3, distance: number, toward: Ve
   const scale = distance / Math.hypot(...side)
   return center.map((v, k) => v + side[k]! * scale) as Vec3
 }
+
+/** The point `t` of the way from `a` to `b` (0: a, 1: b). */
+export function lerp(a: Vec3, b: Vec3, t: number): Vec3 {
+  return [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t]
+}
+
+/** The point on the line through `a` and `b` whose X is `x`. */
+export function atX(a: Vec3, b: Vec3, x: number): Vec3 {
+  return lerp(a, b, (x - a[0]) / (b[0] - a[0]))
+}

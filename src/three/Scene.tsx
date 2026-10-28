@@ -4,6 +4,7 @@ import { palette } from '@/three/palette'
 import { FrontCamera } from '@/three/FrontCamera'
 import { FRAME_CENTER } from '@/three/viewFrame'
 import { Machine } from '@/three/machine/Machine'
+import { SequenceClock } from '@/three/sequence/SequenceClock'
 import { Stable } from '@/three/stable/Stable'
 
 /**
@@ -19,6 +20,7 @@ export function Scene() {
     // (index.css), and the bounding box would swap width and height.
     <Canvas aria-label="Le réfrigérateur de Doc Brown" resize={{ offsetSize: true }}>
       <FrontCamera />
+      <SequenceClock />
       {inspect && <OrbitControls target={[...FRAME_CENTER]} makeDefault />}
       <color attach="background" args={[palette.ink]} />
       <ambientLight intensity={0.6} color="#ffe9c8" />

@@ -1,12 +1,18 @@
 import type { ThreeElements } from '@react-three/fiber'
-import { useMemo } from 'react'
+import { useMemo, useRef } from 'react'
+import { useFrame } from '@react-three/fiber'
+import type { Group } from 'three'
 import { dialDesign, dialTicks } from '@/lib/gaugeDial'
 import { palette } from '@/three/palette'
 import { ToonMesh } from '@/three/parts/ToonMesh'
+import { useSequence } from '@/three/sequence/context'
 
 type GaugeProps = ThreeElements['group'] & {
   radius?: number
-  /** Needle angle in radians, 0 pointing up, positive clockwise. */
+  /**
+   * Needle angle in radians, 0 pointing up, positive clockwise: where it
+   * stands at full pressure. At rest it lies at the scale's low end.
+   */
   reading?: number
   /** Dial color; a dark dial takes light markings. */
   face?: string
@@ -35,6 +41,17 @@ export function Gauge({
   const front = r * 0.2
   const layer = (n: number) => front + 0.001 * n
   const low = theta(design.sweep / 2)
+  const sequence = useSequence()
+  const needleRef = useRef<Group>(null)
+  // Its own wobble, so the needles don't all quiver in step.
+  const wobble = useMemo(() => 7 + ((radius * 1000) % 5), [radius])
+  useFrame(() => {
+    if (!sequence || !needleRef.current) return
+    const { pressure, shaking } = sequence.readouts
+    const rest = -design.sweep / 2
+    const quiver = 0.06 * shaking * Math.sin(sequence.time * wobble)
+    needleRef.current.rotation.z = -(rest + (reading - rest) * pressure + quiver)
+  })
   return (
     <group {...props}>
       <ToonMesh rotation={[Math.PI / 2, 0, 0]} color={face}>
@@ -89,7 +106,7 @@ export function Gauge({
           </ToonMesh>
         </group>
       )}
-      <group position={[0, 0, layer(5)]} rotation={[0, 0, -reading]}>
+      <group ref={needleRef} position={[0, 0, layer(5)]} rotation={[0, 0, -reading]}>
         <ToonMesh position={[0, r * 0.35, 0]} color={needle} outline={0}>
           <boxGeometry args={[r * 0.05, r * 0.7, r * 0.02]} />
         </ToonMesh>

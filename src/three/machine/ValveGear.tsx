@@ -1,3 +1,4 @@
+import type { Group } from 'three'
 import type { Vec3 } from '@/lib/geometry'
 import { palette } from '@/three/palette'
 import { BevelGear } from '@/three/parts/BevelGear'
@@ -6,6 +7,8 @@ import { Pipe } from '@/three/parts/Pipe'
 import { Rod } from '@/three/parts/Rod'
 import { ToonMesh } from '@/three/parts/ToonMesh'
 import { Wheel } from '@/three/parts/Wheel'
+import { Clickable } from '@/three/sequence/Clickable'
+import { useTurn } from '@/three/sequence/useTurn'
 import { layout } from '@/three/machine/layout'
 
 const { valvePlank } = layout
@@ -52,6 +55,7 @@ const SMALL_PIPE_X = 2.75
  * upright plank nailed across the frame's two planks.
  */
 export function ValveGear() {
+  const bigWheel = useTurn<Group>('z', (s) => s.readouts.steam * 4 * Math.PI)
   return (
     <group>
       <Rod
@@ -60,14 +64,18 @@ export function ValveGear() {
         radius={0.025}
         color={palette.steel}
       />
-      <Wheel
-        position={BIG_WHEEL.at}
-        radius={BIG_WHEEL.radius}
-        spokes={5}
-        tire={false}
-        rotation={[0, Math.PI / 2, 0]}
-        color={palette.copperDark}
-      />
+      {/* Doc's steam valve: opening it, two full turns, starts the engine. */}
+      <Clickable action="openValve">
+        <Wheel
+          ref={bigWheel}
+          position={BIG_WHEEL.at}
+          radius={BIG_WHEEL.radius}
+          spokes={5}
+          tire={false}
+          rotation={[0, Math.PI / 2, 0]}
+          color={palette.copperDark}
+        />
+      </Clickable>
       <Rod
         from={[COLUMN.x, COLUMN.bottom, Z]}
         to={[COLUMN.x, COLUMN.top, Z]}

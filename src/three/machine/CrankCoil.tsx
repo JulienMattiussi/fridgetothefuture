@@ -1,9 +1,13 @@
-import { Path, Shape } from 'three'
+import { useFrame } from '@react-three/fiber'
+import { useRef } from 'react'
+import { type Group, type Mesh, Path, Shape } from 'three'
 import { palette } from '@/three/palette'
 import { Beam } from '@/three/parts/Beam'
 import { CopperCoil } from '@/three/parts/CopperCoil'
 import { Rod } from '@/three/parts/Rod'
 import { ToonMesh } from '@/three/parts/ToonMesh'
+import { Clickable } from '@/three/sequence/Clickable'
+import { useSequence } from '@/three/sequence/context'
 import { CoilStand } from '@/three/machine/CoilStand'
 import { layout } from '@/three/machine/layout'
 
@@ -34,7 +38,13 @@ const CRANK = { x: -1.9, y: top + 0.14, arm: 0.11, handle: 0.12, out: 0.11 }
 
 const leftFront = Z + LEFT.depth / 2
 const coilLength = RIGHT.left - LEFT.right
-const sleeveX = (LEFT.right + RIGHT.left) / 2 + coilUnit.slide
+/**
+ * The sleeve rests at the coil's right end and slides hard left as the crank
+ * turns (the sequence's `sleeve`, 0 to 1), the crank making this many turns.
+ */
+const SLEEVE_TRAVEL = (RIGHT.left - LEFT.right) / 2 - SLEEVE.width / 2 - 0.02
+const sleeveX = (LEFT.right + RIGHT.left) / 2
+const CRANK_TURNS = 6
 const s = SLEEVE.half + SLEEVE.plate / 2
 /**
  * The sleeve's face, across the coil's axis: a square with a round bore that
@@ -67,6 +77,16 @@ const sleeveShape = (() => {
  * crank slides left and right along the rods, the coil running through it.
  */
 export function CrankCoil() {
+  const sequence = useSequence()
+  const sleeve = useRef<Mesh>(null)
+  const crank = useRef<Group>(null)
+  useFrame(() => {
+    const slid = sequence?.readouts.sleeve ?? 0
+    if (sleeve.current) {
+      sleeve.current.position.x = sleeveX - SLEEVE.width / 2 + SLEEVE_TRAVEL * (1 - 2 * slid)
+    }
+    if (crank.current) crank.current.rotation.z = slid * CRANK_TURNS * 2 * Math.PI
+  })
   return (
     <group>
       {/* Each block stands on an iron foot riveted over the stand's front. */}
@@ -120,7 +140,8 @@ export function CrankCoil() {
       )}
       {/* The sliding sleeve: a square iron block bored round to fit the coil. */}
       <ToonMesh
-        position={[sleeveX - SLEEVE.width / 2, COIL.y, Z]}
+        ref={sleeve}
+        position={[sleeveX - SLEEVE.width / 2 + SLEEVE_TRAVEL, COIL.y, Z]}
         rotation={[0, Math.PI / 2, 0]}
         color={palette.iron}
       >
@@ -133,19 +154,22 @@ export function CrankCoil() {
         radius={0.022}
         color={palette.glass}
       />
-      {/* The crank: arm and wooden handle, in front of the left block. */}
-      <Beam
-        from={[CRANK.x, CRANK.y, leftFront + CRANK.out]}
-        to={[CRANK.x, CRANK.y - CRANK.arm, leftFront + CRANK.out]}
-        size={0.035}
-        color={palette.iron}
-      />
-      <Rod
-        from={[CRANK.x, CRANK.y - CRANK.arm, leftFront + CRANK.out]}
-        to={[CRANK.x, CRANK.y - CRANK.arm, leftFront + CRANK.out + CRANK.handle]}
-        radius={0.018}
-        color={palette.woodDark}
-      />
+      {/* The crank, Marty's handle: arm and wooden handle, turning on its boss. */}
+      <Clickable action="turnCrank">
+        <group ref={crank} position={[CRANK.x, CRANK.y, leftFront + CRANK.out]}>
+          <Beam from={[0, 0, 0]} to={[0, -CRANK.arm, 0]} size={0.035} color={palette.iron} />
+          <Rod
+            from={[0, -CRANK.arm, 0]}
+            to={[0, -CRANK.arm, CRANK.handle]}
+            radius={0.018}
+            color={palette.woodDark}
+          />
+          {/* A wider, unseen grip, easier to click than the thin handle. */}
+          <mesh position={[0, -CRANK.arm / 2, CRANK.handle / 2]} visible={false}>
+            <boxGeometry args={[0.16, 0.24, 0.2]} />
+          </mesh>
+        </group>
+      </Clickable>
     </group>
   )
 }

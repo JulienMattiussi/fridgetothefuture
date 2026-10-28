@@ -1,3 +1,4 @@
+import type { Group } from 'three'
 import type { Vec3 } from '@/lib/geometry'
 import { palette } from '@/three/palette'
 import { Beam } from '@/three/parts/Beam'
@@ -6,6 +7,8 @@ import { Gear } from '@/three/parts/Gear'
 import { Rod } from '@/three/parts/Rod'
 import { ToonMesh } from '@/three/parts/ToonMesh'
 import { Wheel } from '@/three/parts/Wheel'
+import { useTurn } from '@/three/sequence/useTurn'
+import { Bellows } from '@/three/machine/Bellows'
 import { layout } from '@/three/machine/layout'
 
 const { deckY } = layout
@@ -49,7 +52,6 @@ const BIG_GEAR = { z: -0.05, radius: 0.11 }
  */
 const BELLOWS = { radius: 0.2, top: FRAME.top - 0.07, open: deckY + 0.58, folds: 6 }
 const CRANK = { z: -0.42, throw: 0.08 }
-const CRANK_TOP: Vec3 = [HUB.x, HUB.y + CRANK.throw, CRANK.z]
 const SMALL_GEAR = { radius: 0.065 }
 const SMALL_GEAR_AT: Vec3 = [
   HUB.x + (BIG_GEAR.radius + SMALL_GEAR.radius) * Math.sin(2.4),
@@ -69,10 +71,23 @@ const SIDE_PIN: Vec3 = [SIDE_DISC.at[0] - 0.06, SIDE_DISC.at[1], SIDE_DISC.at[2]
  * right is ValveGear.
  */
 export function Drive() {
+  // The flywheel and its pulleys turn about X (edge-on); the axle's parts about Z.
+  const flywheel = useTurn<Group>('z', (s) => s.engineAngle)
+  const shaftWheel = useTurn<Group>(
+    'z',
+    (s) => s.engineAngle * (hubPulley.radius / shaftPulley.radius),
+  )
+  const handwheel = useTurn<Group>('z', (s) => -s.engineAngle)
+  const bigGear = useTurn<Group>('z', (s) => -s.engineAngle)
+  const smallGear = useTurn<Group>(
+    'z',
+    (s) => s.engineAngle * (BIG_GEAR.radius / SMALL_GEAR.radius),
+  )
   return (
     // Everything here was laid out for the frame's front; it follows the deck's.
     <group position={[0, 0, DECK_SHIFT]}>
       <Wheel
+        ref={flywheel}
         {...deckFlywheel}
         position={deckFlywheel.center}
         rotation={EDGE_ON}
@@ -120,33 +135,35 @@ export function Drive() {
         <cylinderGeometry args={[DISC.radius, DISC.radius, 0.025, 40]} />
       </ToonMesh>
       <Gear
+        ref={bigGear}
         position={[HUB.x, HUB.y, BIG_GEAR.z]}
         radius={BIG_GEAR.radius}
         teeth={16}
         width={0.035}
       />
-      <Gear position={SMALL_GEAR_AT} radius={SMALL_GEAR.radius} teeth={10} width={0.035} />
+      <Gear
+        ref={smallGear}
+        position={SMALL_GEAR_AT}
+        radius={SMALL_GEAR.radius}
+        teeth={10}
+        width={0.035}
+      />
       <Rod
         from={[SMALL_GEAR_AT[0], SMALL_GEAR_AT[1], FRAME.z]}
         to={SMALL_GEAR_AT}
         radius={0.014}
         color={palette.steel}
       />
-      {/* The bellows in the arch, and the crank and rod working it. */}
-      {[BELLOWS.top, BELLOWS.open].map((y) => (
-        <ToonMesh key={y} position={[HUB.x, y, FRAME.z]} color={palette.woodDark}>
-          <cylinderGeometry args={[BELLOWS.radius, BELLOWS.radius, 0.04, 32]} />
-        </ToonMesh>
-      ))}
-      {Array.from({ length: BELLOWS.folds }, (_, i) => {
-        const y = BELLOWS.open + ((i + 0.5) * (BELLOWS.top - BELLOWS.open)) / BELLOWS.folds
-        const r = BELLOWS.radius - (i % 2 === 0 ? 0.05 : 0.015)
-        return (
-          <ToonMesh key={i} position={[HUB.x, y, FRAME.z]} color={palette.leather}>
-            <cylinderGeometry args={[r, r, (BELLOWS.top - BELLOWS.open) / BELLOWS.folds, 32]} />
-          </ToonMesh>
-        )
-      })}
+      {/* The bellows in the arch, worked by a crank on the axle's back end. */}
+      <Bellows
+        top={[HUB.x, BELLOWS.top, FRAME.z]}
+        radius={BELLOWS.radius}
+        height={BELLOWS.top - BELLOWS.open}
+        folds={BELLOWS.folds}
+        crankY={HUB.y}
+        crankZ={CRANK.z}
+        throw={CRANK.throw}
+      />
       <ToonMesh
         position={[HUB.x, HUB.y, CRANK.z]}
         rotation={[Math.PI / 2, 0, 0]}
@@ -154,13 +171,8 @@ export function Drive() {
       >
         <cylinderGeometry args={[CRANK.throw + 0.025, CRANK.throw + 0.025, 0.03, 24]} />
       </ToonMesh>
-      <Rod
-        from={CRANK_TOP}
-        to={[HUB.x, BELLOWS.open, CRANK.z]}
-        radius={0.014}
-        color={palette.steel}
-      />
       <Wheel
+        ref={handwheel}
         position={[HUB.x, HUB.y, HUB.front]}
         radius={0.09}
         spokes={5}
@@ -187,6 +199,7 @@ export function Drive() {
         <Beam key={x} from={[x, SHAFT.y, SHAFT.z]} to={[x, SHAFT.y + 0.8, SHAFT.z]} size={0.08} />
       ))}
       <Wheel
+        ref={shaftWheel}
         {...shaftPulley}
         position={shaftPulley.center}
         rotation={EDGE_ON}

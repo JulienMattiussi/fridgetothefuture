@@ -1,7 +1,9 @@
 import {
+  atX,
   beltRuns,
   evenAngles,
   helixPoints,
+  lerp,
   onCircle,
   ringPoint,
   roundedPath,
@@ -159,5 +161,20 @@ describe('ringPoint', () => {
     expect(x).toBeCloseTo(1)
     expect(y).toBeCloseTo(2)
     expect(z).toBeCloseTo(3.5)
+  })
+})
+
+describe('lerp', () => {
+  it('runs from the first point to the second', () => {
+    expect(lerp([0, 0, 0], [2, 4, -6], 0)).toEqual([0, 0, 0])
+    expect(lerp([0, 0, 0], [2, 4, -6], 0.5)).toEqual([1, 2, -3])
+    expect(lerp([0, 0, 0], [2, 4, -6], 1)).toEqual([2, 4, -6])
+  })
+})
+
+describe('atX', () => {
+  it('finds the point of a line at a given X, inside or past its ends', () => {
+    expect(atX([0, 0, 0], [2, 4, 6], 1)).toEqual([1, 2, 3])
+    expect(atX([0, 0, 0], [2, 4, 6], 3)).toEqual([3, 6, 9])
   })
 })

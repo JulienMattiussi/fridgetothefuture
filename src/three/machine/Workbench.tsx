@@ -5,6 +5,7 @@ import { Flask } from '@/three/parts/Flask'
 import { Rod } from '@/three/parts/Rod'
 import { Table } from '@/three/parts/Table'
 import { ToonMesh } from '@/three/parts/ToonMesh'
+import { Clickable } from '@/three/sequence/Clickable'
 import { layout } from '@/three/machine/layout'
 
 const { bench, ductMouth } = layout
@@ -13,7 +14,7 @@ const [basinX, , basinZ] = ductMouth
 
 /** The two flasks' brass stand: a crossbar on two uprights. */
 const STAND = { left: 1.4, right: 1.75, z: 0.5, height: 0.2 }
-const GLASS = { x: 1.15, z: 0.8, height: 0.26 }
+const GLASS = layout.teaGlass
 /**
  * Under the bench, at each pair of legs: a square bearer running across under the top,
  * jutting out front and back, and two plank legs nailed on its side, splayed
@@ -108,26 +109,34 @@ export function Workbench() {
           </group>
         )
       })}
-      {/* The basin where the ice cube lands. */}
-      <ToonMesh position={[basinX, top + 0.05, basinZ]} color={palette.enamel} side={DoubleSide}>
-        <cylinderGeometry args={[0.2, 0.13, 0.1, 32, 1, true]} />
-      </ToonMesh>
-      <ToonMesh position={[basinX, top + 0.005, basinZ]} color={palette.enamel} outline={0}>
-        <cylinderGeometry args={[0.13, 0.13, 0.01, 32]} />
-      </ToonMesh>
-      {/* Tongs, lying open. */}
-      <Rod
-        from={[1.3, top + 0.01, 0.88]}
-        to={[1.57, top + 0.01, 0.93]}
-        radius={0.008}
-        color={palette.iron}
-      />
-      <Rod
-        from={[1.3, top + 0.01, 0.88]}
-        to={[1.55, top + 0.01, 0.83]}
-        radius={0.008}
-        color={palette.iron}
-      />
+      {/* The basin where the ice cube lands, held under the duct. */}
+      <Clickable action="holdBasin">
+        <ToonMesh position={[basinX, top + 0.05, basinZ]} color={palette.enamel} side={DoubleSide}>
+          <cylinderGeometry args={[0.2, 0.13, 0.1, 32, 1, true]} />
+        </ToonMesh>
+        <ToonMesh position={[basinX, top + 0.005, basinZ]} color={palette.enamel} outline={0}>
+          <cylinderGeometry args={[0.13, 0.13, 0.01, 32]} />
+        </ToonMesh>
+      </Clickable>
+      {/* Tongs, lying open, to put the cube in the glass. */}
+      <Clickable action="useTongs">
+        <Rod
+          from={[1.3, top + 0.01, 0.88]}
+          to={[1.57, top + 0.01, 0.93]}
+          radius={0.008}
+          color={palette.iron}
+        />
+        <Rod
+          from={[1.3, top + 0.01, 0.88]}
+          to={[1.55, top + 0.01, 0.83]}
+          radius={0.008}
+          color={palette.iron}
+        />
+        {/* A wider, unseen grip, easier to click than the thin arms. */}
+        <mesh position={[1.43, top + 0.03, 0.88]} visible={false}>
+          <boxGeometry args={[0.3, 0.06, 0.16]} />
+        </mesh>
+      </Clickable>
       {/* Flask stand. */}
       {[STAND.left, STAND.right].map((x) => (
         <Rod

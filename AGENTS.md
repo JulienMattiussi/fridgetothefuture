@@ -22,7 +22,7 @@ une grosse chaudière cylindrique rouillée au centre, **posée sur l'établi**,
 même table que la bassine, sur deux paires de pieds en planches, légèrement en A, clouées sur deux
 traverses carrées sous le plateau (les pieds de gauche juste à droite de la
 chaudière) ; les tuyaux suivent trois séries tracées sur le plan
-large (voir `machine/Pipework.tsx`) : **rouge** (le tuyau de la cuve grise descend en diagonale jusqu'au-dessus de la
+large (voir `machine/pipework/`) : **rouge** (le tuyau de la cuve grise descend en diagonale jusqu'au-dessus de la
 chaudière, où un coude le fait plonger dans le dôme ; la grande diagonale du
 bloc noir passe devant ce coude, arrive un peu plus bas que la jonction et
 remonte vers l'arrière pour le rejoindre sous une bague ; la conduite horizontale part de la descente
@@ -77,6 +77,12 @@ deux montants, et l'appui des poteaux sur l'essieu.
    dessous, un seul glaçon y tombe. Il le prend à la pince et le met dans son
    verre de thé : « Iced tea? »
 
+**Dans la page** (`lib/sequence.ts`), le visiteur joue Doc et Marty, en
+cliquant les pièces ou les boutons de l'interface : la grande vanne de cuivre
+lance le moteur (choix assumé : le film ne montre pas de levier de démarrage),
+la manivelle fait glisser le manchon, la bassine recueille le glaçon, la pince
+le met dans le verre. Le sifflet a été retiré du modèle, donc de la séquence.
+
 ---
 
 ## Stack technique
@@ -111,13 +117,17 @@ src/
   index.css             Tailwind + base plein écran
   lib/                  Logique pure (aucun import React ni three.js)
     toonSteps.ts        Les paliers de lumière du cell shading
-    geometry.ts         Segments, angles, cercles, courroies, hélice
+    geometry.ts         Segments, interpolation, angles, cercles, courroies, hélice
     gaugeDial.ts        Le dessin des cadrans de manomètre, tiré de leur taille
     framing.ts          Recul de caméra pour cadrer la scène
+    sequence.ts         La séquence du film : étapes, clics, durées, ce que la machine montre
+  ui/Controls.tsx       L'interface superposée : consigne et boutons de la séquence
   three/                Rendu 3D (composants R3F, hooks three.js)
     Scene.tsx           Canvas et lumières
     FrontCamera.tsx     Caméra fixe de face, recadrée selon la fenêtre
     palette.ts          Les couleurs de la scène
+    sequence/           La séquence en direct : store (état + horloge), context,
+                        SequenceClock, Clickable (pièce cliquable), useTurn (rotation)
     parts/              Briques réutilisables
       ToonMesh.tsx      Mesh cell shading + contour (base de tout le reste)
       Rod.tsx, Beam.tsx Barre ronde / poutre carrée d'un point à un autre
@@ -125,7 +135,8 @@ src/
       Flange.tsx        Bride boulonnée, là où un tuyau se fixe à une cuve ou un appareil
       Wheel.tsx         Roue à rayons (roue de charrette, volant de vanne)
       Gear.tsx, BevelGear.tsx, Gauge.tsx Engrenage droit, conique, manomètre
-      Table.tsx         Table sur quatre pieds
+      MountedGauge.tsx  Manomètre monté sur un tuyau (tige ou raccord)
+      Table.tsx         Plateau de table, sur quatre pieds ou non
       Belt.tsx          Courroie plate entre deux poulies
       RibbedSleeve.tsx  Manchon côtelé (bouche du conduit froid)
       Flask.tsx         Ballon de chimie, vide ou rempli
@@ -139,6 +150,11 @@ src/
       Scaffold, Boiler, Pipework, Drive (pièces mobiles), ValveGear, WagonWheels (fixes),
       CrankCoil (unité de la bobine : blocs, bobine, manchon, manivelle),
       CoilStand (son bâti en bois), Tanks, Stove, Workbench
+      Bellows.tsx       Le soufflet rond du plancher, poussé par sa manivelle
+      effects/          Vapeur, jet froid, glaçon, secousses
+      pipework/         Les tuyaux : anchors.ts (points partagés), pipes.ts (tracés
+                        par série), PipeGauges (manomètres sur tuyau), PipeFittings
+                        (bouche du conduit froid, ficelles, bague, sortie de vapeur)
     stable/Stable.tsx   L'écurie : sol, mur de planches, poutres
 tests/
   unit/                 Tests Vitest de src/lib
@@ -191,7 +207,8 @@ dans le plan `layout.pipesZ`, devant `layout.frameFront` (la face des poteaux).
 - **Alias `@/`** vers `src/`. Toujours l'utiliser pour importer d'un autre
   dossier de premier niveau de `src/`.
 - **`src/lib/` est pur** : aucun import React ni three.js. Le rendu dépend de
-  `lib`, jamais l'inverse. La machine à états de la séquence y vivra.
+  `lib`, jamais l'inverse. La machine à états de la séquence y vit
+  (`sequence.ts`).
 - **Modélisation procédurale** : la géométrie est construite en code
   (primitives three.js), pas de modèle externe à importer.
 - **Tailwind v4** : `@import 'tailwindcss'`, pas de `tailwind.config.js`.

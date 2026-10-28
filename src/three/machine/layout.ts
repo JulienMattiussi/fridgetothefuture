@@ -78,14 +78,12 @@ export const layout = {
   /**
    * The coil unit on that table: its depth, its big black block on the left
    * (the long red pipe rises from the middle of its top), its grey block on
-   * the right (the blue pipe enters its front), and how far the sliding
-   * sleeve sits from the middle of the coil (left negative).
+   * the right (the blue pipe enters its front).
    */
   coilUnit: {
     z: 1.35,
     blackBlock: { left: -2.05, right: -1.6, height: 0.55, depth: 0.44 },
     greyBlock: { left: -1.2, right: -0.9, depth: 0.36 },
-    slide: 0,
   },
   /** The workbench under the boiler, the basin and the glassware. */
   bench: { left: -0.32, right: 1.95, back: 0.31, front: 1.05, top: 0.8 },
@@ -94,4 +92,6 @@ export const layout = {
    * here and the ice cube drops from it (docs/references/video-conduit-froid.jpg).
    */
   ductMouth: [0.72, 1.22, 0.8] as Vec3,
+  /** Doc's tall glass of tea on the workbench, waiting for its ice cube. */
+  teaGlass: { x: 1.15, z: 0.8, height: 0.26 },
 }
