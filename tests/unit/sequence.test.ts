@@ -41,8 +41,8 @@ const RUNNING: Step[] = [
   ['openTopValve', -2],
   3,
 ]
-/** Up to the cold gushing: the crank, then the big copper valve. */
-const JET: Step[] = [...RUNNING, ['turnCrank', CRANK_TURNS], ['openValve', -2]]
+/** Up to the cold gushing: the crank, the big copper valve, then the lever. */
+const JET: Step[] = [...RUNNING, ['turnCrank', CRANK_TURNS], ['openValve', -2], 'pullLever']
 const SERVED: Step[] = [...JET, 'holdBasin', 5.2, 'useTongs']
 
 describe('the sequence', () => {
@@ -66,6 +66,7 @@ describe('the sequence', () => {
       [...LOAD, 2, ['openSmallValve', 1.5], 'climbLadder', ['openTopValve', -2]],
       RUNNING,
       [...RUNNING, ['turnCrank', CRANK_TURNS]],
+      [...RUNNING, ['turnCrank', CRANK_TURNS], ['openValve', -2]],
       JET,
       [...JET, 'holdBasin'],
       [...JET, 'holdBasin', 4],
@@ -80,6 +81,7 @@ describe('the sequence', () => {
       'starting',
       'running',
       'cranked',
+      'opened',
       'jet',
       'waiting',
       'dropping',
@@ -139,6 +141,8 @@ describe('readouts', () => {
       sleeve: 0,
       coldJet: 0,
       basin: 0,
+      lever: 0,
+      sideWheel: 0,
       cube: { where: 'none', fall: 0 },
       failure: null,
     })
@@ -281,7 +285,13 @@ describe('out of order', () => {
 
   it('never makes ice when the small valve stays shut', () => {
     const skipped = [...LOAD, 2, 'climbLadder', ['openTopValve', -2], 3] as Step[]
-    const up = play(...skipped, ['turnCrank', CRANK_TURNS], ['openValve', -2], 'holdBasin')
+    const up = play(
+      ...skipped,
+      ['turnCrank', CRANK_TURNS],
+      ['openValve', -2],
+      'pullLever',
+      'holdBasin',
+    )
     expect(up.phase).toBe('waiting')
     expect(failed(advance(up, 4))).toBe('noIce')
   })
@@ -305,6 +315,22 @@ describe('out of order', () => {
       up: false,
       doom: 'pipeBurst',
     })
+  })
+
+  it('breaks down whenever the small handwheel by the gear train is turned', () => {
+    expect(readouts(play(['turnSideWheel', 0.5])).sideWheel).toBeCloseTo(0.5)
+    expect(failed(play(['turnSideWheel', 1]))).toBe('wheelOff')
+    expect(failed(play(...RUNNING, ['turnSideWheel', 1]))).toBe('wheelOff')
+  })
+
+  it('lets the cold out only with the lever pulled, after the big valve', () => {
+    const opened = play(...RUNNING, ['turnCrank', CRANK_TURNS], ['openValve', -2])
+    expect(readouts(opened)).toMatchObject({ coldJet: 0, lever: 0 })
+    expect(readouts(act(opened, 'pullLever'))).toMatchObject({ lever: 1 })
+    const early = play(...RUNNING, 'pullLever')
+    expect(early).toMatchObject({ doom: 'pipeBurst', leverDown: true })
+    expect(readouts(early).lever).toBe(1)
+    expect(availableActions(early)).not.toContain('pullLever')
   })
 
   it('tears a pipe off when the crank turns before the engine runs', () => {

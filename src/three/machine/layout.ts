@@ -104,3 +104,12 @@ export const layout = {
   /** Doc's tall glass of tea on the workbench, waiting for its ice cube. */
   teaGlass: { x: 1.15, z: 0.8, height: 0.26 },
 }
+
+/** The front face of the plank across the right frame, where the valve gear and its lever are mounted. */
+export const VALVE_PLANK_FRONT = layout.frameFront + 0.055 + layout.valvePlank.depth
+/** How far out the valve gear stands from that plank: room for the big wheel turned edge-on. */
+export const VALVE_GEAR_Z = VALVE_PLANK_FRONT + 0.28
+/** The small valve's pipe runs right to here, then up: the side handwheel's pipe tees into it. */
+export const VALVE_LINE_X = 2.75
+/** The depth the valve gear's pipes run at: close in front of that plank. */
+export const VALVE_LINE_Z = VALVE_PLANK_FRONT + 0.05

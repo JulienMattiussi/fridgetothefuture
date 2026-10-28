@@ -3,6 +3,7 @@ import { Vector3 } from 'three'
 import type { Vec3 } from '@/lib/geometry'
 import { palette } from '@/three/palette'
 import { Basin } from '@/three/machine/Basin'
+import { BigLever } from '@/three/machine/BigLever'
 import { Boiler } from '@/three/machine/Boiler'
 import { CrankCoil } from '@/three/machine/CrankCoil'
 import { Drive } from '@/three/machine/Drive'
@@ -70,6 +71,7 @@ export function Machine() {
       <Pipework />
       <Drive />
       <ValveGear />
+      <BigLever />
       <WagonWheels />
       <CrankCoil />
       <Tanks />

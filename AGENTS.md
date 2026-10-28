@@ -99,8 +99,9 @@ Les étapes, choix assumés au-delà du film :
    haut, seule cette vanne fait redescendre ;
 4. tourner la manivelle (le manchon fait plusieurs allers-retours, la vapeur
    jaillit du haut) ;
-5. ouvrir la grande vanne de cuivre (le froid jaillit du conduit, la vue
-   plonge sur la bassine) ;
+5. ouvrir la grande vanne de cuivre (les engrenages tournent avec elle), puis
+   baisser le grand levier derrière les engrenages (le froid jaillit du
+   conduit, la vue plonge sur la bassine) ;
 6. lever la bassine sous le conduit : le froid retombe, le glaçon tombe deux
    secondes plus tard, la bassine redescend avec lui ;
 7. prendre le glaçon à la pince et le porter dans le verre : réussite.
@@ -109,7 +110,9 @@ Hors de l'ordre, toute pièce reste actionnable. Selon le cas, la machine casse
 aussitôt, ou rien ne se passe mais la partie finira forcément par une casse
 (au plus tard quand le froid devrait venir) : manomètres qui éclatent,
 chaudière qui explose, gros tuyau arraché qui gicle, eau au lieu du glaçon,
-glaçon par terre, ou froid sans glaçon (règles dans `lib/sequence.ts`).
+glaçon par terre, ou froid sans glaçon (règles dans `lib/sequence.ts`). Le
+petit volant à droite des engrenages ne sert à rien : le tourner, il reste
+dans la main et l'axe fuit (`machine/SideWheel.tsx`).
 L'échec s'affiche alors, sans détail.
 
 Chaque fin (le thé glacé, et chaque casse) est numérotée (`lib/endings.ts`) et
@@ -180,6 +183,7 @@ src/
       Flange.tsx        Bride boulonnée, là où un tuyau se fixe à une cuve ou un appareil
       Wheel.tsx         Roue à rayons (roue de charrette, volant de vanne)
       Gear.tsx, BevelGear.tsx, Gauge.tsx Engrenage droit, conique, manomètre
+      GaugeShatter.tsx  La vitre d'un manomètre qui éclate (fissures, éclats)
       MountedGauge.tsx  Manomètre monté sur un tuyau (tige ou raccord)
       Table.tsx         Plateau de table, sur quatre pieds ou non
       Belt.tsx          Courroie plate entre deux poulies
@@ -197,6 +201,7 @@ src/
       Scaffold, Boiler, Pipework, Drive (pièces mobiles), ValveGear, WagonWheels (fixes),
       CrankCoil (unité de la bobine : blocs, bobine, manchon, manivelle),
       CoilStand (son bâti en bois), Tanks, Stove, Workbench
+      BigLever.tsx      Le grand levier derrière les engrenages, qu'on baisse
       Bellows.tsx       Le soufflet rond du plancher, poussé par sa manivelle
       LogPile.tsx       Le tas de bûches et les trois bûches de Doc à glisser dans le poêle
       Basin.tsx, Tongs.tsx La bassine qu'on lève, la pince qui porte le glaçon

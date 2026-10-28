@@ -9,8 +9,8 @@
  *    it spins up by fits, the machine starts to knock and shake, steam gushes
  *    out of the vent.
  * 4. Turning the crank "hard left!" slides the sleeve along the coil.
- * 5. Opening the big copper valve lets the cold out: vapor gushes from the
- *    duct.
+ * 5. With the big copper valve open, pulling the big lever down lets the
+ *    cold out: vapor gushes from the duct.
  * 6. The basin lifted up under it, the cold dies down; two seconds later one
  *    ice cube drops into it, and the basin goes back down on the bench with it.
  * 7. The tongs put the cube in Doc's glass of tea.
@@ -34,6 +34,8 @@ export type Failure =
   | 'cubeOnFloor'
   /** The small valve never opened: the cold gushes, but no ice cube ever comes. */
   | 'noIce'
+  /** The handwheel by the gear train turned: it comes off in the hand, and it leaks. */
+  | 'wheelOff'
 
 type Phase =
   | 'idle'
@@ -44,6 +46,7 @@ type Phase =
   | 'starting'
   | 'running'
   | 'cranked'
+  | 'opened'
   | 'jet'
   | 'waiting'
   | 'dropping'
@@ -52,8 +55,9 @@ type Phase =
   | 'failed'
 
 /** The handles worked by turning them round, not by a click. */
-export type TurnAction = 'openSmallValve' | 'openTopValve' | 'turnCrank' | 'openValve'
-type ClickAction = 'loadStove' | 'climbLadder' | 'holdBasin' | 'useTongs'
+export type TurnAction =
+  'openSmallValve' | 'openTopValve' | 'turnCrank' | 'openValve' | 'turnSideWheel'
+type ClickAction = 'loadStove' | 'climbLadder' | 'pullLever' | 'holdBasin' | 'useTongs'
 export type Action = TurnAction | ClickAction | 'reset'
 
 export interface SequenceState {
@@ -85,6 +89,8 @@ export interface SequenceState {
    * vat's valve can be worked, and turning it brings the visitor back down.
    */
   up: boolean
+  /** Whether the big lever was pulled down out of turn: it stays down, its step done. */
+  leverDown: boolean
   /** Once failed: how, and the phase it failed in (the machine still shows it). */
   failure: { kind: Failure; during: Phase } | null
 }
@@ -121,6 +127,7 @@ export const STOVE_LOGS = 3
 const ON_CLICK: Record<ClickAction, { from: Phase; to: Phase; times?: number }> = {
   loadStove: { from: 'idle', to: 'stoking', times: STOVE_LOGS },
   climbLadder: { from: 'primed', to: 'climbed' },
+  pullLever: { from: 'opened', to: 'jet' },
   holdBasin: { from: 'jet', to: 'waiting' },
   useTongs: { from: 'caught', to: 'served' },
 }
@@ -134,7 +141,11 @@ const ON_TURN: Record<TurnAction, { from: Phase; to: Phase; turns: number; way: 
   openSmallValve: { from: 'lit', to: 'primed', turns: 1.5, way: 1 },
   openTopValve: { from: 'climbed', to: 'starting', turns: 2, way: -1 },
   turnCrank: { from: 'running', to: 'cranked', turns: CRANK_TURNS, way: 1 },
-  openValve: { from: 'cranked', to: 'jet', turns: 2, way: -1 },
+  openValve: { from: 'cranked', to: 'opened', turns: 2, way: -1 },
+  // The small handwheel by the gear train plays no part: its step is never
+  // awaited (a broken-down run takes nothing), so turning it is always out of
+  // turn: it comes off in the hand.
+  turnSideWheel: { from: 'failed', to: 'failed', turns: 1, way: 1 },
 }
 
 /** Which way a handle turns: 1 counterclockwise, -1 clockwise. */
@@ -157,6 +168,7 @@ export const initialState: SequenceState = {
   doom: null,
   smallShut: false,
   up: false,
+  leverDown: false,
   failure: null,
 }
 
@@ -166,6 +178,8 @@ export const initialState: SequenceState = {
  */
 function enter(state: SequenceState, phase: Phase): SequenceState {
   const next = { ...state, phase, elapsed: 0, worked: 0, auto: false, turning: null }
+  // The lever already down: the cold comes straight out.
+  if (phase === 'opened' && state.leverDown) return enter(next, 'jet')
   // The vat's valve already opened: no need to climb up to it any more.
   if (phase === 'primed' && state.opened.includes('openTopValve')) return enter(next, 'climbed')
   const awaited = awaitedTurn(phase)
@@ -213,7 +227,8 @@ export function availableActions(state: SequenceState): Action[] {
     .filter(
       ([action]) =>
         action !== 'openTopValve' &&
-        (action !== 'climbLadder' || !state.opened.includes('openTopValve')),
+        (action !== 'climbLadder' || !state.opened.includes('openTopValve')) &&
+        (action !== 'pullLever' || !state.leverDown),
     )
     .map(([action]) => action)
   const untouched = state.phase === 'idle' && state.logs.length === 0
@@ -247,6 +262,8 @@ export function act(state: SequenceState, action: Action): SequenceState {
   if (step.from === state.phase) return enter(state, step.to)
   // Up the ladder early: nothing wrong yet, but the only way down is the vat's valve.
   if (action === 'climbLadder') return { ...state, up: true }
+  // The lever pulled early: it stays down, and the run is doomed.
+  if (action === 'pullLever') return doom({ ...state, leverDown: true }, 'pipeBurst')
   return doom(state, 'pipeBurst')
 }
 
@@ -302,6 +319,8 @@ function turnedOutOfTurn(state: SequenceState, action: TurnAction): SequenceStat
       return fail(state, 'pipeBurst')
     case 'openValve':
       return fail(state, 'water')
+    case 'turnSideWheel':
+      return fail(state, 'wheelOff')
   }
 }
 
@@ -349,6 +368,7 @@ const ORDER: Phase[] = [
   'starting',
   'running',
   'cranked',
+  'opened',
   'jet',
   'waiting',
   'dropping',
@@ -397,6 +417,10 @@ export interface Readouts {
   pressure: number
   /** The steam plume at the vent, 0 to 1. */
   steam: number
+  /** Whether the big lever is down (1), letting the cold out, or up (0). */
+  lever: number
+  /** How far the small handwheel by the gear train has turned, 0 to 1. */
+  sideWheel: number
   /** How far the crank has turned, 0 to 1 (CRANK_TURNS turns). */
   crank: number
   /**
@@ -493,6 +517,8 @@ export function readouts(state: SequenceState): Readouts {
     steam: engine,
     crank: handle(state, 'turnCrank'),
     sleeve: shuttle(handle(state, 'turnCrank'), SLEEVE_RUNS),
+    lever: state.leverDown || reached(state, 'jet') ? 1 : 0,
+    sideWheel: state.turning === 'turnSideWheel' ? state.worked : 0,
     coldJet:
       phase === 'jet'
         ? clamp01(elapsed / 0.5)

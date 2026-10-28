@@ -17,6 +17,7 @@ export const ENDINGS: Ending[] = [
   'water',
   'cubeOnFloor',
   'noIce',
+  'wheelOff',
 ]
 
 /** An ending's number, from 1. */

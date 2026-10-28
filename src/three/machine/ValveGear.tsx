@@ -9,14 +9,22 @@ import { Rod } from '@/three/parts/Rod'
 import { ToonMesh } from '@/three/parts/ToonMesh'
 import { Wheel } from '@/three/parts/Wheel'
 import { Handle } from '@/three/sequence/Handle'
+import type { SequenceStore } from '@/three/sequence/store'
 import { useTurn } from '@/three/sequence/useTurn'
-import { layout } from '@/three/machine/layout'
+import {
+  layout,
+  VALVE_GEAR_Z,
+  VALVE_LINE_X,
+  VALVE_LINE_Z,
+  VALVE_PLANK_FRONT,
+} from '@/three/machine/layout'
+import { SideWheel } from '@/three/machine/SideWheel'
 
 const { valvePlank } = layout
 /** The front face of the plank across the right frame, where all this is mounted. */
-const PLANK_FRONT = layout.frameFront + 0.055 + valvePlank.depth
+const PLANK_FRONT = VALVE_PLANK_FRONT
 /** Everything stands this far out, room for the big wheel turned edge-on. */
-const Z = PLANK_FRONT + 0.28
+const Z = VALVE_GEAR_Z
 
 /** The big copper valve handwheel, edge-on, its spindle across into the column. */
 const BIG_WHEEL = { at: [1.86, 1.25, Z] as Vec3, radius: 0.24 }
@@ -45,7 +53,7 @@ const UPRIGHT_TO = valvePlank.y + valvePlank.height / 2
 /** The small valve on a short pipe out to the right, its handwheel to the front. */
 const SMALL_VALVE = { x: 2.36, y: 0.98, radius: 0.085 }
 /** Its pipe runs on right, then up and back into the right small pipe under the shelf. */
-const SMALL_PIPE_X = 2.75
+const SMALL_PIPE_X = VALVE_LINE_X
 
 /**
  * The valve gear on the right of the frame (as Doc stands by it in the film):
@@ -55,10 +63,21 @@ const SMALL_PIPE_X = 2.75
  * then up into the small pipe under the shelf. The column is bracketed to an
  * upright plank nailed across the frame's two planks.
  */
+/** How far the big valve has turned, in radians. */
+const valveAngle = (s: SequenceStore) => s.readouts.mainValve * turnWay('openValve') * 4 * Math.PI
+
 export function ValveGear() {
-  const bigWheel = useTurn<Group>(
-    'z',
-    (s) => s.readouts.mainValve * turnWay('openValve') * 4 * Math.PI,
+  const bigWheel = useTurn<Group>('z', valveAngle)
+  // The gear train turns with the big valve: the big bevel on its axle, the
+  // column's bevel, and the spur gear on top, geared up.
+  const bigBevel = useTurn<Group>('x', valveAngle)
+  const column = useTurn<Group>(
+    'y',
+    (s) => -valveAngle(s) * (BIG_BEVEL.radius / SMALL_BEVEL.radius),
+  )
+  const topGear = useTurn<Group>(
+    'y',
+    (s) => -valveAngle(s) * (BIG_BEVEL.radius / SMALL_BEVEL.radius),
   )
   const smallWheel = useTurn<Group>(
     'z',
@@ -102,23 +121,18 @@ export function ValveGear() {
           <boxGeometry args={[0.06, 0.04, Z - UPRIGHT_FRONT]} />
         </ToonMesh>
       ))}
-      <Gear
-        position={[COLUMN.x, COLUMN.top, Z]}
-        rotation={[Math.PI / 2, 0, 0]}
-        radius={0.07}
-        teeth={14}
-        width={0.03}
-      />
+      <group ref={topGear} position={[COLUMN.x, COLUMN.top, Z]}>
+        <Gear rotation={[Math.PI / 2, 0, 0]} radius={0.07} teeth={14} width={0.03} />
+      </group>
       <ToonMesh position={[COLUMN.x, COLUMN.top - 0.08, Z]} color={palette.iron}>
         <cylinderGeometry args={[0.04, 0.04, 0.05, 16]} />
       </ToonMesh>
-      <BevelGear position={[COLUMN.x, SMALL_BEVEL_Y, Z]} radius={SMALL_BEVEL.radius} teeth={12} />
-      <BevelGear
-        position={BIG_BEVEL_AT}
-        rotation={[0, 0, Math.PI / 2]}
-        radius={BIG_BEVEL.radius}
-        teeth={20}
-      />
+      <group ref={column} position={[COLUMN.x, SMALL_BEVEL_Y, Z]}>
+        <BevelGear radius={SMALL_BEVEL.radius} teeth={12} />
+      </group>
+      <group ref={bigBevel} position={BIG_BEVEL_AT}>
+        <BevelGear rotation={[0, 0, Math.PI / 2]} radius={BIG_BEVEL.radius} teeth={20} />
+      </group>
       <Rod
         from={BIG_BEVEL_AT}
         to={[BIG_BEVEL_AT[0] + 0.12, BIG_BEVEL_AT[1], Z]}
@@ -128,27 +142,32 @@ export function ValveGear() {
       <ToonMesh position={[COLUMN.x, COLUMN.bottom, Z]} color={palette.iron}>
         <cylinderGeometry args={[0.045, 0.045, 0.05, 16]} />
       </ToonMesh>
-      {/* The small valve: pipe out to the right, valve body, spindle and wheel. */}
+      <SideWheel />
+      {/* The small valve: its pipe out of the column, back against the plank,
+          right through the valve body, and up into the small pipe under the shelf. */}
       <Pipe
         points={[
           [COLUMN.x, SMALL_VALVE.y, Z],
-          [SMALL_PIPE_X, SMALL_VALVE.y, Z],
-          [SMALL_PIPE_X, 1.6, Z],
+          // Right, clear of the upright plank, then back against the frame's plank.
+          [COLUMN.x + 0.13, SMALL_VALVE.y, Z],
+          [COLUMN.x + 0.13, SMALL_VALVE.y, VALVE_LINE_Z],
+          [SMALL_PIPE_X, SMALL_VALVE.y, VALVE_LINE_Z],
+          [SMALL_PIPE_X, 1.6, VALVE_LINE_Z],
           [SMALL_PIPE_X, 1.6, layout.vatSmallPipe.z],
           [SMALL_PIPE_X, layout.vatSmallPipe.y, layout.vatSmallPipe.z],
         ]}
         radius={0.022}
       />
       <ToonMesh
-        position={[SMALL_VALVE.x, SMALL_VALVE.y, Z]}
+        position={[SMALL_VALVE.x, SMALL_VALVE.y, VALVE_LINE_Z]}
         rotation={[0, 0, Math.PI / 2]}
         color={palette.iron}
       >
         <cylinderGeometry args={[0.04, 0.04, 0.1, 16]} />
       </ToonMesh>
       <Rod
-        from={[SMALL_VALVE.x, SMALL_VALVE.y, Z]}
-        to={[SMALL_VALVE.x, SMALL_VALVE.y, Z + 0.12]}
+        from={[SMALL_VALVE.x, SMALL_VALVE.y, VALVE_LINE_Z]}
+        to={[SMALL_VALVE.x, SMALL_VALVE.y, VALVE_LINE_Z + 0.12]}
         radius={0.01}
         color={palette.steel}
       />
@@ -156,7 +175,7 @@ export function ValveGear() {
       <Handle actions={['openSmallValve']}>
         <Wheel
           ref={smallWheel}
-          position={[SMALL_VALVE.x, SMALL_VALVE.y, Z + 0.12]}
+          position={[SMALL_VALVE.x, SMALL_VALVE.y, VALVE_LINE_Z + 0.12]}
           radius={SMALL_VALVE.radius}
           spokes={6}
           tire={false}

@@ -22,6 +22,13 @@ interface HandleProps {
     target: Vec3 | null
     /** What dropping it on the target does, when not just playing its action. */
     drop?: () => void
+    /**
+     * Whether it is where it should be let go, when the part itself knows
+     * better than the pointer's distance to the target (a lever swung down).
+     */
+    home?: () => boolean
+    /** Whether it stays in its own plane, not lifted toward the viewer (a lever on its pivot). */
+    inPlace?: boolean
     move: (point: Vector3 | null, at?: { x: number; y: number }) => void
   }
   /** Narrows when it can be worked, past the sequence waiting for its action. */
@@ -62,6 +69,7 @@ function gestureOf(action: Action, drag: boolean): Gesture {
 export function Handle({ actions, drag, when, children }: HandleProps) {
   const sequence = useSequence()
   const { camera, gl } = useThree()
+  const get = useThree((state) => state.get)
   const group = useRef<Group>(null)
   const latestDrag = useRef(drag)
   useEffect(() => {
@@ -85,6 +93,17 @@ export function Handle({ actions, drag, when, children }: HandleProps) {
   })
   // A dragged part shows its own colors while carried: only what is turned stays lit.
   const lit = action !== null && (hovered || held) && !(held && drag)
+  // In the free view, a part under the pointer takes the mouse: the view
+  // holds still while it is worked.
+  const working = action !== null && (hovered || held)
+  useEffect(() => {
+    const controls = get().controls as { enabled: boolean } | null
+    if (!controls || !working) return
+    controls.enabled = false
+    return () => {
+      controls.enabled = true
+    }
+  }, [get, working])
   useEffect(() => {
     if (group.current) glow(group.current, lit)
   }, [lit])
@@ -128,9 +147,13 @@ export function Handle({ actions, drag, when, children }: HandleProps) {
       trackTurn(onScreen, (turns) => sequence.turn(now, turns), release)
     } else if (drag) {
       // Lifted toward the viewer, so it passes in front of everything on its way.
-      const toViewer = camera.getWorldDirection(new Vector3()).multiplyScalar(-LIFT)
+      const toViewer = camera
+        .getWorldDirection(new Vector3())
+        .multiplyScalar(drag.inPlace ? 0 : -LIFT)
       // The latest target: it can change on the way.
       const onTarget = (at: { x: number; y: number }) => {
+        const home = latestDrag.current?.home
+        if (home) return home()
         const goal = latestDrag.current?.target
         if (!goal) return false
         const target = toScreen(new Vector3(...goal), camera, gl.domElement)
