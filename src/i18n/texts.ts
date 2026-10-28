@@ -21,6 +21,8 @@ export interface Texts {
   orbit: string
   secret: string
   language: string
+  /** The signature: before the heart, the heart read aloud, after it (then the author's link). */
+  madeWith: [string, string, string]
   /** The title plate as the page opens: above the title, under it, and closing it. */
   splashKicker: string
   splashTagline: string
@@ -29,7 +31,7 @@ export interface Texts {
 
 export const TEXTS: Record<Language, Texts> = {
   fr: {
-    title: 'Fridge to the Future : le réfrigérateur de Doc Brown',
+    title: 'The Fridge Timeback Machine : le réfrigérateur de Doc Brown',
     scene: 'Le réfrigérateur de Doc Brown',
     hints: {
       idle: 'Glissez les bûches de Doc dans le poêle, dans l’ordre : verte, jaune, rouge.',
@@ -53,24 +55,25 @@ export const TEXTS: Record<Language, Texts> = {
     count: (seen, total) => `${seen} / ${total} fins`,
     endings: {
       served: 'Thé glacé',
-      boilerExplodes: 'Explosion',
-      gaugesBurst: 'Manomètres en éclats',
-      pipeBurst: 'Tuyau arraché',
+      boilerExplodes: 'Boom !!',
+      gaugesBurst: 'L’écran s’est éteint d’un coup',
+      pipeBurst: 'Arrachage en règle',
       water: 'Eau du robinet',
-      cubeOnFloor: 'Glaçon par terre',
-      noIce: 'Froid sans glaçon',
-      wheelOff: 'Volant arraché',
+      cubeOnFloor: 'Il ne tombera pas plus bas',
+      noIce: 'Où est le glaçon ?',
+      wheelOff: 'Ça m’est resté dans les mains',
     },
     hidden: '????',
     orbit: 'Mode rotation',
     secret: 'Toutes les fins débloquent un mode secret.',
     language: 'Langue',
+    madeWith: ['Fait avec ', 'amour', ' par '],
     splashKicker: 'Hill Valley, 1885',
     splashTagline: 'Le réfrigérateur à vapeur de Doc Brown',
     close: 'Fermer',
   },
   en: {
-    title: 'Fridge to the Future: Doc Brown’s refrigerator',
+    title: 'The Fridge Timeback Machine: Doc Brown’s refrigerator',
     scene: 'Doc Brown’s refrigerator',
     hints: {
       idle: 'Drag Doc’s logs into the stove, in order: green, yellow, red.',
@@ -94,18 +97,19 @@ export const TEXTS: Record<Language, Texts> = {
     count: (seen, total) => `${seen} / ${total} endings`,
     endings: {
       served: 'Iced tea',
-      boilerExplodes: 'Explosion',
-      gaugesBurst: 'Shattered gauges',
-      pipeBurst: 'Torn-off pipe',
+      boilerExplodes: 'Boom!!',
+      gaugesBurst: 'The screen went dark all at once',
+      pipeBurst: 'A proper tearing-off',
       water: 'Tap water',
-      cubeOnFloor: 'Ice on the floor',
-      noIce: 'Cold, no ice',
-      wheelOff: 'Wheel came off',
+      cubeOnFloor: 'It won’t fall any lower',
+      noIce: 'Where’s the ice cube?',
+      wheelOff: 'It came off in my hands',
     },
     hidden: '????',
     orbit: 'Rotation mode',
     secret: 'Every ending unlocks a secret mode.',
     language: 'Language',
+    madeWith: ['Made with ', 'love', ' by '],
     splashKicker: 'Hill Valley, 1885',
     splashTagline: 'Doc Brown’s steam-powered refrigerator',
     close: 'Close',

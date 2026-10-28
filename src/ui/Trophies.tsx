@@ -99,6 +99,22 @@ export function Trophies({ endings, orbit, onOrbit }: TrophiesProps) {
             ) : (
               <p className="text-center text-sm text-[#8a7458] italic">{t.secret}</p>
             )}
+            <p className="mt-4 text-center text-xs tracking-wide text-[#8a7458]">
+              {t.madeWith[0]}
+              <span aria-hidden="true" className="text-[#c0503a]">
+                ♥
+              </span>
+              <span className="sr-only">{t.madeWith[1]}</span>
+              {t.madeWith[2]}
+              <a
+                href="https://github.com/YavaDeus"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[#d9b25f] underline decoration-[#b07d36]/60 underline-offset-2 hover:text-[#f0cf7f] focus-visible:outline-2 focus-visible:outline-[#f0cf7f]"
+              >
+                YavaDeus
+              </a>
+            </p>
           </div>
         </Plate>
       )}

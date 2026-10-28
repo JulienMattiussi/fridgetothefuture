@@ -118,7 +118,8 @@ L'échec s'affiche alors, sans détail, après deux secondes de casse.
 Chaque fin (le thé glacé, et chaque casse) est numérotée (`lib/endings.ts`) et
 gardée dans le localStorage une fois vue. Une coupe en bas à droite les liste
 (« ???? » pour celles pas encore vues) et s'agite à chaque nouvelle fin.
-Toutes vues, elle offre le mode rotation (la vue libre). Les
+Toutes vues, elle offre le mode rotation (la vue libre). La liste est signée « Fait avec ♥ par
+YavaDeus », lien vers https://github.com/YavaDeus. Les
 fenêtres suivent le style de la machine : plaque de cuir sertie de laiton
 riveté (`ui/Plate.tsx`). Le sifflet a été retiré du modèle, donc
 de la séquence.
