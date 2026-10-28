@@ -1,6 +1,6 @@
 // The page speaks the browser's language: these tests read it in French.
 import { expect, test, type Page } from '@playwright/test'
-import type { Action } from '@/lib/sequence'
+import type { Action } from '@/lib/steps'
 import type { SequenceStore } from '@/three/sequence/store'
 
 test.use({ locale: 'fr-FR' })

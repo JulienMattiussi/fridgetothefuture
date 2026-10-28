@@ -1,8 +1,9 @@
 import { useFrame } from '@react-three/fiber'
 import { type ReactNode, useRef } from 'react'
 import type { Group } from 'three'
-import type { Failure } from '@/lib/sequence'
+import type { Failure } from '@/lib/steps'
 import { useSequence } from '@/three/sequence/context'
+import { brokenFor } from '@/lib/readouts'
 
 /** Hides its children `after` seconds into the breakdown `on`: blown to bits. */
 export function Vanish({
@@ -17,8 +18,8 @@ export function Vanish({
   const sequence = useSequence()
   const group = useRef<Group>(null)
   useFrame(() => {
-    const failure = sequence?.readouts.failure
-    if (group.current) group.current.visible = !(failure?.kind === on && failure.since >= after)
+    const since = sequence ? brokenFor(sequence.readouts, on) : -1
+    if (group.current) group.current.visible = since < after
   })
   return <group ref={group}>{children}</group>
 }

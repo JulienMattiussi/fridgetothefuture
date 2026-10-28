@@ -2,6 +2,7 @@ import {
   atX,
   beltRuns,
   beltWraps,
+  easeStep,
   evenAngles,
   helixPoints,
   lerp,
@@ -194,5 +195,13 @@ describe('atX', () => {
   it('finds the point of a line at a given X, inside or past its ends', () => {
     expect(atX([0, 0, 0], [2, 4, 6], 1)).toEqual([1, 2, 3])
     expect(atX([0, 0, 0], [2, 4, 6], 3)).toEqual([3, 6, 9])
+  })
+})
+
+describe('easeStep', () => {
+  it('eases none of the way in no time, most of it in a few settling times', () => {
+    expect(easeStep(0, 0.5)).toBe(0)
+    expect(easeStep(0.5, 0.5)).toBeCloseTo(1 - Math.exp(-1))
+    expect(easeStep(2.5, 0.5)).toBeGreaterThan(0.99)
   })
 })

@@ -3,7 +3,7 @@
  * break down. The visitor collects them; an ending not yet seen keeps its
  * name hidden.
  */
-import type { Failure } from '@/lib/sequence'
+import type { Failure } from '@/lib/steps'
 
 /** An ending: the iced tea served, or a breakdown. */
 export type Ending = 'served' | Failure

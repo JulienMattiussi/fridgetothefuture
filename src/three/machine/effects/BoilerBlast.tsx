@@ -6,6 +6,8 @@ import { palette } from '@/three/palette'
 import { ToonMesh } from '@/three/parts/ToonMesh'
 import { useSequence } from '@/three/sequence/context'
 import { Burst } from '@/three/machine/effects/Burst'
+import { brokenFor } from '@/lib/readouts'
+import { ignorePointer } from '@/three/parts/ignorePointer'
 
 const FIRE = ['#fff3b0', '#ffd04a', '#ff9a2a', '#e8541c']
 const FLASH = '#ffb347'
@@ -13,7 +15,6 @@ const FLASH = '#ffb347'
 const FIREBALL = { count: 16, reach: 0.9, life: 1.1 }
 const PLATES = 14
 const GRAVITY = 9.8
-const ignorePointer = () => {}
 
 /** A seeded spread in [0, 1): the same blast every time. */
 const spread = (i: number, k: number) => (Math.sin(i * 12.9898 + k * 78.233) * 43758.5453) % 1
@@ -45,8 +46,7 @@ export function BoilerBlast({ at }: { at: Vec3 }) {
     [],
   )
   useFrame(() => {
-    const failure = sequence?.readouts.failure
-    const t = failure?.kind === 'boilerExplodes' ? failure.since : -1
+    const t = sequence ? brokenFor(sequence.readouts, 'boilerExplodes') : -1
     if (group.current) group.current.visible = t >= 0
     if (t < 0) return
     if (light.current) light.current.intensity = 60 * Math.exp(-t * 5)

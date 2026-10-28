@@ -3,11 +3,13 @@ import { useMemo, useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import type { Group } from 'three'
 import { dialDesign, dialTicks, needleTemper } from '@/lib/gaugeDial'
-import type { Readouts } from '@/lib/sequence'
+import type { Readouts } from '@/lib/readouts'
 import { palette } from '@/three/palette'
 import { GaugeShatter } from '@/three/parts/GaugeShatter'
 import { ToonMesh } from '@/three/parts/ToonMesh'
 import { useSequence } from '@/three/sequence/context'
+import { brokenFor } from '@/lib/readouts'
+import { easeStep } from '@/lib/geometry'
 
 type GaugeProps = ThreeElements['group'] & {
   radius?: number
@@ -69,7 +71,7 @@ export function Gauge({
       pressure: sequence.readouts.pressure,
       stir: 0,
     }
-    shown.current += (pressure ** temper.curve - shown.current) * (1 - Math.exp(-dt / temper.lag))
+    shown.current += (pressure ** temper.curve - shown.current) * easeStep(dt, temper.lag)
     const t = sequence.time * temper.swingRate
     const amplitude = temper.swing * shaking + STIR_SWING * stir
     const swing = amplitude * (0.7 * Math.sin(t) + 0.3 * Math.sin(2.3 * t + 1))
@@ -77,8 +79,7 @@ export function Gauge({
     needleRef.current.rotation.z = -(rest + (reading - rest) * shown.current + swing)
     // Bursting, each a moment after the other: the needle comes loose and
     // drops, spinning (GaugeShatter breaks the glass).
-    const failure = sequence.readouts.failure
-    const burst = failure?.kind === 'gaugesBurst' ? failure.since - burstDelay : -1
+    const burst = brokenFor(sequence.readouts, 'gaugesBurst') - burstDelay
     if (burst > 0) {
       needleRef.current.position.set(
         0.15 * burst,

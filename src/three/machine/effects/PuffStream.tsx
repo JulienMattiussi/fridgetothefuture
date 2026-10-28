@@ -1,12 +1,11 @@
 import { useFrame } from '@react-three/fiber'
 import { useRef } from 'react'
 import type { Group, Mesh, MeshToonMaterial } from 'three'
-import type { Readouts } from '@/lib/sequence'
+import type { Readouts } from '@/lib/readouts'
 import type { Vec3 } from '@/lib/geometry'
 import { ToonMesh } from '@/three/parts/ToonMesh'
 import { useSequence } from '@/three/sequence/context'
-
-const ignorePointer = () => {}
+import { ignorePointer } from '@/three/parts/ignorePointer'
 
 interface PuffStreamProps {
   at: Vec3

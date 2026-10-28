@@ -1,5 +1,5 @@
 import type { ComponentProps } from 'react'
-import type { Readouts } from '@/lib/sequence'
+import { brokenFor, type Readouts } from '@/lib/readouts'
 import { Pipe } from '@/three/parts/Pipe'
 import { Shaking } from '@/three/machine/effects/Shaking'
 import { PipeFittings } from '@/three/machine/pipework/PipeFittings'
@@ -27,7 +27,7 @@ function shake({ points, radius = 0.06 }: PipeRun) {
 }
 
 /** Whether the big pipe has torn off the dome. */
-const tornOff = ({ failure }: Readouts) => (failure?.kind === 'pipeBurst' ? 1 : 0)
+const tornOff = (readouts: Readouts) => (brokenFor(readouts, 'pipeBurst') >= 0 ? 1 : 0)
 
 /** The vat's lines rumble with its steam, then knock with the engine. */
 const vatRumble = ({ shaking, stir }: Readouts) => Math.max(shaking, 0.8 * stir)

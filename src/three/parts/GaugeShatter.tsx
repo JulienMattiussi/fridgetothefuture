@@ -4,6 +4,7 @@ import { DoubleSide, type Group, type Mesh } from 'three'
 import { palette } from '@/three/palette'
 import { ToonMesh } from '@/three/parts/ToonMesh'
 import { useSequence } from '@/three/sequence/context'
+import { brokenFor } from '@/lib/readouts'
 
 const SHARDS = 9
 const CRACKS = 6
@@ -42,8 +43,7 @@ export function GaugeShatter({ radius: r, front, delay }: GaugeShatterProps) {
     [r],
   )
   useFrame(() => {
-    const failure = sequence?.readouts.failure
-    const t = failure?.kind === 'gaugesBurst' ? failure.since - delay : -1
+    const t = (sequence ? brokenFor(sequence.readouts, 'gaugesBurst') : -1) - delay
     if (group.current) group.current.visible = t > 0
     if (t <= 0) return
     shards.current.forEach((shard, i) => {

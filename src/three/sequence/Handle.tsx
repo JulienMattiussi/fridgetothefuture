@@ -3,11 +3,12 @@ import { useFrame, useThree, type ThreeEvent } from '@react-three/fiber'
 import { type ReactNode, useEffect, useRef, useState } from 'react'
 import { Box3, type Group, type Material, type Mesh, Vector3 } from 'three'
 import type { Vec3 } from '@/lib/geometry'
-import { isTurn, turnWay, type Action } from '@/lib/sequence'
+import { isTurn, turnWay, type Action } from '@/lib/steps'
 import { useSequence } from '@/three/sequence/context'
 import type { SequenceStore } from '@/three/sequence/store'
 import { DropSign, type Gesture, GestureSign } from '@/three/sequence/GestureSign'
 import { toScreen, trackDrag, trackTurn } from '@/three/sequence/gestures'
+import { usePartPointer } from '@/three/sequence/usePartPointer'
 
 interface HandleProps {
   /** What working the part does, by phase: the first one the sequence waits for counts. */
@@ -44,13 +45,6 @@ const DROP_REACH = 90
 /** How far toward the viewer a dragged part comes, in meters. */
 const LIFT = 0.8
 
-/**
- * The part that set the pointer's cursor last, and the parts the pointer is
- * on or working: shared by all the parts, as a part left hands over to the next.
- */
-let cursorOwner: symbol | null = null
-const workedParts = new Set<symbol>()
-
 /** Lights the toon meshes under `group` up, or puts them back. */
 function glow(group: Group, on: boolean) {
   group.traverse((object) => {
@@ -76,9 +70,7 @@ function gestureOf(action: Action, drag: boolean): Gesture {
 export function Handle({ actions, drag, when, children }: HandleProps) {
   const sequence = useSequence()
   const { camera, gl } = useThree()
-  const get = useThree((state) => state.get)
   const group = useRef<Group>(null)
-  const [id] = useState(() => Symbol('handle'))
   const latestDrag = useRef(drag)
   useEffect(() => {
     latestDrag.current = drag
@@ -101,44 +93,24 @@ export function Handle({ actions, drag, when, children }: HandleProps) {
   })
   // A dragged part shows its own colors while carried: only what is turned stays lit.
   const lit = action !== null && (hovered || held) && !(held && drag)
-  // In the free view, a part under the pointer takes the mouse: the view
-  // holds still while it is worked.
-  const working = action !== null && (hovered || held)
-  useEffect(() => {
-    const controls = get().controls as { enabled: boolean } | null
-    if (!controls || !working) return
-    workedParts.add(id)
-    controls.enabled = false
-    return () => {
-      // Another part may have the pointer by now: the view frees only once none has.
-      workedParts.delete(id)
-      if (workedParts.size === 0) controls.enabled = true
-    }
-  }, [get, working, id])
   useEffect(() => {
     if (group.current) glow(group.current, lit)
   }, [lit])
-  useEffect(() => {
-    if (!hovered && !held) return
-    const gesture = action && gestureOf(action, !!drag)
-    cursorOwner = id
-    document.body.style.cursor = held
+  // The pointer: the free view holds still while a part is worked, and the
+  // cursor shows the gesture (the carried part stands in for it).
+  const gesture = action && gestureOf(action, !!drag)
+  usePartPointer(
+    action !== null && (hovered || held),
+    held
       ? drag
-        ? // The carried part stands in for the pointer.
-          'none'
+        ? 'none'
         : 'grabbing'
-      : !gesture
-        ? ''
-        : gesture === 'click'
+      : hovered && gesture
+        ? gesture === 'click'
           ? 'pointer'
           : 'grab'
-    return () => {
-      // Left for another part, the cursor is that part's now: leave it be.
-      if (cursorOwner !== id) return
-      cursorOwner = null
-      document.body.style.cursor = ''
-    }
-  }, [hovered, held, action, drag, id])
+        : null,
+  )
 
   const middle = () => new Box3().setFromObject(group.current!).getCenter(new Vector3())
   const onOver = (event: ThreeEvent<PointerEvent>) => {

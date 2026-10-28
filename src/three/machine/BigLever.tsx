@@ -1,7 +1,7 @@
 import { useFrame } from '@react-three/fiber'
 import { useRef } from 'react'
 import type { Group, Vector3 } from 'three'
-import type { Vec3 } from '@/lib/geometry'
+import { type Vec3, easeStep } from '@/lib/geometry'
 import { palette } from '@/three/palette'
 import { Beam } from '@/three/parts/Beam'
 import { ToonMesh } from '@/three/parts/ToonMesh'
@@ -78,7 +78,7 @@ export function BigLever() {
   useFrame((_, dt) => {
     if (!lever.current || pulled.current) return
     const goal = DOWN * (sequence?.readouts.lever ?? 0)
-    lever.current.rotation.x += (goal - lever.current.rotation.x) * (1 - Math.exp(-dt / EASE))
+    lever.current.rotation.x += (goal - lever.current.rotation.x) * easeStep(dt, EASE)
   })
   const move = (point: Vector3 | null) => {
     pulled.current = point !== null

@@ -118,7 +118,7 @@ L'échec s'affiche alors, sans détail, après deux secondes de casse.
 Chaque fin (le thé glacé, et chaque casse) est numérotée (`lib/endings.ts`) et
 gardée dans le localStorage une fois vue. Une coupe en bas à droite les liste
 (« ???? » pour celles pas encore vues) et s'agite à chaque nouvelle fin.
-Toutes vues, elle offre le mode rotation (la vue libre de `?orbit`). Les
+Toutes vues, elle offre le mode rotation (la vue libre). Les
 fenêtres suivent le style de la machine : plaque de cuir sertie de laiton
 riveté (`ui/Plate.tsx`). Le sifflet a été retiré du modèle, donc
 de la séquence.
@@ -160,7 +160,9 @@ src/
     geometry.ts         Segments, interpolation, angles, cercles, courroies, hélice
     gaugeDial.ts        Le dessin des cadrans de manomètre, tiré de leur taille
     framing.ts          Recul de caméra pour cadrer la scène
-    sequence.ts         La séquence du film : étapes, clics, durées, ce que la machine montre
+    steps.ts            La séquence : phases dans l'ordre, étapes (clics, poignées), pièges, durées, état
+    sequence.ts         Ses règles : ce que fait chaque action, dans l'ordre ou non, et le temps qui passe
+    readouts.ts         Ce que la machine montre dans un état donné (poignées, moteur, froid, glaçon, casse)
     endings.ts          Les fins, numérotées, et celles déjà vues
     language.ts         La langue à afficher : choix gardé, sinon celle du navigateur
     stoking.ts          Le minutage d'une bûche qui entre dans le poêle (porte, bûche)
@@ -176,9 +178,11 @@ src/
     palette.ts          Les couleurs de la scène
     sequence/           La séquence en direct : store (état + horloge), context,
                         SequenceClock, Handle (pièce à cliquer, glisser ou tourner),
-                        gestures (suivi de la souris), GestureSign, useTurn
+                        gestures (suivi de la souris), GestureSign, useTurn,
+                        usePartPointer (curseur et blocage de la vue, partagés entre pièces)
     parts/              Briques réutilisables
       ToonMesh.tsx      Mesh cell shading + contour (base de tout le reste)
+      ignorePointer.ts  Pour qu'un mesh (vapeur, débris) laisse passer la souris
       Rod.tsx, Beam.tsx Barre ronde / poutre carrée d'un point à un autre
       Pipe.tsx          Tuyau d'un seul tube, coudes arrondis (roundedPath)
       Flange.tsx        Bride boulonnée, là où un tuyau se fixe à une cuve ou un appareil
@@ -203,6 +207,7 @@ src/
       CrankCoil (unité de la bobine : blocs, bobine, manchon, manivelle),
       CoilStand (son bâti en bois), Tanks, Stove, Workbench
       BigLever.tsx      Le grand levier derrière les engrenages, qu'on baisse
+      SideWheel.tsx     Le petit volant piège à droite des engrenages
       Bellows.tsx       Le soufflet rond du plancher, poussé par sa manivelle
       LogPile.tsx       Le tas de bûches et les trois bûches de Doc à glisser dans le poêle
       Basin.tsx, Tongs.tsx La bassine qu'on lève, la pince qui porte le glaçon
@@ -214,7 +219,7 @@ src/
                         (bouche du conduit froid, ficelles, bague, sortie de vapeur)
     stable/Stable.tsx   L'écurie : sol, mur de planches, poutres
 tests/
-  unit/                 Tests Vitest de src/lib
+  unit/                 Tests Vitest de src/lib (play.ts : rejouer une partie)
   e2e/                  Tests Playwright
 docs/references/        Images de référence du film
 ```
@@ -225,10 +230,10 @@ docs/references/        Images de référence du film
 orbitale. `FrontCamera` recule la caméra pour que le cadre (`FRAME`,
 `three/viewFrame.ts`) tienne entier quelle que soit la forme de la fenêtre.
 
-**Inspection** : ajouter `?orbit` à l'URL (http://localhost:1885/?orbit), ou
-débloquer toutes les fins, rend la souris libre de tourner autour de la
-machine, pour la vérifier pendant la modélisation. Sans cela, la vue reste
-fixe.
+**Mode rotation** : une fois toutes les fins vues, un interrupteur de la liste
+des succès rend la souris libre de tourner autour de la machine (`OrbitControls`) ;
+les zooms de la séquence y glissent toujours vers la zone. Aucune option d'URL ne
+l'active.
 
 **Toujours en paysage** : en portrait, `index.css` fait pivoter la page d'un
 quart de tour, et le canvas mesure sa taille `offsetSize` (insensible à la

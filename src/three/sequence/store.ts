@@ -1,24 +1,14 @@
-import {
-  act,
-  advance,
-  availableActions,
-  initialState,
-  load,
-  readouts,
-  turn,
-  type Action,
-  type Readouts,
-  type SequenceState,
-  type TurnAction,
-} from '@/lib/sequence'
+import { type Readouts, readouts } from '@/lib/readouts'
+import { act, advance, availableActions, load, turn } from '@/lib/sequence'
+import { type Action, initialState, type SequenceState, type TurnAction } from '@/lib/steps'
 
 /** Engine turns per second at full speed. */
 const ENGINE_RATE = 1.2
 
 /**
  * The live sequence: the pure state machine, ticked by the render loop. Parts
- * read it every frame (no React render); the overlay subscribes to its phase
- * changes to redraw its buttons.
+ * read it every frame (no React render); the overlay subscribes to its
+ * changes (`version`) to redraw its hint and verdict.
  */
 export function createSequenceStore() {
   let state: SequenceState = initialState

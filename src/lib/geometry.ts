@@ -144,3 +144,9 @@ export function lerp(a: Vec3, b: Vec3, t: number): Vec3 {
 export function atX(a: Vec3, b: Vec3, x: number): Vec3 {
   return lerp(a, b, (x - a[0]) / (b[0] - a[0]))
 }
+
+/**
+ * How much of the way to its goal a value eases in `dt` seconds, going
+ * smoothly (exponentially), about `time` seconds to settle: 0 to 1.
+ */
+export const easeStep = (dt: number, time: number) => 1 - Math.exp(-dt / time)

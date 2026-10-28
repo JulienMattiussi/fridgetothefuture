@@ -1,7 +1,7 @@
 import { useFrame } from '@react-three/fiber'
 import { useRef } from 'react'
 import { type Group, type Mesh, Path, Shape } from 'three'
-import { CRANK_TURNS } from '@/lib/sequence'
+import { CRANK_TURNS } from '@/lib/steps'
 import { palette } from '@/three/palette'
 import { Beam } from '@/three/parts/Beam'
 import { CopperCoil } from '@/three/parts/CopperCoil'

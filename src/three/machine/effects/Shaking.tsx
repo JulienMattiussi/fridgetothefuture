@@ -1,7 +1,7 @@
 import { useFrame } from '@react-three/fiber'
 import { type ReactNode, useRef } from 'react'
 import type { Group } from 'three'
-import type { Readouts } from '@/lib/sequence'
+import type { Readouts } from '@/lib/readouts'
 import { useSequence } from '@/three/sequence/context'
 
 interface ShakingProps {

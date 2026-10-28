@@ -1,7 +1,7 @@
 import { useFrame } from '@react-three/fiber'
 import { useRef } from 'react'
 import { DoubleSide, type Group, type Vector3 } from 'three'
-import type { Vec3 } from '@/lib/geometry'
+import { type Vec3, easeStep } from '@/lib/geometry'
 import { palette } from '@/three/palette'
 import { ToonMesh } from '@/three/parts/ToonMesh'
 import { useSequence } from '@/three/sequence/context'
@@ -34,9 +34,10 @@ export function Basin({ onMove }: { onMove: (at: Vector3) => void }) {
     const up = sequence?.readouts.basin ?? 0
     const goal = REST[1] + basinLift * up
     const { position } = basin.current
-    position.y += (goal - position.y) * (1 - Math.exp(-dt / EASE))
-    position.x += (REST[0] - position.x) * (1 - Math.exp(-dt / EASE))
-    position.z += (REST[2] - position.z) * (1 - Math.exp(-dt / EASE))
+    const step = easeStep(dt, EASE)
+    position.y += (goal - position.y) * step
+    position.x += (REST[0] - position.x) * step
+    position.z += (REST[2] - position.z) * step
   })
   const move = (point: Vector3 | null) => {
     if (!basin.current) return

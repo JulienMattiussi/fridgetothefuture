@@ -1,10 +1,12 @@
 import { useFrame } from '@react-three/fiber'
 import { useRef } from 'react'
 import type { Group, Mesh, MeshToonMaterial } from 'three'
-import type { Failure } from '@/lib/sequence'
+import type { Failure } from '@/lib/steps'
 import type { Vec3 } from '@/lib/geometry'
 import { ToonMesh } from '@/three/parts/ToonMesh'
 import { useSequence } from '@/three/sequence/context'
+import { brokenFor } from '@/lib/readouts'
+import { ignorePointer } from '@/three/parts/ignorePointer'
 
 interface BurstProps {
   /** The breakdown that sets it off, and where. */
@@ -19,8 +21,6 @@ interface BurstProps {
   life?: number
 }
 
-const ignorePointer = () => {}
-
 /**
  * A one-off blast: puffs flung out every way from `at` as the machine breaks
  * down `on`, swelling, slowing and fading.
@@ -30,8 +30,7 @@ export function Burst({ on, at, count, reach, size, colors, life = 2.5 }: BurstP
   const group = useRef<Group>(null)
   const puffs = useRef<(Mesh | null)[]>([])
   useFrame(() => {
-    const failure = sequence?.readouts.failure
-    const t = failure?.kind === on ? failure.since : -1
+    const t = sequence ? brokenFor(sequence.readouts, on) : -1
     const live = t >= 0 && t < life
     if (group.current) group.current.visible = live
     if (!live) return

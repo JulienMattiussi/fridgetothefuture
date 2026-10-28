@@ -1,9 +1,10 @@
 import { useFrame } from '@react-three/fiber'
 import { type ReactNode, useRef } from 'react'
 import type { Group } from 'three'
-import type { Failure } from '@/lib/sequence'
+import type { Failure } from '@/lib/steps'
 import type { Vec3 } from '@/lib/geometry'
 import { useSequence } from '@/three/sequence/context'
+import { brokenFor } from '@/lib/readouts'
 
 /** How far it swings out, torn off, in radians, and how long it whips about. */
 const SWING = 0.45
@@ -18,8 +19,7 @@ export function Tear({ on, pivot, children }: { on: Failure; pivot: Vec3; childr
   const swing = useRef<Group>(null)
   useFrame(() => {
     if (!swing.current) return
-    const failure = sequence?.readouts.failure
-    const t = failure?.kind === on ? failure.since : 0
+    const t = Math.max(0, sequence ? brokenFor(sequence.readouts, on) : -1)
     const out = Math.min(1, t / 0.25)
     const whip = 0.12 * Math.sin(t * 25) * Math.max(0, 1 - t / WHIP)
     swing.current.rotation.z = -(SWING * out + whip * out)

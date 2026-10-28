@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { Vector3 } from 'three'
 import type { Vec3 } from '@/lib/geometry'
-import type { Readouts } from '@/lib/sequence'
+import type { Readouts } from '@/lib/readouts'
 import { PuffStream } from '@/three/machine/effects/PuffStream'
 
 /** Frozen air: white with icy blue glints. */

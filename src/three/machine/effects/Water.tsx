@@ -5,6 +5,7 @@ import type { Vec3 } from '@/lib/geometry'
 import { ToonMesh } from '@/three/parts/ToonMesh'
 import { useSequence } from '@/three/sequence/context'
 import { layout } from '@/three/machine/layout'
+import { brokenFor } from '@/lib/readouts'
 
 const WATER = '#5f93bd'
 /** How long the basin takes to fill, then how wide the overflow spreads, and how fast. */
@@ -25,8 +26,7 @@ export function Water({ mouth, floor }: { mouth: Vec3; floor: number }) {
   const level = useRef<Mesh>(null)
   const drop = mouth[1] - floor
   useFrame(() => {
-    const failure = sequence?.readouts.failure
-    const t = failure?.kind === 'water' ? failure.since : -1
+    const t = sequence ? brokenFor(sequence.readouts, 'water') : -1
     if (group.current) group.current.visible = t >= 0
     if (t < 0) return
     // The stream reaches down in a blink, wobbling.

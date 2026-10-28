@@ -1,7 +1,7 @@
 import { useFrame, useThree } from '@react-three/fiber'
 import { useEffect, useRef } from 'react'
 import { type Group, Plane, Raycaster, Vector2, Vector3 } from 'three'
-import type { Readouts } from '@/lib/sequence'
+import { brokenFor, type Readouts } from '@/lib/readouts'
 import type { Vec3 } from '@/lib/geometry'
 import { palette } from '@/three/palette'
 import { Pipe } from '@/three/parts/Pipe'
@@ -25,7 +25,7 @@ const AT: Vec3 = [BODY[0], BODY[1], VALVE_GEAR_Z + 0.11]
 const RADIUS = 0.065
 /** How far toward the viewer it comes, off the spindle, if not held. */
 const OFF = 0.35
-const leaking = ({ failure }: Readouts) => (failure?.kind === 'wheelOff' ? 1 : 0)
+const leaking = (readouts: Readouts) => (brokenFor(readouts, 'wheelOff') >= 0 ? 1 : 0)
 
 export function SideWheel() {
   const sequence = useSequence()
@@ -68,9 +68,10 @@ export function SideWheel() {
   }
   useFrame(() => {
     if (!wheel.current || !sequence) return
-    const { sideWheel, failure } = sequence.readouts
+    const { sideWheel } = sequence.readouts
+    const t = brokenFor(sequence.readouts, 'wheelOff')
     const w = wheel.current
-    if (failure?.kind !== 'wheelOff') {
+    if (t < 0) {
       off.current = null
       w.position.set(...AT)
       w.rotation.set(0, 0, sideWheel * 2 * Math.PI)
@@ -78,7 +79,6 @@ export function SideWheel() {
     }
     // Off the spindle: in the hand while the button is held (or just out in
     // front, without a mouse), then dropping to the floor and lying there.
-    const t = failure.since
     off.current ??= {
       held: pointer.current.down,
       from: new Vector3(AT[0] + 0.08, AT[1] + 0.12, AT[2] + OFF),

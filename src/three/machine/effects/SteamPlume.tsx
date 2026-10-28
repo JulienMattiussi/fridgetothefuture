@@ -1,5 +1,5 @@
 import type { Vec3 } from '@/lib/geometry'
-import type { Readouts } from '@/lib/sequence'
+import type { Readouts } from '@/lib/readouts'
 import { palette } from '@/three/palette'
 import { PuffStream } from '@/three/machine/effects/PuffStream'
 

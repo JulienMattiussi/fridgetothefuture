@@ -1,6 +1,6 @@
 import type { Group } from 'three'
 import type { Vec3 } from '@/lib/geometry'
-import { turnWay } from '@/lib/sequence'
+import { turnWay } from '@/lib/steps'
 import { palette } from '@/three/palette'
 import { BevelGear } from '@/three/parts/BevelGear'
 import { Gear } from '@/three/parts/Gear'
