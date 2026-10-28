@@ -4,7 +4,10 @@ import { Pipe } from '@/three/parts/Pipe'
 import { Shaking } from '@/three/machine/effects/Shaking'
 import { PipeFittings } from '@/three/machine/pipework/PipeFittings'
 import { PipeGauges } from '@/three/machine/pipework/PipeGauges'
-import { pipes, vatLines } from '@/three/machine/pipework/pipes'
+import { pipes, tornPipe, vatLines } from '@/three/machine/pipework/pipes'
+import { RED_DROP_END } from '@/three/machine/pipework/anchors'
+import { PuffStream } from '@/three/machine/effects/PuffStream'
+import { Tear } from '@/three/machine/effects/Tear'
 
 type PipeRun = ComponentProps<typeof Pipe>
 
@@ -40,9 +43,37 @@ export function Pipework() {
           level={vatLines.has(pipe) ? vatRumble : undefined}
           {...shake(pipe)}
         >
-          <Pipe {...pipe} />
+          {pipe === tornPipe ? (
+            <Tear on="pipeBurst" pivot={pipe.points[0]!}>
+              <Pipe {...pipe} />
+            </Tear>
+          ) : (
+            <Pipe {...pipe} />
+          )}
         </Shaking>
       ))}
+      {/* Torn off the dome, the big pipe leaves a hole spraying steam and water everywhere. */}
+      <PuffStream
+        at={RED_DROP_END}
+        count={40}
+        life={0.9}
+        color={['#ffffff', '#e4e1d8', '#9cc3e0']}
+        opacity={0.95}
+        fadeFrom={0.5}
+        strength={({ failure }) => (failure?.kind === 'pipeBurst' ? 1 : 0)}
+        puff={(i, age) => {
+          const angle = i * 2.39996
+          const out = 1.4 * age
+          return {
+            position: [
+              Math.cos(angle) * out,
+              0.8 * age - 1.6 * age * age,
+              Math.sin(angle) * out * 0.6,
+            ],
+            scale: 0.6 + 2.5 * age,
+          }
+        }}
+      />
       <Shaking amplitude={0.003} seed={pipes.length + 1}>
         <PipeFittings />
         <PipeGauges />

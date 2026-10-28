@@ -77,22 +77,41 @@ deux montants, et l'appui des poteaux sur l'essieu.
    dessous, un seul glaçon y tombe. Il le prend à la pince et le met dans son
    verre de thé : « Iced tea? »
 
-**Dans la page** (`lib/sequence.ts`), le visiteur joue Doc et Marty, avec
-les pièces ou les boutons de l'interface (un bouton tourne la poignée tout
-seul). Les pièces actionnables s'allument au survol, un signe au-dessus
-montre le geste (`three/sequence/Handle.tsx`) : un clic, un glisser-déposer,
-ou un cercle de la souris, bouton enfoncé, autour d'une roue ou d'une
-manivelle, dans le bon sens (vers la gauche pour ouvrir). Les étapes, choix
-assumés au-delà du film : glisser dans le poêle, dans l'ordre, les trois bûches spéciales de Doc
-(rayées, numérotées 1 à 3 à la façon Playmobil, posées sur un tas de bûches
-ordinaires devant, le poêle étant caché ; `machine/LogPile.tsx`), ouvrir
-la petite vanne en bas à droite (son manomètre grimpe), monter à l'échelle
-(un clic, la vue se rapproche un peu de la cuve), ouvrir la vanne du haut de
-la cuve (ses tuyaux se mettent à vibrer, leurs manomètres à réagir, puis le
-moteur démarre), tourner la manivelle (le manchon glisse), ouvrir la grande
-vanne de cuivre (le froid jaillit du conduit, le glaçon tombe), présenter la
-bassine (la vue se rapproche un peu, pour l'arrivée du glaçon), et prendre le
-glaçon à la pince. Le sifflet a été retiré du modèle, donc de la séquence.
+**Dans la page** (`lib/sequence.ts`), le visiteur joue Doc et Marty, sur les
+pièces seulement (l'interface n'affiche que la consigne et « Recommencer »).
+Les pièces s'allument au survol, un signe au-dessus montre le geste
+(`three/sequence/Handle.tsx`) : un clic, un glisser-déposer (bûches, bassine,
+pince), ou un cercle de la souris, bouton enfoncé, autour d'une roue ou d'une
+manivelle, dans le bon sens (la consigne le dit : les vannes alternent).
+
+Les étapes, choix assumés au-delà du film :
+
+1. glisser dans le poêle les trois bûches spéciales de Doc, dans l'ordre :
+   verte, jaune, rouge (à la façon Playmobil, sur un tas de bûches ordinaires
+   devant, le poêle étant caché ; `machine/LogPile.tsx`) ;
+2. ouvrir la petite vanne en bas à droite (son manomètre grimpe) ;
+3. monter à l'échelle (un clic, la vue se rapproche de la cuve), ouvrir la
+   vanne du haut (ses tuyaux vibrent, leurs manomètres réagissent, puis le
+   moteur démarre) ;
+4. tourner la manivelle (le manchon fait plusieurs allers-retours, la vapeur
+   jaillit du haut) ;
+5. ouvrir la grande vanne de cuivre (le froid jaillit du conduit, la vue
+   plonge sur la bassine) ;
+6. lever la bassine sous le conduit : le froid retombe, le glaçon tombe deux
+   secondes plus tard, la bassine redescend avec lui ;
+7. prendre le glaçon à la pince et le porter dans le verre : réussite.
+
+Hors de l'ordre, toute pièce reste actionnable. Selon le cas, la machine casse
+aussitôt, ou rien ne se passe mais la partie finira forcément par une casse
+(au plus tard quand le froid devrait venir) : manomètres qui éclatent,
+chaudière qui explose, gros tuyau arraché qui gicle, eau au lieu du glaçon,
+glaçon par terre, ou froid sans glaçon (règles dans `lib/sequence.ts`).
+L'échec s'affiche alors, sans détail.
+
+Chaque fin (le thé glacé, et chaque casse) est numérotée (`lib/endings.ts`) et
+gardée dans le localStorage une fois vue. Une coupe en bas à droite les liste
+(« ???? » pour celles pas encore vues) et s'agite à chaque nouvelle fin. Le sifflet a été retiré du modèle, donc
+de la séquence.
 
 ---
 
@@ -132,8 +151,10 @@ src/
     gaugeDial.ts        Le dessin des cadrans de manomètre, tiré de leur taille
     framing.ts          Recul de caméra pour cadrer la scène
     sequence.ts         La séquence du film : étapes, clics, durées, ce que la machine montre
+    endings.ts          Les fins, numérotées, et celles déjà vues
     stoking.ts          Le minutage d'une bûche qui entre dans le poêle (porte, bûche)
-  ui/Controls.tsx       L'interface superposée : consigne et boutons de la séquence
+  ui/Controls.tsx       L'interface superposée : consigne, fin de partie, « Recommencer »
+  ui/Trophies.tsx       La coupe des fins vues ; endingsStore.ts les garde (localStorage)
   three/                Rendu 3D (composants R3F, hooks three.js)
     Scene.tsx           Canvas et lumières
     FrontCamera.tsx     Caméra fixe de face, recadrée selon la fenêtre
@@ -167,8 +188,10 @@ src/
       CoilStand (son bâti en bois), Tanks, Stove, Workbench
       Bellows.tsx       Le soufflet rond du plancher, poussé par sa manivelle
       LogPile.tsx       Le tas de bûches et les trois bûches de Doc à glisser dans le poêle
+      Basin.tsx, Tongs.tsx La bassine qu'on lève, la pince qui porte le glaçon
       FireDoor.tsx      La porte du poêle, qui s'ouvre sur les flammes à chaque bûche
-      effects/          Vapeur et jet froid (PuffStream), glaçon, secousses
+      effects/          Vapeur et jet froid (PuffStream), glaçon, secousses, casses
+                        (Burst, Tear, Vanish, Water)
       pipework/         Les tuyaux : anchors.ts (points partagés), pipes.ts (tracés
                         par série), PipeGauges (manomètres sur tuyau), PipeFittings
                         (bouche du conduit froid, ficelles, bague, sortie de vapeur)

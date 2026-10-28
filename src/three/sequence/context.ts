@@ -8,7 +8,8 @@ export function useSequence() {
   return useContext(SequenceContext)
 }
 
-/** The sequence's phase, re-rendering on each change: for the overlay's buttons. */
+/** The sequence's phase, re-rendering on each change the overlay shows. */
 export function usePhase(store: SequenceStore) {
-  return useSyncExternalStore(store.subscribe, () => store.phase)
+  useSyncExternalStore(store.subscribe, () => store.version)
+  return store.phase
 }

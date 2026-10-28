@@ -23,7 +23,42 @@ const rowY = (row: number) => WOOD.radius * (1 + 1.75 * row)
 const PLAIN = [
   ...[-0.3, -0.18, -0.06, 0.06, 0.18, 0.3].map((x) => ({ x, row: 0 })),
   ...[-0.24, -0.12, 0, 0.12, 0.24].map((x) => ({ x, row: 1 })),
-].map(({ x, row }) => ({ x, y: rowY(row) }))
+].map(({ x, row }) => ({
+  x,
+  y: rowY(row),
+  // The top row's right end log rolls off when the machine shakes hard (the left one
+  // would roll under the coil stand).
+  rolls: row === 1 && x > 0.2 ? 1 : 0,
+}))
+/** How hard the machine must shake to roll them off, how far they roll, and how long it takes. */
+const ROLL = { shaking: 0.7, distance: 0.32, time: 0.8 }
+
+/** A plain log of the pile; one at the top row's end rolls off as the machine shakes hard. */
+function PlainLog({ x, y, rolls }: { x: number; y: number; rolls: number }) {
+  const sequence = useSequence()
+  const log = useRef<Group>(null)
+  const started = useRef<number | null>(null)
+  useFrame(() => {
+    if (!rolls || !sequence || !log.current) return
+    const { shaking, logs } = sequence.readouts
+    // Back on the pile after a reset (the stove empty again).
+    if (logs.length === 0) started.current = null
+    else if (started.current === null && shaking >= ROLL.shaking) started.current = sequence.time
+    const p =
+      started.current === null ? 0 : Math.min(1, (sequence.time - started.current) / ROLL.time)
+    const along = rolls * ROLL.distance * p
+    log.current.position.set(logPile.x + x + along, y - (y - WOOD.radius) * p * p, logPile.z)
+    // Rolling, it turns about its own length (back to front).
+    log.current.rotation.z = -along / WOOD.radius
+  })
+  return (
+    <group ref={log} position={[logPile.x + x, y, logPile.z]}>
+      <ToonMesh rotation={[Math.PI / 2, 0, 0]} color={palette.woodDark}>
+        <cylinderGeometry args={[WOOD.radius, WOOD.radius * 1.05, WOOD.length, 10]} />
+      </ToonMesh>
+    </group>
+  )
+}
 /**
  * Doc's special logs stacked on top, back to front like the others, to go in
  * in their order: green 1 on top, taken first, over yellow 2 and red 3.
@@ -41,14 +76,14 @@ const SPECIAL = [
 /** On the pile, the logs lie back to front: a quarter turn from the special log's own X. */
 const LYING = Math.PI / 2
 
-/** One special log: dragged to the stove door when its turn comes, then sliding in. */
+/** One special log: dragged to the stove door, then sliding in. */
 function SpecialLog({ index }: { index: number }) {
   const sequence = useSequence()
   const log = useRef<Group>(null)
   const { color, number, home } = SPECIAL[index]!
   /** Once in: when it went (sequence time), and where and how it lay then. */
   const going = useRef<{ at: number; from: Vector3; turn: number } | null>(null)
-  const isIn = () => (sequence?.readouts.logs ?? 0) > index
+  const isIn = () => sequence?.readouts.logs.includes(number) ?? false
   useFrame(() => {
     if (!log.current || !sequence) return
     if (!isIn()) {
@@ -78,9 +113,11 @@ function SpecialLog({ index }: { index: number }) {
   return (
     <Handle
       actions={['loadStove']}
-      when={(s) => s.readouts.logs === index}
+      // Any log can go in, till it is in: out of their order, the run is doomed.
+      when={() => !isIn()}
       drag={{
         target: DOOR,
+        drop: () => sequence?.load(number),
         // Held, it turns square to the view so its number shows; let go, back on
         // the pile, unless it went in (then it slides in from where it was let go).
         move: (point) => {
@@ -108,15 +145,8 @@ function SpecialLog({ index }: { index: number }) {
 export function LogPile() {
   return (
     <group>
-      {PLAIN.map(({ x, y }) => (
-        <ToonMesh
-          key={`${x}:${y}`}
-          position={[logPile.x + x, y, logPile.z]}
-          rotation={[Math.PI / 2, 0, 0]}
-          color={palette.woodDark}
-        >
-          <cylinderGeometry args={[WOOD.radius, WOOD.radius * 1.05, WOOD.length, 10]} />
-        </ToonMesh>
+      {PLAIN.map((log) => (
+        <PlainLog key={`${log.x}:${log.y}`} {...log} />
       ))}
       {SPECIAL.map((_, i) => (
         <SpecialLog key={i} index={i} />

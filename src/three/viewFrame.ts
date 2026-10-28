@@ -11,17 +11,21 @@ type Point = readonly [number, number, number]
 
 /**
  * The close-ups: the point each closes in on, and how much of the way the
- * camera comes, 0 to 1. Up the ladder, the front of the vat's red cap, its
+ * camera comes, 0 to 1, and how far above the focus it rises to look down
+ * on it. Up the ladder, the front of the vat's red cap, its
  * valve below; at the end, between the duct's mouth, the basin under it and
  * the glass of tea, for the ice cube's arrival.
  */
-export const CLOSE_UPS: Record<'vat' | 'basin', { focus: Point; zoom: number }> = {
+export const CLOSE_UPS: Record<'vat' | 'basin', { focus: Point; zoom: number; rise: number }> = {
   vat: {
     focus: [vat.x, vat.y + vat.height + vat.cap.height / 2, vat.z + vat.cap.radius],
     zoom: 0.2,
+    rise: 0,
   },
   basin: {
     focus: [(ductMouth[0] + teaGlass.x) / 2, (ductMouth[1] + bench.top) / 2, ductMouth[2]],
     zoom: 0.3,
+    // From above, looking down into the basin and the glass.
+    rise: 1.2,
   },
 }

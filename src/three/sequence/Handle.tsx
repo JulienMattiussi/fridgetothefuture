@@ -20,6 +20,8 @@ interface HandleProps {
    */
   drag?: {
     target: Vec3 | null
+    /** What dropping it on the target does, when not just playing its action. */
+    drop?: () => void
     move: (point: Vector3 | null, at?: { x: number; y: number }) => void
   }
   /** Narrows when it can be worked, past the sequence waiting for its action. */
@@ -144,7 +146,10 @@ export function Handle({ actions, drag, when, children }: HandleProps) {
           setOver(onTarget(at))
         },
         (at) => {
-          if (onTarget(at)) sequence.act(now)
+          if (onTarget(at)) {
+            if (drag.drop) drag.drop()
+            else sequence.act(now)
+          }
           drag.move(null)
           setOver(false)
           release()

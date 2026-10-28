@@ -6,6 +6,8 @@ import type { Vec3 } from '@/lib/geometry'
 import { ToonMesh } from '@/three/parts/ToonMesh'
 import { useSequence } from '@/three/sequence/context'
 
+const ignorePointer = () => {}
+
 interface PuffStreamProps {
   at: Vec3
   count: number
@@ -64,6 +66,8 @@ export function PuffStream({
           }}
           color={typeof color === 'string' ? color : color[i % color.length]!}
           opacity={0.5}
+          // Vapor never catches the pointer: the parts show through it to the mouse.
+          raycast={ignorePointer}
           outline={0}
         >
           <sphereGeometry args={[0.1, 16, 12]} />

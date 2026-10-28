@@ -15,6 +15,9 @@ interface IceCubeProps {
   mouth: Vec3
   landing: Vec3
   glass: Vec3
+  /** Missing the basin: it glances off the bench's front edge onto the floor. */
+  edge: Vec3
+  floor: Vec3
   /** Where the basin is, as it moves: the cube rides in it. */
   basin: RefObject<Vector3>
   /** Where the tongs hold it, while they do (Tongs). */
@@ -22,7 +25,7 @@ interface IceCubeProps {
 }
 
 /** The single ice cube: dropping out of the duct, in the basin, in the tongs, then in Doc's tea. */
-export function IceCube({ mouth, landing, glass, basin, held }: IceCubeProps) {
+export function IceCube({ mouth, landing, edge, floor, glass, basin, held }: IceCubeProps) {
   const sequence = useSequence()
   const cube = useRef<Mesh>(null)
   useFrame(() => {
@@ -32,6 +35,9 @@ export function IceCube({ mouth, landing, glass, basin, held }: IceCubeProps) {
     if (where === 'basin') {
       if (held.current) cube.current.position.copy(held.current)
       else cube.current.position.copy(basin.current).setY(basin.current.y + IN_BASIN)
+    } else if (where === 'floor') {
+      const at = fall < 0.5 ? lerp(mouth, edge, fall * 2) : lerp(edge, floor, fall * 2 - 1)
+      cube.current.position.set(...at)
     } else cube.current.position.set(...(where === 'glass' ? glass : lerp(mouth, landing, fall)))
     // It tumbles a little as it falls, and lies flat once landed.
     cube.current.rotation.set(fall * 2.5, fall * 1.3, 0)

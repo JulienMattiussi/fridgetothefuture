@@ -41,7 +41,8 @@ export function FireDoor() {
   const loaded = useRef({ logs: 0, at: -Infinity })
   useFrame(() => {
     if (!sequence) return
-    const { logs, fire } = sequence.readouts
+    const { fire } = sequence.readouts
+    const logs = sequence.readouts.logs.length
     const t = sequence.time
     if (logs !== loaded.current.logs) {
       loaded.current = { logs, at: logs > loaded.current.logs ? t : -Infinity }

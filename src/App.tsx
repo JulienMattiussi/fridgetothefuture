@@ -3,9 +3,12 @@ import { Scene } from '@/three/Scene'
 import { SequenceContext } from '@/three/sequence/context'
 import { createSequenceStore } from '@/three/sequence/store'
 import { Controls } from '@/ui/Controls'
+import { createEndingsStore } from '@/ui/endingsStore'
+import { Trophies } from '@/ui/Trophies'
 
 export default function App() {
   const [sequence] = useState(createSequenceStore)
+  const [endings] = useState(() => createEndingsStore(sequence))
   // `?e2e` hands the sequence to the end-to-end tests, which play it without
   // the mouse gestures.
   useEffect(() => {
@@ -16,7 +19,8 @@ export default function App() {
       <SequenceContext value={sequence}>
         <Scene />
       </SequenceContext>
-      <Controls sequence={sequence} />
+      <Controls sequence={sequence} endings={endings} />
+      <Trophies endings={endings} />
     </main>
   )
 }

@@ -122,14 +122,13 @@ export function Scaffold() {
       >
         <boxGeometry args={[RIGHT_END - 1.55 + 0.15, LOW_PLANK.height, layout.valvePlank.depth]} />
       </ToonMesh>
-      {/* A big spoked wheel inside the frame under the deck, hub on the right post. */}
+      {/* A big wooden wheel inside the frame under the deck, iron-tired, hub on the right post. */}
       <Wheel
         position={UNDER_DECK_WHEEL.at}
         radius={UNDER_DECK_WHEEL.radius}
         spokes={8}
         flatRim
-        tire={false}
-        color={palette.iron}
+        color={palette.wood}
       />
       <Rod
         from={UNDER_DECK_WHEEL.at}

@@ -252,6 +252,9 @@ const thinPipes: PipeRun[] = [
 
 export const pipes: PipeRun[] = [...vatPipes, ...redPipes, ...orangeBluePipes, ...thinPipes]
 
+/** The big pipe that tears off the boiler's dome when the machine breaks down that way. */
+export const tornPipe = redPipes[0]!
+
 /**
  * The pipes out of the vat: they rumble first, as its valve lets the steam
  * down, before the engine runs (the ones round it, the red one down its

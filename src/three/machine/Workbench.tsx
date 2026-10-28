@@ -11,8 +11,22 @@ const { bench } = layout
 const top = bench.top
 
 /** The two flasks' brass stand: a crossbar on two uprights. */
-const STAND = { left: 1.4, right: 1.75, z: 0.5, height: 0.2 }
+const STAND = { x: 1.58, z: 0.5, width: 0.4, depth: 0.18, base: 0.025, height: 0.36, rodZ: 0.43 }
+/**
+ * Its two flasks: their bulb, the cork ring each sits on, their neck's radius;
+ * and how far above the ring the bulb's center sits, resting on it.
+ */
+const FLASK = { radius: 0.08, ring: 0.045, neck: 0.02, seat: Math.sqrt(0.08 ** 2 - 0.045 ** 2) }
+const FLASK_Y = top + STAND.base + 0.014 + FLASK.seat
+/** The clamps hold them at the neck (see Flask: its neck's middle, 1.5 radii up). */
+const NECK_Y = FLASK_Y + FLASK.radius * 1.5
+const FLASKS = [
+  { x: 1.5, liquid: palette.redLiquid },
+  { x: 1.66, liquid: undefined },
+]
 const GLASS = layout.teaGlass
+/** The step stool under the bench, on the floor. */
+const STOOL = { x: 1.35, z: 0.78, width: 0.45, depth: 0.28, height: 0.24 }
 /**
  * Under the bench, at each pair of legs: a square bearer running across under the top,
  * jutting out front and back, and two plank legs nailed on its side, splayed
@@ -63,6 +77,25 @@ export function Workbench() {
   return (
     <group>
       <Table {...bench} legs={false} />
+      {/* A low step stool under the bench, in pale wood: a top on four short legs. */}
+      <ToonMesh position={[STOOL.x, STOOL.height - 0.015, STOOL.z]} color={palette.woodLight}>
+        <boxGeometry args={[STOOL.width, 0.03, STOOL.depth]} />
+      </ToonMesh>
+      {[-1, 1].flatMap((sx) =>
+        [-1, 1].map((sz) => (
+          <ToonMesh
+            key={`${sx}:${sz}`}
+            position={[
+              STOOL.x + sx * (STOOL.width / 2 - 0.03),
+              (STOOL.height - 0.03) / 2,
+              STOOL.z + sz * (STOOL.depth / 2 - 0.03),
+            ]}
+            color={palette.woodLight}
+          >
+            <boxGeometry args={[0.04, STOOL.height - 0.03, 0.04]} />
+          </ToonMesh>
+        )),
+      )}
       {/* Under the boiler: a thick plank flat on the floor, and two big planks
           slanting up from it at the back to the top's underside at the front. */}
       <ToonMesh position={[layout.boiler.x, SILL.thickness / 2, SILL.z]} color={palette.wood}>
@@ -107,24 +140,42 @@ export function Workbench() {
           </group>
         )
       })}
-      {/* Flask stand. */}
-      {[STAND.left, STAND.right].map((x) => (
-        <Rod
-          key={x}
-          from={[x, top, STAND.z]}
-          to={[x, top + STAND.height, STAND.z]}
-          radius={0.008}
-          color={palette.brass}
-        />
-      ))}
+      {/* The flasks' stand: a wooden base, each flask on a cork ring, held at
+          the neck by a brass clamp off an iron retort rod behind them. */}
+      <ToonMesh position={[STAND.x, top + STAND.base / 2, STAND.z]} color={palette.woodDark}>
+        <boxGeometry args={[STAND.width, STAND.base, STAND.depth]} />
+      </ToonMesh>
       <Rod
-        from={[STAND.left, top + STAND.height, STAND.z]}
-        to={[STAND.right, top + STAND.height, STAND.z]}
-        radius={0.008}
-        color={palette.brass}
+        from={[STAND.x, top + STAND.base, STAND.rodZ]}
+        to={[STAND.x, top + STAND.base + STAND.height, STAND.rodZ]}
+        radius={0.01}
+        color={palette.iron}
       />
-      <Flask position={[1.5, top + STAND.height, STAND.z]} liquid={palette.redLiquid} />
-      <Flask position={[1.66, top + STAND.height, STAND.z]} />
+      {FLASKS.map(({ x, liquid }) => (
+        <group key={x}>
+          <ToonMesh
+            position={[x, FLASK_Y - FLASK.seat, STAND.z]}
+            rotation={[Math.PI / 2, 0, 0]}
+            color={palette.hay}
+          >
+            <torusGeometry args={[FLASK.ring, 0.014, 8, 20]} />
+          </ToonMesh>
+          <Flask position={[x, FLASK_Y, STAND.z]} radius={FLASK.radius} liquid={liquid} />
+          <Rod
+            from={[STAND.x, NECK_Y, STAND.rodZ]}
+            to={[x, NECK_Y, STAND.z - FLASK.neck - 0.004]}
+            radius={0.005}
+            color={palette.brass}
+          />
+          <ToonMesh
+            position={[x, NECK_Y, STAND.z]}
+            rotation={[Math.PI / 2, 0, 0]}
+            color={palette.brass}
+          >
+            <torusGeometry args={[FLASK.neck + 0.004, 0.004, 6, 16]} />
+          </ToonMesh>
+        </group>
+      ))}
       {/* Doc's tall graduated glass of tea: foot, stem, flared bowl. */}
       <group position={[GLASS.x, top, GLASS.z]}>
         <ToonMesh position={[0, 0.005, 0]} color={palette.glass} opacity={0.5}>

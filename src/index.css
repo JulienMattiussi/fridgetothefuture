@@ -4,6 +4,20 @@
  * Tailwind v4 no longer sets cursor:pointer on buttons by default.
  * Centralized base rule for all active clickable elements.
  */
+/* The trophy cup's wobble, when a new ending is unlocked. */
+@keyframes wobble {
+  0%,
+  100% {
+    transform: rotate(0) scale(1);
+  }
+  25% {
+    transform: rotate(-14deg) scale(1.15);
+  }
+  75% {
+    transform: rotate(14deg) scale(1.15);
+  }
+}
+
 @layer base {
   button:not(:disabled),
   [role='button']:not(:disabled),

@@ -25,7 +25,7 @@ export function FrontCamera({ still = false }: { still?: boolean }) {
    * closed in (0 to 1), on what, and by how much.
    */
   const base = useRef({ at: new Vector3(), look: new Vector3() })
-  const shot = useRef({ k: 0, focus: new Vector3(), zoom: 0 })
+  const shot = useRef({ k: 0, focus: new Vector3(), zoom: 0, rise: 0 })
 
   useLayoutEffect(() => {
     // Read here, not from a hook's value: three.js cameras are mutated in place.
@@ -51,6 +51,7 @@ export function FrontCamera({ still = false }: { still?: boolean }) {
     if (goal) {
       view.focus.lerp(new Vector3(...goal.focus), step)
       view.zoom += (goal.zoom - view.zoom) * step
+      view.rise += (goal.rise - view.rise) * step
     }
     view.k += (goalK - view.k) * step
     if (Math.abs(goalK - view.k) < 0.001) {
@@ -60,6 +61,7 @@ export function FrontCamera({ still = false }: { still?: boolean }) {
     const { at, look } = base.current
     const near = view.focus.clone()
     near.z += (at.z - near.z) * (1 - view.zoom)
+    near.y += view.rise
     camera.position.lerpVectors(at, near, view.k)
     camera.lookAt(look.clone().lerp(view.focus, view.k))
   })

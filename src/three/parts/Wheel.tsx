@@ -55,7 +55,8 @@ export function Wheel({
       {/* The tire: a flat iron band shrunk round the felloe. */}
       {tire && (
         <ToonMesh rotation={[Math.PI / 2, 0, 0]} color={palette.iron} side={DoubleSide}>
-          <cylinderGeometry args={[radius, radius, rim * 2.6, 48, 1, true]} />
+          {/* As wide as the felloe: a flat one is wider than a round one. */}
+          <cylinderGeometry args={[radius, radius, rim * (flatRim ? 3.2 : 2.6), 48, 1, true]} />
         </ToonMesh>
       )}
       {evenAngles(spokes).map((angle) => (

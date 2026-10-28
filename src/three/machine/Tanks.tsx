@@ -1,5 +1,6 @@
 import type { Group } from 'three'
 import type { Vec3 } from '@/lib/geometry'
+import { turnWay } from '@/lib/sequence'
 import { palette } from '@/three/palette'
 import { Ladder } from '@/three/parts/Ladder'
 import { ToonMesh } from '@/three/parts/ToonMesh'
@@ -31,7 +32,10 @@ const onVatSide = (out: number, y: number): Vec3 => [
  * leaning on its right (docs/references/video-cuve.jpg).
  */
 export function Tanks() {
-  const valve = useTurn<Group>('z', (s) => s.readouts.topValve * 4 * Math.PI)
+  const valve = useTurn<Group>(
+    'z',
+    (s) => s.readouts.topValve * turnWay('openTopValve') * 4 * Math.PI,
+  )
   return (
     <group>
       <ToonMesh position={[vat.x, vat.y + vat.height / 2, vat.z]} color={palette.galvanized}>

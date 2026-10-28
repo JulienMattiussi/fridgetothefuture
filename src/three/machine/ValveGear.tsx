@@ -1,5 +1,6 @@
 import type { Group } from 'three'
 import type { Vec3 } from '@/lib/geometry'
+import { turnWay } from '@/lib/sequence'
 import { palette } from '@/three/palette'
 import { BevelGear } from '@/three/parts/BevelGear'
 import { Gear } from '@/three/parts/Gear'
@@ -55,8 +56,14 @@ const SMALL_PIPE_X = 2.75
  * upright plank nailed across the frame's two planks.
  */
 export function ValveGear() {
-  const bigWheel = useTurn<Group>('z', (s) => s.readouts.mainValve * 4 * Math.PI)
-  const smallWheel = useTurn<Group>('z', (s) => s.readouts.smallValve * 3 * Math.PI)
+  const bigWheel = useTurn<Group>(
+    'z',
+    (s) => s.readouts.mainValve * turnWay('openValve') * 4 * Math.PI,
+  )
+  const smallWheel = useTurn<Group>(
+    'z',
+    (s) => s.readouts.smallValve * turnWay('openSmallValve') * 3 * Math.PI,
+  )
   return (
     <group>
       <Rod

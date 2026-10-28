@@ -3,6 +3,7 @@ import {
   advance,
   availableActions,
   initialState,
+  load,
   readouts,
   turn,
   type Action,
@@ -26,11 +27,17 @@ export function createSequenceStore() {
   let engineAngle = 0
   let time = 0
   const listeners = new Set<() => void>()
+  /** Bumped on each change the overlay shows. */
+  let version = 0
   const set = (next: SequenceState) => {
-    const changed = next.phase !== state.phase
+    // The overlay redraws on a new phase, or the first log in (it can then reset).
+    const changed = next.phase !== state.phase || next.logs.length !== state.logs.length
     state = next
     current = readouts(state)
-    if (changed) listeners.forEach((listener) => listener())
+    if (changed) {
+      version++
+      listeners.forEach((listener) => listener())
+    }
   }
   return {
     get readouts() {
@@ -45,9 +52,14 @@ export function createSequenceStore() {
     get phase() {
       return state.phase
     },
+    get version() {
+      return version
+    },
     actions: () => availableActions(state),
     can: (action: Action) => availableActions(state).includes(action),
     act: (action: Action) => set(act(state, action)),
+    /** Log number `log` went into the stove. */
+    load: (log: number) => set(load(state, log)),
     /** The visitor turned `action`'s handle by `turns`, counterclockwise positive. */
     turn: (action: TurnAction, turns: number) => set(turn(state, action, turns)),
     tick: (dt: number) => {
