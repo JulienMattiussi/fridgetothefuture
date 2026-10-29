@@ -35,6 +35,10 @@ test('the film plays through to the iced tea, then starts over', async ({ page }
   await expect(page.getByText('Fin n°1 débloquée !')).toBeVisible()
   await page.getByRole('button', { name: 'Succès' }).click()
   await expect(page.getByRole('listitem').filter({ hasText: 'Thé glacé' })).toBeVisible()
+  await expect(page.getByRole('link', { name: 'Voir la scène du film' })).toHaveAttribute(
+    'href',
+    /youtube\.com/,
+  )
   await page.getByRole('button', { name: 'Recommencer' }).click()
   await expect(page.getByText('bûches de Doc')).toBeVisible()
   // And in English.

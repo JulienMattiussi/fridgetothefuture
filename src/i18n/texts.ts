@@ -21,6 +21,8 @@ export interface Texts {
   orbit: string
   secret: string
   language: string
+  /** The link to the film's scene, in the list of endings once one is found. */
+  watchScene: string
   /** The signature: before the heart, the heart read aloud, after it (then the author's link). */
   madeWith: [string, string, string]
   /** The title plate as the page opens: above the title, under it, and closing it. */
@@ -67,6 +69,7 @@ export const TEXTS: Record<Language, Texts> = {
     orbit: 'Mode rotation',
     secret: 'Toutes les fins débloquent un mode secret.',
     language: 'Langue',
+    watchScene: 'Voir la scène du film',
     madeWith: ['Fait avec ', 'amour', ' par '],
     splashKicker: 'Hill Valley, 1885',
     splashTagline: 'Le réfrigérateur à vapeur de Doc Brown',
@@ -109,6 +112,7 @@ export const TEXTS: Record<Language, Texts> = {
     orbit: 'Rotation mode',
     secret: 'Every ending unlocks a secret mode.',
     language: 'Language',
+    watchScene: 'Watch the scene from the film',
     madeWith: ['Made with ', 'love', ' by '],
     splashKicker: 'Hill Valley, 1885',
     splashTagline: 'Doc Brown’s steam-powered refrigerator',

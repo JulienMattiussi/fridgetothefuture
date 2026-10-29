@@ -4,6 +4,9 @@ import type { EndingsStore } from '@/ui/endingsStore'
 import { useLanguage } from '@/ui/useLanguage'
 import { Plate, PlateRule, PlateTitle } from '@/ui/Plate'
 
+/** The film's scene, on YouTube. */
+const FILM_SCENE = 'https://www.youtube.com/watch?v=XXJTUusTW4g'
+
 interface TrophiesProps {
   endings: EndingsStore
   /** The free view round the machine, unlocked by seeing every ending. */
@@ -73,6 +76,25 @@ export function Trophies({ endings, orbit, onOrbit }: TrophiesProps) {
               })}
             </ol>
             <PlateRule />
+            {/* Any ending found, the film's scene is a click away. */}
+            <a
+              href={FILM_SCENE}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mb-3 flex items-center justify-center gap-2 rounded-md text-[#f0cf7f] hover:text-[#f4dc98] focus-visible:outline-2 focus-visible:outline-[#f0cf7f]"
+            >
+              <span
+                aria-hidden="true"
+                className="flex h-7 w-7 items-center justify-center rounded-full border border-[#f4dc98]/70"
+              >
+                <svg viewBox="0 0 24 24" className="ml-0.5 h-3.5 w-3.5" fill="currentColor">
+                  <path d="M7 4v16l13-8z" />
+                </svg>
+              </span>
+              <span className="underline decoration-[#b07d36]/60 underline-offset-2">
+                {t.watchScene}
+              </span>
+            </a>
             {all ? (
               <button
                 type="button"
@@ -107,7 +129,7 @@ export function Trophies({ endings, orbit, onOrbit }: TrophiesProps) {
               <span className="sr-only">{t.madeWith[1]}</span>
               {t.madeWith[2]}
               <a
-                href="https://github.com/YavaDeus"
+                href="https://github.com/JulienMattiussi"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-[#d9b25f] underline decoration-[#b07d36]/60 underline-offset-2 hover:text-[#f0cf7f] focus-visible:outline-2 focus-visible:outline-[#f0cf7f]"
